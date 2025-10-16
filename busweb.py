@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from streamlit_option_menu import option_menu
+from streamlit_option_menu import option_menu
 
 # إعداد الصفحة
 st.set_page_config(page_title="Bus Attendance 2025", layout="wide", initial_sidebar_state="collapsed")
@@ -140,3 +141,4 @@ st.sidebar.markdown("### Theme")
 if st.sidebar.button("Toggle Theme"):
     st.session_state.theme = "dark" if st.session_state.theme == "light" else "light"
     st.rerun()
+
