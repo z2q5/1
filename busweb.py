@@ -1,144 +1,165 @@
 import streamlit as st
+import json, os
 import pandas as pd
-from streamlit_option_menu import option_menu
-from streamlit_option_menu import option_menu
+import plotly.express as px
 
-# إعداد الصفحة
-st.set_page_config(page_title="Bus Attendance 2025", layout="wide", initial_sidebar_state="collapsed")
+# -------------------------------
+# إعدادات عامة
+# -------------------------------
+st.set_page_config(page_title="Bus Attendance 2025", layout="wide")
 
-# ---------------------------------------------
-# بيانات الطلاب الأولية
-# ---------------------------------------------
-if "students" not in st.session_state:
-    st.session_state.students = pd.DataFrame([
-        {"id": "777442", "name": "Ahmed", "bus": "1", "status": "Not Set"},
-        {"id": "777443", "name": "Mohammed", "bus": "1", "status": "Not Set"},
-        {"id": "777444", "name": "Sara", "bus": "2", "status": "Not Set"},
-        {"id": "777445", "name": "Laila", "bus": "3", "status": "Not Set"},
-    ])
+# ملف قاعدة البيانات
+DATA_FILE = "attendance.json"
 
-if "theme" not in st.session_state:
-    st.session_state.theme = "light"
+# إنشاء ملف قاعدة البيانات إذا لم يكن موجودًا
+if not os.path.exists(DATA_FILE):
+    data = {
+        "students": {
+            "777442": {"name": "Ahmed", "bus": "1", "status": "Not set"},
+            "777443": {"name": "Mohammed", "bus": "1", "status": "Not set"},
+            "777444": {"name": "Sara", "bus": "2", "status": "Not set"},
+            "777445": {"name": "Laila", "bus": "3", "status": "Not set"},
+            "777446": {"name": "Hassan", "bus": "2", "status": "Not set"},
+            "777447": {"name": "Mona", "bus": "1", "status": "Not set"},
+            "777448": {"name": "Khalid", "bus": "3", "status": "Not set"},
+            "777449": {"name": "Noura", "bus": "1", "status": "Not set"},
+            "777450": {"name": "Omar", "bus": "2", "status": "Not set"},
+            "777451": {"name": "Fatima", "bus": "3", "status": "Not set"},
+        }
+    }
+    with open(DATA_FILE, "w") as f:
+        json.dump(data, f, indent=4)
 
-# ---------------------------------------------
-# الثيمات الحديثة
-# ---------------------------------------------
-def apply_theme():
-    if st.session_state.theme == "dark":
-        st.markdown("""
-        <style>
-        body { background-color: #0E1117; color: #FAFAFA; }
-        .stButton>button { background-color: #1E88E5; color: white; border-radius: 8px; font-weight: 600; }
-        .stSelectbox, .stTextInput>div>div>input { background-color: #1C1C1C !important; color: #FAFAFA !important; border-radius: 8px; }
-        </style>
-        """, unsafe_allow_html=True)
-    else:
-        st.markdown("""
-        <style>
-        body { background-color: #F4F6FB; color: #222222; }
-        .stButton>button { background-color: #1565C0; color: white; border-radius: 8px; font-weight: 600; }
-        .stSelectbox, .stTextInput>div>div>input { background-color: white !important; border-radius: 8px; }
-        </style>
-        """, unsafe_allow_html=True)
+# تحميل البيانات
+def load_data():
+    with open(DATA_FILE, "r") as f:
+        return json.load(f)
 
-apply_theme()
+# حفظ البيانات
+def save_data(data):
+    with open(DATA_FILE, "w") as f:
+        json.dump(data, f, indent=4)
 
-# ---------------------------------------------
-# شريط التنقل
-# ---------------------------------------------
-selected = option_menu(
-    None, ["Student", "Driver", "Admin", "About", "Credits"],
-    icons=["person", "bus-front", "gear", "info-circle", "award"],
-    menu_icon="cast", default_index=0, orientation="horizontal",
-    styles={
-        "container": {"padding": "0!important", "background-color": "#E3F2FD" if st.session_state.theme == "light" else "#212121"},
-        "icon": {"color": "#1565C0", "font-size": "20px"},
-        "nav-link": {"font-size": "17px", "text-align": "center", "margin": "0px"},
-        "nav-link-selected": {"background-color": "#1565C0", "color": "white"},
+# -------------------------------
+# إعداد اللغة
+# -------------------------------
+if "lang" not in st.session_state:
+    st.session_state.lang = "ar"
+
+lang = st.session_state.lang
+
+texts = {
+    "ar": {
+        "title": "نظام حضور الباص - مدرسة المنيرة الخاصة",
+        "student": "دخول الطالب",
+        "driver": "دخول السائق",
+        "admin": "الإدارة",
+        "student_id": "أدخل رقم الوزارة",
+        "go": "سأحضر اليوم",
+        "nogo": "لن أحضر اليوم",
+        "bus_number": "رقم الباص",
+        "password": "كلمة المرور",
+        "login": "تسجيل الدخول",
+        "back": "رجوع",
+        "language": "English",
+        "theme": "تغيير الثيم",
+        "footer": "© 2025 مدرسة المنيرة الخاصة — تطوير: إياد مصطفى (10-B) | تصميم: أيمن جلال",
+        "going": "قادم",
+        "not_going": "غير قادم",
+        "not_set": "لم يحدد",
+        "admin_pass": "كلمة مرور الإدارة غير صحيحة!",
+        "admin_title": "لوحة تحكم الإدارة",
+        "refresh": "تحديث",
+        "download": "تنزيل ملف Excel",
     },
-)
+    "en": {
+        "title": "Bus Attendance System - Al Munira Private School",
+        "student": "Student Login",
+        "driver": "Driver Login",
+        "admin": "Admin Panel",
+        "student_id": "Enter Ministry ID",
+        "go": "Coming Today",
+        "nogo": "Not Coming",
+        "bus_number": "Bus Number",
+        "password": "Password",
+        "login": "Login",
+        "back": "Back",
+        "language": "العربية",
+        "theme": "Toggle Theme",
+        "footer": "© 2025 Al Munira Private School — Developed by Eyad Mustafa (10-B) | Design by Ayman Galal",
+        "going": "Going",
+        "not_going": "Not Going",
+        "not_set": "Not set",
+        "admin_pass": "Invalid admin password!",
+        "admin_title": "Administration Panel",
+        "refresh": "Refresh",
+        "download": "Download Excel File",
+    }
+}
 
-# ---------------------------------------------
-# واجهة الطالب
-# ---------------------------------------------
-if selected == "Student":
-    st.header("🎓 Student Login")
-    sid = st.text_input("Student ID:")
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("✅ Coming"):
-            df = st.session_state.students
-            if sid in list(df["id"]):
-                df.loc[df["id"] == sid, "status"] = "Coming"
-                st.success("Marked as Coming")
-            else:
-                st.error("Invalid ID")
-    with col2:
-        if st.button("❌ Not Coming"):
-            df = st.session_state.students
-            if sid in list(df["id"]):
-                df.loc[df["id"] == sid, "status"] = "Not Coming"
-                st.warning("Marked as Not Coming")
-            else:
-                st.error("Invalid ID")
+t = texts[lang]
 
-# ---------------------------------------------
-# واجهة السائق
-# ---------------------------------------------
-if selected == "Driver":
-    st.header("🚌 Driver View")
-    bus_num = st.text_input("Bus Number:")
-    if st.button("Show Students"):
-        df = st.session_state.students
-        df_bus = df[df["bus"] == bus_num]
-        if not df_bus.empty:
-            st.table(df_bus[["id", "name", "status"]])
-            counts = df_bus["status"].value_counts()
-            st.bar_chart(counts)
-        else:
-            st.error("No students found for this bus.")
+# -------------------------------
+# واجهة عامة
+# -------------------------------
+st.title(t["title"])
 
-# ---------------------------------------------
-# واجهة الإدارة
-# ---------------------------------------------
-if selected == "Admin":
-    st.header("⚙️ Admin Panel")
-    password = st.text_input("Admin Password", type="password", key="adm")
-    if password == "admin2025":
-        st.success("Welcome, Admin!")
-        st.dataframe(st.session_state.students)
-    elif password:
-        st.error("Wrong password")
-
-# ---------------------------------------------
-# نبذة
-# ---------------------------------------------
-if selected == "About":
-    st.header("About the Project")
-    st.write("""
-    **Bus Attendance 2025** is a smart attendance system designed for schools.
-    It allows students to easily mark their attendance, while bus drivers and
-    school admins can track who is coming or not each day.
-    """)
-
-# ---------------------------------------------
-# الكريدتس
-# ---------------------------------------------
-if selected == "Credits":
-    st.header("Credits")
-    st.markdown("""
-    **Project:** Bus Attendance System 2025  
-    **Programming:** Eyad Mustafa  
-    **Graphics:** Ayman Jalal  
-    **School:** Al Munira Private School - Grade 10-B  
-    """)
-    st.markdown("<small>All Rights Reserved © 2025</small>", unsafe_allow_html=True)
-
-# ---------------------------------------------
-# الثيم سويتشر
-# ---------------------------------------------
-st.sidebar.markdown("### Theme")
-if st.sidebar.button("Toggle Theme"):
-    st.session_state.theme = "dark" if st.session_state.theme == "light" else "light"
+# أزرار اللغة والثيم
+col1, col2 = st.columns(2)
+if col1.button(t["language"]):
+    st.session_state.lang = "en" if lang == "ar" else "ar"
     st.rerun()
+theme = col2.selectbox(t["theme"], ["Light", "Dark"])
+if theme == "Dark":
+    st.markdown("<style>body {background-color: #121212; color: white;}</style>", unsafe_allow_html=True)
 
+# -------------------------------
+# الشاشات
+# -------------------------------
+page = st.sidebar.radio("", [t["student"], t["driver"], t["admin"]])
+
+data = load_data()
+
+if page == t["student"]:
+    student_id = st.text_input(t["student_id"], key="student_id_input")
+    if st.button(t["go"]):
+        if student_id in data["students"]:
+            data["students"][student_id]["status"] = "Going"
+            save_data(data)
+            st.success(f"{data['students'][student_id]['name']} {t['going']}")
+        else:
+            st.error("رقم غير صحيح!")
+    if st.button(t["nogo"]):
+        if student_id in data["students"]:
+            data["students"][student_id]["status"] = "Not Going"
+            save_data(data)
+            st.warning(f"{data['students'][student_id]['name']} {t['not_going']}")
+        else:
+            st.error("رقم غير صحيح!")
+
+elif page == t["driver"]:
+    bus_number = st.text_input(t["bus_number"], key="bus_num")
+    password = st.text_input(t["password"], type="password", key="bus_pass")
+    if st.button(t["login"], key="driver_login"):
+        if password == "1111" and bus_number == "1" or password == "2222" and bus_number == "2" or password == "3333" and bus_number == "3":
+            students = [s for s in data["students"].values() if s["bus"] == bus_number]
+            df = pd.DataFrame(students)
+            st.table(df[["name", "status"]])
+        else:
+            st.error("بيانات السائق غير صحيحة!")
+
+elif page == t["admin"]:
+    admin_pass = st.text_input(t["password"], type="password", key="admin_login")
+    if admin_pass == "admin123":
+        st.subheader(t["admin_title"])
+        df = pd.DataFrame(data["students"]).T
+        st.dataframe(df)
+        fig = px.pie(df, names="status", title="Attendance Status Overview")
+        st.plotly_chart(fig)
+        if st.button(t["refresh"]):
+            st.rerun()
+        st.download_button(label=t["download"], data=df.to_csv().encode('utf-8'), file_name="attendance.csv")
+    elif admin_pass:
+        st.error(t["admin_pass"])
+
+st.markdown(f"<hr><center><small>{t['footer']}</small></center>", unsafe_allow_html=True)
