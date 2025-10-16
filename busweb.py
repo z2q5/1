@@ -63,7 +63,7 @@ selected = option_menu(
 if selected.endswith("الطالب") or selected.endswith("Student"):
     st.subheader("👨‍🎓 " + t("تسجيل حالة الحضور", "Mark Attendance"))
     sid = st.text_input(t("رقم الطالب", "Student ID"), key="sid_input")
-    sname = st.text_input(t("اسم الطالب", "Student Name"), key="sname_input")
+    sname = st.text_input(t("(باللغة الانجلزية )اسم الطالب", "Student Name"), key="sname_input")
     bus = st.selectbox(t("رقم الباص", "Bus Number"), ["1", "2", "3"], key="bus_select")
 
     colA, colB = st.columns(2)
@@ -133,3 +133,4 @@ elif selected.endswith("حول") or selected.endswith("About"):
 
 st.markdown("---")
 st.caption("🚧 " + t("النسخة التجريبية • الإصدار النهائي 2025", "Beta Version • Final Edition 2025"))
+
