@@ -1,136 +1,176 @@
 import streamlit as st
-import pandas as pd
+import sqlite3
+import datetime
+import requests
 import matplotlib.pyplot as plt
-from datetime import datetime
 from streamlit_option_menu import option_menu
 
-# إعداد الصفحة
-st.set_page_config(page_title="Bus Attendance System", page_icon="🚌", layout="wide")
+# إعداد قاعدة البيانات
+conn = sqlite3.connect('bus_data.db')
+c = conn.cursor()
 
-# ===================== الحالة العامة =====================
+c.execute('''CREATE TABLE IF NOT EXISTS attendance
+             (student_id TEXT, name TEXT, bus_no TEXT, status TEXT, date TEXT)''')
+conn.commit()
+
+# مفتاح API للطقس
+WEATHER_API_KEY = "a90d21ff18d439b21a8a6795ada3e371"
+CITY = "Abu Dhabi"
+
+# إعداد اللغة
 if "lang" not in st.session_state:
     st.session_state.lang = "ar"
-if "theme" not in st.session_state:
-    st.session_state.theme = "light"
-if "data" not in st.session_state:
-    st.session_state.data = pd.DataFrame(columns=["ID", "Name", "Bus", "Status", "Time"])
 
 def t(ar, en):
     return ar if st.session_state.lang == "ar" else en
 
-# ===================== إعداد الثيم =====================
+# الثيم
+if "theme" not in st.session_state:
+    st.session_state.theme = "light"
+
 def apply_theme():
     if st.session_state.theme == "dark":
-        st.markdown("""
-        <style>
-        body { background-color: #0e1117; color: white; }
-        .stButton button { background-color: #1e90ff; color: white; border-radius: 10px; }
-        </style>
-        """, unsafe_allow_html=True)
-    else:
-        st.markdown("""
-        <style>
-        .stButton button { background-color: #0078d7; color: white; border-radius: 10px; }
-        </style>
-        """, unsafe_allow_html=True)
+        st.markdown(
+            """
+            <style>
+            body {background-color: #121212; color: white;}
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
 
 apply_theme()
 
-# ===================== الشريط العلوي =====================
-col1, col2, col3 = st.columns([2, 1, 1])
-with col1:
-    st.title("🚌 " + t("نظام حضور الباص الذكي", "Smart Bus Attendance System"))
-with col2:
-    lang = st.selectbox("🌐 " + t("اللغة", "Language"), ["ar", "en"], index=0 if st.session_state.lang == "ar" else 1, key="lang_select")
-    st.session_state.lang = lang
-with col3:
-    theme = st.selectbox("🎨 " + t("الثيم", "Theme"), ["light", "dark"], index=0 if st.session_state.theme == "light" else 1, key="theme_select")
-    st.session_state.theme = theme
-apply_theme()
+# الواجهة العلوية
+with st.sidebar:
+    st.title("🚍 " + t("نظام حضور الباص", "Bus Attendance System"))
+    st.markdown("**School: المنيرة الخاصة**")
+    st.markdown("**Project by صف 10-B**")
+    st.markdown("---")
+    lang_choice = st.radio(t("اللغة:", "Language:"), ["العربية", "English"])
+    st.session_state.lang = "ar" if lang_choice == "العربية" else "en"
 
-# ===================== القائمة =====================
+    theme_choice = st.radio(t("الثيم:", "Theme:"), ["فاتح", "داكن"] if st.session_state.lang=="ar" else ["Light", "Dark"])
+    st.session_state.theme = "dark" if theme_choice in ["داكن", "Dark"] else "light"
+    st.markdown("---")
+
+# التنقل بين الصفحات
 selected = option_menu(
-    menu_title=None,
-    options=[t("👨‍🎓 الطالب", "👨‍🎓 Student"),
-             t("🚍 السائق", "🚍 Driver"),
-             t("🏫 الإدارة", "🏫 Admin"),
-             t("💡 حول", "💡 About")],
-    icons=["person", "truck", "gear", "info-circle"],
-    orientation="horizontal",
+    None,
+    [t("👩‍🎓 الطالب", "👩‍🎓 Student"),
+     t("🧑‍✈️ السائق", "🧑‍✈️ Driver"),
+     t("🏫 الإدارة", "🏫 Admin"),
+     t("🌤️ الطقس", "🌤️ Weather"),
+     t("💬 الكريدتس", "💬 Credits")],
+    icons=["person", "truck", "shield", "cloud-sun", "info-circle"],
+    orientation="horizontal"
 )
 
-# ===================== واجهة الطالب =====================
-if selected.endswith("الطالب") or selected.endswith("Student"):
-    st.subheader("👨‍🎓 " + t("تسجيل حالة الحضور", "Mark Attendance"))
-    sid = st.text_input(t("رقم الطالب", "Student ID"), key="sid_input")
-    sname = st.text_input(t("(باللغة الانجلزية )اسم الطالب", "Student Name"), key="sname_input")
-    bus = st.selectbox(t("رقم الباص", "Bus Number"), ["1", "2", "3"], key="bus_select")
+# قائمة الطلاب
+students = {
+    "777442": {"name": "Ahmed", "bus": "1"},
+    "777443": {"name": "Mohammed", "bus": "1"},
+    "777444": {"name": "Sara", "bus": "2"},
+    "777445": {"name": "Laila", "bus": "3"},
+    "777446": {"name": "Hassan", "bus": "2"},
+    "777447": {"name": "Mona", "bus": "1"},
+    "777448": {"name": "Khalid", "bus": "3"},
+    "777449": {"name": "Noura", "bus": "1"},
+    "777450": {"name": "Omar", "bus": "2"},
+    "777451": {"name": "Fatima", "bus": "3"},
+}
 
-    colA, colB = st.columns(2)
-    with colA:
-        if st.button("✅ " + t("سآتي اليوم", "Coming Today"), key="btn_come"):
-            st.session_state.data.loc[len(st.session_state.data)] = [sid, sname, bus, "Coming", datetime.now().strftime("%H:%M")]
-            st.success(t("تم تسجيل حضورك بنجاح!", "Your attendance has been marked!"))
-    with colB:
-        if st.button("❌ " + t("لن آتي اليوم", "Not Coming Today"), key="btn_nocome"):
-            st.session_state.data.loc[len(st.session_state.data)] = [sid, sname, bus, "Not Coming", datetime.now().strftime("%H:%M")]
-            st.warning(t("تم تسجيل غيابك!", "Your absence has been marked!"))
+# باسورد السائقين
+drivers = {"1": "1111", "2": "2222", "3": "3333"}
 
-# ===================== واجهة السائق =====================
-elif selected.endswith("السائق") or selected.endswith("Driver"):
-    st.subheader("🚍 " + t("عرض حالة الطلاب", "View Bus Students"))
-    bus_num = st.selectbox(t("اختر رقم الباص", "Select Bus Number"), ["1", "2", "3"], key="driver_bus_select")
-    df_bus = st.session_state.data[st.session_state.data["Bus"] == bus_num]
+# كلمة مرور الإدارة
+ADMIN_PASS = "admin2025"
 
-    if df_bus.empty:
-        st.info(t("لا توجد بيانات حتى الآن.", "No data available yet."))
-    else:
-        st.dataframe(df_bus, use_container_width=True)
-        coming = len(df_bus[df_bus["Status"] == "Coming"])
-        notcoming = len(df_bus[df_bus["Status"] == "Not Coming"])
-        st.metric(t("القادمون", "Coming Students"), coming)
-        st.metric(t("غير القادمون", "Not Coming Students"), notcoming)
+# واجهة الطالب
+if selected == t("👩‍🎓 الطالب", "👩‍🎓 Student"):
+    st.header(t("تسجيل الحضور", "Mark Attendance"))
+    sid = st.text_input(t("أدخل رقم الوزارة", "Enter Ministry ID"), key="student_id")
+    if sid and sid in students:
+        name = students[sid]["name"]
+        bus = students[sid]["bus"]
+        st.success(f"{t('الطالب', 'Student')} {name} - {t('باص', 'Bus')} {bus}")
+        status = st.radio(t("هل ستحضر اليوم؟", "Will you come today?"), [t("نعم", "Yes"), t("لا", "No")])
+        if st.button(t("إرسال", "Submit")):
+            c.execute("INSERT INTO attendance VALUES (?,?,?,?,?)",
+                      (sid, name, bus, "Going" if status == t("نعم", "Yes") else "Not Going",
+                       datetime.date.today().isoformat()))
+            conn.commit()
+            st.success(t("تم تسجيل حضورك!", "Attendance recorded!"))
+    elif sid:
+        st.error(t("رقم الوزارة غير صحيح", "Invalid ID"))
 
-# ===================== واجهة الإدارة =====================
-elif selected.endswith("الإدارة") or selected.endswith("Admin"):
-    st.subheader("🏫 " + t("لوحة تحكم الإدارة", "Admin Panel"))
-    ap = st.text_input(t("كلمة المرور", "Password"), type="password", key="admin_pass_input")
+# واجهة السائق
+elif selected == t("🧑‍✈️ السائق", "🧑‍✈️ Driver"):
+    st.header(t("تسجيل دخول السائق", "Driver Login"))
+    bus_no = st.text_input(t("رقم الباص", "Bus Number"), key="bus_no")
+    password = st.text_input(t("كلمة المرور", "Password"), type="password", key="bus_pass")
 
-    if ap == "admin123":
-        st.success(t("تم تسجيل الدخول بنجاح!", "Logged in successfully!"))
-        df = st.session_state.data
-        st.dataframe(df, use_container_width=True)
+    if st.button(t("دخول", "Login")):
+        if bus_no in drivers and password == drivers[bus_no]:
+            st.success(t("تم تسجيل الدخول", "Logged in"))
+            st.subheader(f"{t('حالة الطلاب في الباص', 'Students in Bus')} {bus_no}")
+            c.execute("SELECT name, status FROM attendance WHERE bus_no=? AND date=?",
+                      (bus_no, datetime.date.today().isoformat()))
+            data = c.fetchall()
+            if data:
+                for row in data:
+                    st.write(f"👤 {row[0]} — {('✅ قادم' if row[1]=='Going' else '❌ غير قادم')}")
+            else:
+                st.info(t("لا توجد بيانات اليوم.", "No data for today."))
+        else:
+            st.error(t("معلومات غير صحيحة", "Incorrect credentials"))
 
-        # إحصائيات بيانية
-        if not df.empty:
-            st.markdown("### 📊 " + t("الإحصائيات العامة", "Statistics"))
-            stats = df["Status"].value_counts()
-            fig, ax = plt.subplots(figsize=(4, 3))
-            ax.pie(stats, labels=stats.index, autopct='%1.1f%%', startangle=90, colors=["#4CAF50", "#F44336"])
-            ax.axis("equal")
-            st.pyplot(fig)
+# واجهة الإدارة
+elif selected == t("🏫 الإدارة", "🏫 Admin"):
+    st.header(t("تسجيل دخول الإدارة", "Admin Login"))
+    ap = st.text_input(t("كلمة المرور", "Password"), type="password", key="admin_pass")
 
-        csv = df.to_csv(index=False).encode("utf-8")
-        st.download_button("📥 " + t("تحميل السجلات", "Download Records"), csv, "attendance.csv")
-    else:
-        st.warning(t("أدخل كلمة مرور صحيحة (admin123)", "Enter correct password (admin123)"))
+    if ap == ADMIN_PASS:
+        st.success(t("مرحبًا بالإدارة", "Welcome Admin"))
+        st.subheader(t("سجل الحضور الكامل", "Full Attendance Log"))
+        df = st.session_state.get("attendance_df")
+        c.execute("SELECT * FROM attendance")
+        rows = c.fetchall()
+        if rows:
+            st.table(rows)
+        else:
+            st.info(t("لا توجد بيانات بعد", "No attendance yet"))
 
-# ===================== واجهة حول / Credits =====================
-elif selected.endswith("حول") or selected.endswith("About"):
-    st.subheader("💡 " + t("حول المشروع", "About the Project"))
-    st.markdown(f"""
-    ### 🏫 {t("مدرسة المنيرة الخاصة", "Al Munira Private School")}
-    **{t("مشروع نظام حضور الباص الذكي 2025", "Smart Bus Attendance Project 2025")}**
+# واجهة الطقس
+elif selected == t("🌤️ الطقس", "🌤️ Weather"):
+    st.header(t("توقعات الطقس في أبوظبي", "Weather Forecast in Abu Dhabi"))
+    url = f"https://api.openweathermap.org/data/2.5/forecast?q={CITY}&appid={WEATHER_API_KEY}&units=metric&lang=ar"
+    r = requests.get(url)
+    data = r.json()
 
-    👨‍💻 **{t("البرمجة:", "Coding:")}** إياد مصطفى  
-    🎨 **{t("الرسوميات:", "Graphics:")}** أيمن جلال  
-    🧑‍🏫 **{t("الصف:", "Class:")}** 10-B  
-    ⚙️ **{t("جميع الحقوق محفوظة © 2025", "All rights reserved © 2025")}**
+    days = {}
+    for entry in data["list"]:
+        date = entry["dt_txt"].split(" ")[0]
+        if date not in days:
+            days[date] = entry["main"]["temp"]
 
-    ---
-    🧠 {t("النسخة التجريبية • تحت التطوير المستمر", "Beta version • Constantly improving")}
+    plt.figure(figsize=(8, 4))
+    plt.plot(list(days.keys()), list(days.values()), marker='o')
+    plt.title(t("درجات الحرارة المتوقعة", "Expected Temperature"))
+    plt.xticks(rotation=45)
+    st.pyplot(plt)
+
+    st.info(t("الأيام ذات الحرارة العالية قد تشهد غيابًا أكبر.", "High-temp days may have more absences."))
+
+# الكريدتس
+elif selected == t("💬 الكريدتس", "💬 Credits"):
+    st.header(t("عن المشروع", "About the Project"))
+    st.markdown("""
+    **جميع الحقوق محفوظة لمدرسة المنيرة الخاصة 2025**  
+    - 👑 البرمجة والتصميم المنطقي: **إياد مصطفى**  
+    - 🎨 الرسوميات والعرض: **أيمن جلال**  
+    - 🏫 الإشراف الأكاديمي: **صف 10-B**
     """)
-
-st.markdown("---")
-st.caption("🚧 " + t("النسخة التجريبية • الإصدار النهائي 2025", "Beta Version • Final Edition 2025"))
-
+    st.markdown("---")
+    st.info(t("هذا النظام لا يزال تحت التجريب وقد تحدث بعض الأخطاء.", 
+              "This system is under testing and errors may occur."))
