@@ -1,175 +1,144 @@
 import streamlit as st
-import sqlite3
+import pandas as pd
 import datetime
 import requests
-import matplotlib.pyplot as plt
-from streamlit_option_menu import option_menu
 
-# ===== إعداد قاعدة البيانات =====
-conn = sqlite3.connect('bus_data.db')
-c = conn.cursor()
-c.execute('''CREATE TABLE IF NOT EXISTS students
-             (student_id TEXT PRIMARY KEY, name TEXT, grade TEXT, bus_no TEXT)''')
-c.execute('''CREATE TABLE IF NOT EXISTS attendance
-             (student_id TEXT, name TEXT, bus_no TEXT, status TEXT, date TEXT)''')
-conn.commit()
+# ===== إعداد الصفحة =====
+st.set_page_config(page_title="نظام حضور الباص - المنيرة الخاصة", layout="wide")
 
-# ===== مفاتيح النظام =====
-WEATHER_API_KEY = "a90d21ff18d439b21a8a6795ada3e371"
-CITY = "Abu Dhabi"
-ADMIN_PASS = "admin2025"
-drivers = {"1": "1111", "2": "2222", "3": "3333"}
-
-# ===== حالة التطبيق =====
+# ===== الحالة العامة =====
 if "lang" not in st.session_state:
     st.session_state.lang = "ar"
 if "theme" not in st.session_state:
     st.session_state.theme = "light"
+if "page" not in st.session_state:
+    st.session_state.page = "menu"
+if "students" not in st.session_state:
+    st.session_state.students = []
+if "bus_passwords" not in st.session_state:
+    st.session_state.bus_passwords = {"1": "1111", "2": "2222", "3": "3333"}
+if "admin_pass" not in st.session_state:
+    st.session_state.admin_pass = "admin123"
 
+# ===== وظائف اللغة =====
 def t(ar, en):
     return ar if st.session_state.lang == "ar" else en
 
-def apply_theme():
-    if st.session_state.theme == "dark":
-        st.markdown("""
-        <style>
-        body { background-color: #121212; color: white; }
-        .stButton>button { background-color: #1E88E5; color: white; border-radius: 8px; }
-        </style>""", unsafe_allow_html=True)
-apply_theme()
+def switch_lang():
+    st.session_state.lang = "en" if st.session_state.lang == "ar" else "ar"
 
-# ===== الشريط الجانبي =====
-with st.sidebar:
-    st.title("🚍 " + t("نظام حضور الباص", "Bus Attendance System"))
-    st.markdown("🏫 **مدرسة المنيرة الخاصة**")
-    st.markdown("👨‍🎓 **الصف:** 10-B")
-    st.markdown("---")
-
-    lang_choice = st.radio(t("اللغة:", "Language:"), ["العربية", "English"])
-    st.session_state.lang = "ar" if lang_choice == "العربية" else "en"
-
-    theme_choice = st.radio(t("الثيم:", "Theme:"), ["فاتح", "داكن"] if st.session_state.lang=="ar" else ["Light", "Dark"])
-    st.session_state.theme = "dark" if theme_choice in ["داكن", "Dark"] else "light"
+# ===== واجهة العنوان =====
+st.markdown(f"<h1 style='text-align:center;'>{t('🚍 نظام حضور الباص لمدرسة المنيرة الخاصة', '🚍 Al Munira School Bus Attendance')}</h1>", unsafe_allow_html=True)
 
 # ===== شريط التنقل =====
-selected = option_menu(
-    None,
-    [t("👩‍🎓 الطالب", "👩‍🎓 Student"),
-     t("🧑‍✈️ السائق", "🧑‍✈️ Driver"),
-     t("🏫 الإدارة", "🏫 Admin"),
-     t("🌤️ الطقس", "🌤️ Weather"),
-     t("💬 الكريدتس", "💬 Credits")],
-    icons=["person", "truck", "shield", "cloud-sun", "info-circle"],
-    orientation="horizontal"
-)
+menu = st.columns(5)
+with menu[0]:
+    if st.button(t("🧑‍🎓 الطالب", "🧑‍🎓 Student")):
+        st.session_state.page = "student"
+with menu[1]:
+    if st.button(t("🚌 السائق", "🚌 Driver")):
+        st.session_state.page = "driver"
+with menu[2]:
+    if st.button(t("🏫 الإدارة", "🏫 Admin")):
+        st.session_state.page = "admin"
+with menu[3]:
+    if st.button(t("🌟 الكريدتس", "🌟 Credits")):
+        st.session_state.page = "credits"
+with menu[4]:
+    if st.button("🌐 " + t("اللغة", "Language")):
+        switch_lang()
 
-# ===== واجهة الطالب =====
-if selected == t("👩‍🎓 الطالب", "👩‍🎓 Student"):
-    st.header(t("🧾 تسجيل أو حضور الطالب", "🧾 Student Registration or Attendance"))
-    mode = st.radio(t("اختر العملية:", "Choose Action:"), [t("تسجيل جديد", "New Registration"), t("تسجيل حضور", "Mark Attendance")])
+st.markdown("---")
 
-    # تسجيل جديد
-    if mode == t("تسجيل جديد", "New Registration"):
-        sid = st.text_input(t("رقم الوزارة", "Ministry ID"), key="sid")
-        name = st.text_input(t("الاسم الكامل", "Full Name"), key="name")
-        grade = st.text_input(t("الصف الدراسي", "Grade"), key="grade")
-        bus_no = st.text_input(t("رقم الباص", "Bus Number"), key="bus")
+# ===== الطالب =====
+if st.session_state.page == "student":
+    st.subheader(t("تسجيل حضور الطالب", "Student Attendance"))
+    id = st.text_input(t("رقم الوزارة", "Ministry ID"), key="student_id")
+    name = st.text_input(t("اسم الطالب", "Student Name"), key="student_name")
+    grade = st.text_input(t("الصف الدراسي", "Grade"), key="student_grade")
+    bus = st.selectbox(t("رقم الباص", "Bus Number"), ["1", "2", "3"], key="student_bus")
+    status = st.radio(t("الحالة", "Status"), [t("قادم", "Coming"), t("لن يأتي", "Not Coming")], horizontal=True)
+    if st.button(t("إرسال", "Submit")):
+        st.session_state.students.append({
+            "id": id,
+            "name": name,
+            "grade": grade,
+            "bus": bus,
+            "status": "Going" if status == t("قادم", "Coming") else "Not Going",
+            "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        })
+        st.success(t("✅ تم تسجيل الحضور بنجاح", "✅ Attendance submitted successfully"))
 
-        if st.button(t("حفظ", "Save")):
-            if sid and name and grade and bus_no:
-                try:
-                    c.execute("INSERT INTO students VALUES (?,?,?,?)", (sid, name, grade, bus_no))
-                    conn.commit()
-                    st.success(t("تم التسجيل بنجاح!", "Registration successful!"))
-                except sqlite3.IntegrityError:
-                    st.warning(t("هذا الرقم مسجل مسبقًا.", "This ID is already registered."))
-            else:
-                st.error(t("يرجى تعبئة جميع الحقول.", "Please fill all fields."))
-
-    # تسجيل الحضور
-    elif mode == t("تسجيل حضور", "Mark Attendance"):
-        sid = st.text_input(t("أدخل رقم الوزارة", "Enter Ministry ID"), key="sid_attend")
-        if sid:
-            c.execute("SELECT name, bus_no FROM students WHERE student_id=?", (sid,))
-            student = c.fetchone()
-            if student:
-                name, bus_no = student
-                status = st.radio(t("هل ستحضر اليوم؟", "Will you come today?"), [t("نعم", "Yes"), t("لا", "No")])
-                if st.button(t("إرسال", "Submit")):
-                    st_status = "Going" if status == t("نعم", "Yes") else "Not Going"
-                    c.execute("INSERT INTO attendance VALUES (?,?,?,?,?)",
-                              (sid, name, bus_no, st_status, datetime.date.today().isoformat()))
-                    conn.commit()
-                    st.success(t("تم تسجيل حضورك بنجاح!", "Attendance recorded successfully!"))
-            else:
-                st.error(t("الرقم غير مسجل، يرجى التسجيل أولاً.", "ID not found. Please register first."))
-
-# ===== واجهة السائق =====
-elif selected == t("🧑‍✈️ السائق", "🧑‍✈️ Driver"):
-    st.header(t("تسجيل دخول السائق", "Driver Login"))
-    bus_no = st.text_input(t("رقم الباص", "Bus Number"), key="driver_bus")
-    password = st.text_input(t("كلمة المرور", "Password"), type="password", key="driver_pass")
-
+# ===== السائق =====
+elif st.session_state.page == "driver":
+    st.subheader(t("تسجيل دخول السائق", "Driver Login"))
+    bus_num = st.text_input(t("رقم الباص", "Bus Number"))
+    bus_pass = st.text_input(t("كلمة المرور", "Password"), type="password")
     if st.button(t("دخول", "Login")):
-        if bus_no in drivers and password == drivers[bus_no]:
-            st.success(t("تم تسجيل الدخول بنجاح ✅", "Login successful ✅"))
-            c.execute("SELECT name, status FROM attendance WHERE bus_no=? AND date=?", (bus_no, datetime.date.today().isoformat()))
-            data = c.fetchall()
-            if data:
-                for name, status in data:
-                    st.write(f"{'🟢' if status=='Going' else '🔴'} {name} — {t('قادم','Coming') if status=='Going' else t('غير قادم','Not Coming')}")
-            else:
-                st.info(t("لا توجد بيانات اليوم.", "No data for today."))
+        if bus_num in st.session_state.bus_passwords and st.session_state.bus_passwords[bus_num] == bus_pass:
+            st.session_state.driver_logged = bus_num
         else:
-            st.error(t("بيانات الدخول غير صحيحة.", "Incorrect credentials."))
+            st.error(t("❌ بيانات الدخول غير صحيحة", "❌ Invalid credentials"))
 
-# ===== واجهة الإدارة =====
-elif selected == t("🏫 الإدارة", "🏫 Admin"):
-    st.header(t("دخول الإدارة", "Admin Login"))
-    ap = st.text_input(t("كلمة المرور", "Password"), type="password", key="admin_pass")
-
-    if ap == ADMIN_PASS:
-        st.success(t("مرحبًا بك ", "Welcome "))
-        c.execute("SELECT * FROM attendance")
-        rows = c.fetchall()
-        if rows:
-            st.table(rows)
+    if "driver_logged" in st.session_state:
+        st.success(t(f"تم تسجيل الدخول إلى الباص {st.session_state.driver_logged}", f"Logged in to bus {st.session_state.driver_logged}"))
+        data = [s for s in st.session_state.students if s["bus"] == st.session_state.driver_logged]
+        if data:
+            df = pd.DataFrame(data)
+            st.dataframe(df)
         else:
             st.info(t("لا توجد بيانات بعد.", "No data yet."))
 
-# ===== واجهة الطقس =====
-elif selected == t("🌤️ الطقس", "🌤️ Weather"):
-    st.header(t("توقعات الطقس", "Weather Forecast"))
-    try:
-        url = f"https://api.openweathermap.org/data/2.5/forecast?q={CITY}&appid={WEATHER_API_KEY}&units=metric&lang=ar"
-        r = requests.get(url)
-        data = r.json()
-        if "list" in data:
-            days = {}
-            for entry in data["list"]:
-                date = entry["dt_txt"].split(" ")[0]
-                if date not in days:
-                    days[date] = entry["main"]["temp"]
-
-            plt.figure(figsize=(8, 4))
-            plt.plot(list(days.keys()), list(days.values()), marker='o', color='orange')
-            plt.title(t("درجات الحرارة القادمة", "Upcoming Temperatures"))
-            plt.xticks(rotation=45)
-            st.pyplot(plt)
+# ===== الإدارة =====
+elif st.session_state.page == "admin":
+    st.subheader(t("تسجيل دخول الإدارة", "Admin Login"))
+    ap = st.text_input(t("كلمة المرور", "Password"), type="password")
+    if ap == st.session_state.admin_pass:
+        st.success(t("تم تسجيل الدخول بنجاح ✅", "Logged in successfully ✅"))
+        df = pd.DataFrame(st.session_state.students)
+        if not df.empty:
+            df_ar = df.rename(columns={
+                "id": "رقم الوزارة", "name": "اسم الطالب",
+                "grade": "الصف", "bus": "رقم الباص",
+                "status": "الحالة", "time": "الوقت"
+            })
+            st.dataframe(df_ar)
+            csv = df_ar.to_csv(index=False).encode("utf-8-sig")
+            st.download_button(t("📥 تنزيل التقرير (Excel)", "📥 Download Excel Report"), csv, "bus_report.csv", "text/csv")
         else:
-            st.warning(t("فشل في جلب بيانات الطقس.", "Weather data unavailable."))
-    except Exception as e:
-        st.error(t("حدث خطأ في تحميل بيانات الطقس.", "Error loading weather data."))
+            st.info(t("لا توجد بيانات بعد.", "No data yet."))
 
-# ===== الكريدتس =====
-elif selected == t("💬 الكريدتس", "💬 Credits"):
-    st.header(t("عن المشروع", "About the Project"))
+        st.markdown("---")
+        st.subheader(t("🌤️ حالة الطقس وتوقع الغياب", "🌤️ Weather & Absence Prediction"))
+        city = "Abu Dhabi"
+        api_key = "8c1573b4b3ecbfb555c6bb8cc22d7e4d"
+        url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric&lang=ar"
+        res = requests.get(url).json()
+        if res.get("main"):
+            temp = res["main"]["temp"]
+            desc = res["weather"][0]["description"]
+            st.write(f"🌡️ {t('درجة الحرارة الحالية', 'Temperature')}: {temp}°C")
+            st.write(f"☁️ {t('الجو', 'Condition')}: {desc}")
+            if temp > 40:
+                st.warning(t("🔥 الجو حار جدًا، قد يقل الحضور.", "🔥 Very hot, attendance may drop."))
+            elif temp < 20:
+                st.info(t("❄️ الجو بارد قليلًا، الحضور طبيعي.", "❄️ Cool weather, normal attendance."))
+            else:
+                st.success(t("☀️ الجو معتدل، الحضور المتوقع ممتاز.", "☀️ Pleasant weather, excellent attendance."))
+
+# ===== صفحة الكريدتس =====
+elif st.session_state.page == "credits":
+    st.subheader("🎖️ Credits")
     st.markdown("""
-    **جميع الحقوق محفوظة لمدرسة المنيرة الخاصة 2025**  
-    -  البرمجة والتصميم المنطقي: **إياد مصطفى**  
-    -  الرسوميات والعرض: **أيمن جلال**  
-    - 🏫 الإشراف الأكاديمي: **صف 10-B**  
+    ### المشروع: نظام حضور الباص الذكي  
+    - 🧠 **البرمجة:** إياد مصطفى  
+    - 🎨 **الرسوميات والتصميم:** أيمن جلال  
+    - 🏫 **مدرسة المنيرة الخاصة**  
+    - 📚 **الصف:** 10-B  
+    - © جميع الحقوق محفوظة 2025
     """)
-    st.info(t("النظام لا يزال تحت التجريب وقد تحدث بعض الأخطاء.", 
-              "This system is still in beta and minor issues may occur."))
+    st.info("هذا النظام ما زال تحت التجريب، والأخطاء واردة.")
 
+# ===== التذييل =====
+st.markdown("---")
+st.caption("💡 اضغط على الزر أعلاه لتبديل اللغة 🌍 | جميع الحقوق محفوظة لمدرسة المنيرة الخاصة © 2025")
