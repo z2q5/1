@@ -808,7 +808,7 @@ elif st.session_state.page == "admin":
                 <div class='stat-card'>
                     <h3>👥 إجمالي الطلاب</h3>
                     <h2>{len(st.session_state.students_df)}</h2>
-                    <p>طلاب مسجلين في النظام</p>
+                    <p style='font-size: 14px; color: #666;'>عدد الطلاب المسجلين في النظام</p>
                 </div>
                 """, unsafe_allow_html=True)
             
@@ -817,7 +817,7 @@ elif st.session_state.page == "admin":
                 <div class='stat-card'>
                     <h3>✅ الحاضرون اليوم</h3>
                     <h2>{stats['coming']}</h2>
-                    <p>طلاب سيحضرون اليوم</p>
+                    <p style='font-size: 14px; color: #666;'>عدد الطلاب الذين أكدوا حضورهم</p>
                 </div>
                 """, unsafe_allow_html=True)
             
@@ -826,16 +826,16 @@ elif st.session_state.page == "admin":
                 <div class='stat-card'>
                     <h3>📈 نسبة الحضور</h3>
                     <h2>{stats['percentage']:.1f}%</h2>
-                    <p>نسبة الحضور المتوقعة</p>
+                    <p style='font-size: 14px; color: #666;'>نسبة الحضور من إجمالي المسجلين</p>
                 </div>
                 """, unsafe_allow_html=True)
             
             with col4:
                 st.markdown(f"""
                 <div class='stat-card'>
-                    <h3>🚌 الباصات العاملة</h3>
+                    <h3>🚌 الباصات النشطة</h3>
                     <h2>3</h2>
-                    <p>باصات تعمل بكفاءة</p>
+                    <p style='font-size: 14px; color: #666;'>عدد الباصات العاملة اليوم</p>
                 </div>
                 """, unsafe_allow_html=True)
             
