@@ -162,9 +162,8 @@ pages = [
     ("🚌 السائق", "driver"), 
     ("👨‍👩‍👧 أولياء الأمور", "parents"),
     ("🏫 الإدارة", "admin"),
-    ("📊 الإحصائيات", "analytics"),
     ("🌦️ الطقس", "weather"),
-    ("🎯 المسابقة", "competition")
+    ("ℹ️ حول البرنامج", "about")
 ]
 
 cols = st.columns(len(pages))
@@ -292,34 +291,88 @@ elif st.session_state.page == "driver":
 
 # ===== صفحة أولياء الأمور =====
 elif st.session_state.page == "parents":
-    st.subheader(t("👨‍👩‍👧 متابعة أولياء الأمور", "👨‍👩‍👧 Parents Portal"))
+    st.subheader(t("👨‍👩‍👧 بوابة أولياء الأمور", "👨‍👩‍👧 Parents Portal"))
     
-    tab1, tab2, tab3 = st.tabs([t("🔍 متابعة الطالب", "🔍 Track Student"), 
-                               t("📱 إشعارات", "📱 Notifications"),
-                               t("💬 تواصل مع المدرسة", "💬 Contact School")])
+    # قسم الدخول برقم الوزارة
+    st.info(t("🔐 أدخل رقم الوزارة الخاص بابنك/ابنتك للمتابعة", "🔐 Enter your child's Ministry ID to continue"))
     
-    with tab1:
-        parent_id = st.text_input(t("رقم هوية ولي الأمر", "Parent ID Number"))
-        student_id = st.text_input(t("رقم الطالب", "Student ID"))
+    student_id = st.text_input(t("رقم الوزارة للطالب", "Student Ministry ID"), key="parent_student_id")
+    
+    if student_id:
+        # البحث عن الطالب
+        student_info = st.session_state.students_df[st.session_state.students_df["id"] == student_id]
         
-        if st.button(t("عرض حالة الطالب", "Check Student Status")):
-            student_data = st.session_state.df[st.session_state.df["id"] == student_id]
-            if not student_data.empty:
-                latest = student_data.iloc[-1]
-                st.success(f"""
-                **{t('حالة الطالب:', 'Student Status:')}**
-                - {t('الاسم:', 'Name:')} {latest['name']}
-                - {t('الصف:', 'Grade:')} {latest['grade']}
-                - {t('الباص:', 'Bus:')} {latest['bus']}
-                - {t('الحالة:', 'Status:')} {latest['status']}
-                - {t('الوقت:', 'Time:')} {latest['time']}
+        if not student_info.empty:
+            student = student_info.iloc[0]
+            st.success(t(f"مرحباً! تم العثور على الطالب: {student['name']}", f"Welcome! Student found: {student['name']}"))
+            
+            tab1, tab2, tab3 = st.tabs([
+                t("📊 متابعة الحضور", "📊 Attendance Tracking"),
+                t("🚌 معلومات الباص", "🚌 Bus Information"), 
+                t("📞 التواصل", "📞 Contact")
+            ])
+            
+            with tab1:
+                st.subheader(t("متابعة حالة الحضور", "Attendance Status Tracking"))
+                
+                # عرض آخر حالة حضور
+                student_attendance = st.session_state.df[st.session_state.df["id"] == student_id]
+                
+                if not student_attendance.empty:
+                    latest = student_attendance.iloc[-1]
+                    
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.metric(t("آخر حالة", "Latest Status"), 
+                                 t("قادم" if latest["status"] == "قادم" else "لن يأتي", 
+                                   "Coming" if latest["status"] == "قادم" else "Not Coming"))
+                    with col2:
+                        st.metric(t("آخر تحديث", "Last Update"), latest["time"])
+                    
+                    # تاريخ الحضور
+                    st.write(t("**سجل الحضور:**", "**Attendance History:**"))
+                    for _, record in student_attendance.iterrows():
+                        status_emoji = "✅" if record["status"] == "قادم" else "❌"
+                        st.write(f"{status_emoji} {record['date']} - {record['time']} - {record['status']}")
+                else:
+                    st.info(t("لا توجد سجلات حضور حتى الآن.", "No attendance records yet."))
+            
+            with tab2:
+                st.subheader(t("معلومات الباص", "Bus Information"))
+                
+                st.info(f"""
+                **{t('معلومات الباص:', 'Bus Information:')}**
+                - {t('رقم الباص:', 'Bus Number:')} {student['bus']}
+                - {t('وقت الصباح التقريبي:', 'Approximate Morning Time:')} 6:30 صباحاً
+                - {t('وقت الظهيرة التقريبي:', 'Approximate Afternoon Time:')} 2:00 ظهراً
                 """)
-            else:
-                st.error(t("لم يتم العثور على بيانات الطالب", "Student data not found"))
-    
-    with tab2:
-        st.info(t("🔔 سيصلك إشعار عند وصول الباص إلى نقطة التوقف", "🔔 You will receive a notification when the bus arrives at your stop"))
-        st.info(t("📱 يمكنك متابعة موقع الباص لحظة بلحظة", "📱 You can track the bus location in real-time"))
+                
+                # حالة الباص اليوم
+                bus_data_today = st.session_state.df[
+                    (st.session_state.df["bus"] == student["bus"]) & 
+                    (st.session_state.df["date"] == datetime.datetime.now().strftime("%Y-%m-%d"))
+                ]
+                
+                if not bus_data_today.empty:
+                    coming_count = len(bus_data_today[bus_data_today["status"] == "قادم"])
+                    total_count = len(bus_data_today)
+                    st.metric(t("طلاب في الباص اليوم", "Students on Bus Today"), f"{coming_count}/{total_count}")
+            
+            with tab3:
+                st.subheader(t("معلومات التواصل", "Contact Information"))
+                
+                st.write(f"""
+                **{t('للطوارئ والاستفسارات:', 'For Emergencies and Inquiries:')}**
+                
+                📞 {t('رقم المدرسة:', 'School Number:')} 04-1234567  
+                📱 {t('رقم السائق:', 'Driver Number:')} 050-9876543  
+                🏫 {t('مدير النقل:', 'Transport Manager:')} 050-1234567
+                
+                {t('ساعات العمل:', 'Working Hours:')} 7:00 صباحاً - 3:00 عصراً
+                """)
+        
+        else:
+            st.error(t("❌ رقم الوزارة غير صحيح. يرجى التحقق والمحاولة مرة أخرى.", "❌ Invalid Ministry ID. Please check and try again."))
 
 # ===== صفحة الإدارة =====
 elif st.session_state.page == "admin":
@@ -332,7 +385,7 @@ elif st.session_state.page == "admin":
         
         tab1, tab2, tab3, tab4 = st.tabs([
             t("📋 بيانات الحضور", "📋 Attendance Data"),
-            t("📊 التقارير", "📊 Reports"),
+            t("📊 التقارير والإحصائيات", "📊 Reports & Analytics"),
             t("👥 إدارة الطلاب", "👥 Manage Students"),
             t("⚙️ الإعدادات", "⚙️ Settings")
         ])
@@ -353,52 +406,71 @@ elif st.session_state.page == "admin":
                 st.info(t("لا توجد بيانات حضور حتى الآن.", "No attendance records yet."))
         
         with tab2:
-            st.subheader(t("تقارير الحضور", "Attendance Reports"))
-            stats = calculate_attendance_stats()
+            st.subheader(t("📈 التقارير والإحصائيات المتقدمة", "📈 Advanced Reports & Analytics"))
             
+            # إحصائيات سريعة
+            stats = calculate_attendance_stats()
             col1, col2, col3, col4 = st.columns(4)
             col1.metric(t("إجمالي المسجلين", "Total Registered"), stats["total"])
             col2.metric(t("الحضور المتوقع", "Expected Coming"), stats["coming"])
             col3.metric(t("الغياب المتوقع", "Expected Absent"), stats["not_coming"])
             col4.metric(t("نسبة الحضور", "Attendance Rate"), f"{stats['percentage']:.1f}%")
             
-            # رسم بياني
-            if stats["total"] > 0:
-                chart_data = pd.DataFrame({
-                    t('الحالة', 'Status'): [t('حاضر', 'Present'), t('غائب', 'Absent')],
-                    t('العدد', 'Count'): [stats["coming"], stats["not_coming"]]
-                })
-                st.bar_chart(chart_data.set_index(t('الحالة', 'Status')))
+            # المزيد من الإحصائيات
+            if not st.session_state.df.empty:
+                col1, col2, col3, col4 = st.columns(4)
+                
+                total_students = len(st.session_state.students_df)
+                total_records = len(st.session_state.df)
+                unique_days = st.session_state.df["date"].nunique() if "date" in st.session_state.df.columns else 1
+                
+                col1.metric(t("إجمالي الطلاب", "Total Students"), total_students)
+                col2.metric(t("إجمالي التسجيلات", "Total Records"), total_records)
+                col3.metric(t("أيام المتابعة", "Tracking Days"), unique_days)
+                col4.metric(t("متوسط الحضور", "Average Attendance"), f"{stats['percentage']:.1f}%")
+                
+                # تحليل الباصات
+                st.subheader(t("تحليل أداء الباصات", "Bus Performance Analysis"))
+                bus_stats = st.session_state.df.groupby("bus")["status"].apply(lambda x: (x == "قادم").sum()).reset_index()
+                bus_stats.columns = [t('الباص', 'Bus'), t('عدد الحضور', 'Attendance Count')]
+                st.bar_chart(bus_stats.set_index(t('الباص', 'Bus')))
+                
+                # تحليل الصفوف
+                st.subheader(t("تحليل الحضور حسب الصف", "Attendance by Grade Analysis"))
+                grade_stats = st.session_state.df.groupby("grade")["status"].apply(lambda x: (x == "قادم").sum()).reset_index()
+                grade_stats.columns = [t('الصف', 'Grade'), t('عدد الحضور', 'Attendance Count')]
+                st.bar_chart(grade_stats.set_index(t('الصف', 'Grade')))
         
         with tab3:
+            st.subheader(t("إدارة بيانات الطلاب", "Student Data Management"))
             st.dataframe(st.session_state.students_df, use_container_width=True)
+            
+            # إضافة طالب جديد
+            with st.expander(t("إضافة طالب جديد", "Add New Student")):
+                new_id = st.text_input(t("رقم الوزارة", "Ministry ID"))
+                new_name = st.text_input(t("اسم الطالب", "Student Name"))
+                new_grade = st.selectbox(t("الصف", "Grade"), ["10-B", "10-A", "9-A", "9-B", "8-A", "8-B", "7-A", "7-B"])
+                new_bus = st.selectbox(t("الباص", "Bus"), ["1", "2", "3"])
+                new_phone = st.text_input(t("هاتف ولي الأمر", "Parent Phone"))
+                
+                if st.button(t("إضافة طالب", "Add Student")):
+                    new_student = pd.DataFrame([{
+                        "id": new_id,
+                        "name": new_name,
+                        "grade": new_grade,
+                        "bus": new_bus,
+                        "parent_phone": new_phone
+                    }])
+                    st.session_state.students_df = pd.concat([st.session_state.students_df, new_student], ignore_index=True)
+                    save_students(st.session_state.students_df)
+                    st.success(t("تم إضافة الطالب بنجاح!", "Student added successfully!"))
+        
+        with tab4:
+            st.subheader(t("إعدادات النظام", "System Settings"))
+            st.info(t("هنا يمكنك تعديل إعدادات النظام العامة", "Here you can modify general system settings"))
             
     else:
         st.warning(t("أدخل كلمة مرور صحيحة.", "Please enter the correct password."))
-
-# ===== صفحة الإحصائيات =====
-elif st.session_state.page == "analytics":
-    st.subheader(t("📊 لوحة التحليل والبيانات", "📊 Analytics Dashboard"))
-    
-    if st.session_state.df.empty:
-        st.info(t("لا توجد بيانات كافية لعرض التحليلات", "Not enough data for analytics"))
-    else:
-        # إحصائيات عامة
-        col1, col2, col3, col4 = st.columns(4)
-        
-        total_students = len(st.session_state.students_df)
-        total_records = len(st.session_state.df)
-        unique_days = st.session_state.df["date"].nunique() if "date" in st.session_state.df.columns else 1
-        
-        col1.metric(t("إجمالي الطلاب", "Total Students"), total_students)
-        col2.metric(t("إجمالي التسجيلات", "Total Records"), total_records)
-        col3.metric(t("أيام المتابعة", "Tracking Days"), unique_days)
-        col4.metric(t("متوسط الحضور", "Average Attendance"), f"{calculate_attendance_stats()['percentage']:.1f}%")
-        
-        # تحليل الباصات
-        st.subheader(t("تحليل الباصات", "Bus Analysis"))
-        bus_stats = st.session_state.df.groupby("bus")["status"].apply(lambda x: (x == "قادم").sum()).reset_index()
-        st.bar_chart(bus_stats.set_index("bus"))
 
 # ===== صفحة الطقس =====
 elif st.session_state.page == "weather":
@@ -438,12 +510,12 @@ elif st.session_state.page == "weather":
         st.metric(t("الحضور المتوقع", "Predicted Attendance"), f"{predicted_attendance}%", 
                  delta=f"{weather_impact}%")
 
-# ===== صفحة المسابقة =====
-elif st.session_state.page == "competition":
+# ===== صفحة حول البرنامج =====
+elif st.session_state.page == "about":
     st.markdown("""
-    <div style='background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); padding: 3rem; border-radius: 20px; text-align: center; color: white;'>
-        <h1 style='color: #2c3e50;'>🏆 مسابقة الابتكار المدرسي 2025</h1>
-        <h2 style='color: #2c3e50;'>الجائزة: 10,000 درهم إماراتي</h2>
+    <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 3rem; border-radius: 20px; text-align: center; color: white;'>
+        <h1 style='color: white;'>ℹ️ نظام حضور الباص الذكي</h1>
+        <h3 style='color: white;'>مدرسة المنيرة الخاصة - الإصدار 2.0</h3>
     </div>
     """, unsafe_allow_html=True)
     
@@ -452,26 +524,23 @@ elif st.session_state.page == "competition":
     col1, col2 = st.columns([2, 1])
     
     with col1:
-        st.subheader(t("🎯 لماذا يستحق نظامنا الفوز؟", "🎯 Why Our System Deserves to Win?"))
+        st.subheader(t("🎯 حول النظام", "🎯 About the System"))
         
         features = [
-            (t("🚀 نظام متكامل ذكي", "🚀 Complete Smart System"), 
-             t("يشمل كل الأطراف: طلاب، سائقين، أولياء أمور، إدارة", "Includes all stakeholders: students, drivers, parents, administration")),
+            (t("🚀 فكرة النظام", "🚀 System Concept"), 
+             t("نظام متكامل لإدارة حضور طلاب الباص المدرسي باستخدام أحدث التقنيات", "Integrated system for managing school bus attendance using latest technologies")),
             
-            (t("💡 تقنيات مبتكرة", "💡 Innovative Technologies"), 
-             t("دمج الذكاء الاصطناعي، تحليل البيانات، وتوقعات الطقس", "AI integration, data analytics, and weather predictions")),
+            (t("💡 الهدف", "💡 Objective"), 
+             t("تحسين كفاءة النقل المدرسي وتوفير وقت أولياء الأمور وزيادة سلامة الطلاب", "Improve school transport efficiency, save parents' time, and increase student safety")),
             
-            (t("📱 واجهة مستخدم متطورة", "📱 Advanced User Interface"), 
-             t("تصميم عصري سهل الاستخدام يعمل على جميع الأجهزة", "Modern design that works on all devices")),
+            (t("📱 المميزات", "📱 Features"), 
+             t("تسجيل حضور ذكي، متابعة مباشرة، إشعارات فورية، تحليلات متقدمة، وتقارير شاملة", "Smart attendance recording, live tracking, instant notifications, advanced analytics, comprehensive reports")),
             
-            (t("🌍 حل قابل للتطوير", "🌍 Scalable Solution"), 
-             t("يمكن تطبيقه على جميع مدارس الإمارات والدول العربية", "Can be implemented across all UAE schools and Arab countries")),
+            (t("🌍 التقنيات", "🌍 Technologies"), 
+             t("يعتمد على Python, Streamlit, Pandas مع واجهة مستخدم عصرية وسهلة الاستخدام", "Built with Python, Streamlit, Pandas with modern and user-friendly interface")),
             
-            (t("💰 توفير في التكاليف", "💰 Cost Effective"), 
-             t("يقلل من الهدر في الوقت والوقود ويزيد الكفاءة", "Reduces time and fuel waste, increases efficiency")),
-            
-            (t("🔒 أمان عالي", "🔒 High Security"), 
-             t("نظام حماية متعدد الطبقات لحماية بيانات الطلاب", "Multi-layer security protecting student data"))
+            (t("💰 الفوائد", "💰 Benefits"), 
+             t("توفير 40% من وقت الانتظار، خفض 25% من استهلاك الوقود، زيادة رضا المستخدمين 95%", "40% waiting time reduction, 25% fuel consumption decrease, 95% user satisfaction")),
         ]
         
         for title, desc in features:
@@ -479,30 +548,45 @@ elif st.session_state.page == "competition":
                 st.write(desc)
     
     with col2:
-        st.subheader(t("📈 إنجازات النظام", "📈 System Achievements"))
+        st.subheader(t("👥 فريق التطوير", "👥 Development Team"))
         
-        achievements = [
-            t("✅ تغطية كاملة لسلسلة النقل المدرسي", "✅ Complete school transportation coverage"),
-            t("✅ تقليل وقت انتظار الباص 40%", "✅ 40% reduction in bus waiting time"),
-            t("✅ زيادة رضا أولياء الأمور 95%", "✅ 95% parent satisfaction rate"),
-            t("✅ توفير وقود 25% شهرياً", "✅ 25% monthly fuel savings"),
-            t("✅ تقليل الغياب غير المبرر 60%", "✅ 60% reduction in unexplained absences")
+        team = [
+            t("🧠 المطور الرئيسي: إياد مصطفى", "🧠 Lead Developer: Eyad Mustafa"),
+            t("🎨 المصمم: أيمن جلال", "🎨 Designer: Ayman Galal"),
+            t("🏫 المشرف: إدارة المدرسة", "🏫 Supervisor: School Management"),
         ]
         
-        for achievement in achievements:
-            st.write(f"• {achievement}")
+        for member in team:
+            st.write(f"• {member}")
         
         st.markdown("---")
         st.info(t("""
         **مدرسة المنيرة الخاصة**
-        - الراعي الذهبي للمسابقة
-        - رائدة في الابتكار التكنولوجي
-        - حاصلة على جائزة المدرسة المتميزة 2024
+        - 📍 دبي، الإمارات العربية المتحدة
+        - 📞 04-1234567
+        - 🌐 www.almunira-school.ae
+        - 🏆 رائدة في الابتكار التكنولوجي
         """, """
         **Al Munira Private School**
-        - Gold Sponsor of the Competition
-        - Pioneer in Technological Innovation
-        - Winner of Distinguished School Award 2024
+        - 📍 Dubai, UAE
+        - 📞 04-1234567
+        - 🌐 www.almunira-school.ae
+        - 🏆 Pioneer in Technological Innovation
+        """))
+        
+        st.markdown("---")
+        st.success(t("""
+        **الإصدار 2.0 - 2025**
+        - نظام متكامل محسن
+        - واجهة مستخدم أفضل
+        - تقارير متقدمة
+        - أداء أسرع
+        """, """
+        **Version 2.0 - 2025**
+        - Enhanced integrated system
+        - Better user interface
+        - Advanced reports
+        - Faster performance
         """))
 
 # ===== التذييل =====
@@ -521,4 +605,4 @@ with footer_cols[2]:
     st.markdown(t("**فريق التطوير**", "**Development Team**"))
     st.markdown(t("إياد مصطفى - الصف 10-B", "Eyad Mustafa - Grade 10-B"))
 
-st.markdown(f"<div style='text-align:center; color:gray; margin-top: 2rem;'>{t('© 2025 جميع الحقوق محفوظة - مشروع مسابقة الابتكار المدرسي', '© 2025 All Rights Reserved - School Innovation Competition Project')}</div>", unsafe_allow_html=True)
+st.markdown(f"<div style='text-align:center; color:gray; margin-top: 2rem;'>{t('© 2025 جميع الحقوق محفوظة - نظام حضور الباص الذكي', '© 2025 All Rights Reserved - Smart Bus Attendance System')}</div>", unsafe_allow_html=True)
