@@ -128,7 +128,7 @@ translations = {
         "benefits": "الفوائد",
         "development_team": "فريق التطوير",
         "lead_developer": "المطور الرئيسي",
-        "designer": "المصمم",
+        "designer": "مصمم الجرافيك",
         "supervisor": "المشرف",
         
         # الإحصائيات
@@ -203,7 +203,23 @@ translations = {
         "multi_language": "دعم متعدد اللغات",
         "contact_info": "معلومات الاتصال",
         "no_ratings_yet": "لا توجد تقييمات حتى الآن",
-        "rating_distribution": "توزيع التقييمات"
+        "rating_distribution": "توزيع التقييمات",
+        "environmental_club": "قسم النادي البيئي",
+        "graphics_designer": "مصمم الجرافيك",
+        "system_features": "مميزات النظام",
+        "environmental_friendly": "صديق للبيئة",
+        "real_time_monitoring": "مراقبة في الوقت الحقيقي",
+        "smart_analytics": "تحليلات ذكية",
+        "multi_platform": "متعدد المنصات",
+        "easy_to_use": "سهل الاستخدام",
+        "secure_system": "نظام آمن",
+        "cost_effective": "موفر للتكاليف",
+        "time_saving": "موفر للوقت",
+        "parent_communication": "تواصل مع أولياء الأمور",
+        "bus_tracking": "تتبع الباصات",
+        "attendance_management": "إدارة الحضور",
+        "weather_alerts": "تنبيهات الطقس",
+        "reports_generation": "إنشاء التقارير"
     },
     "en": {
         # Main Titles
@@ -297,7 +313,7 @@ translations = {
         "benefits": "Benefits",
         "development_team": "Development Team",
         "lead_developer": "Lead Developer",
-        "designer": "Designer",
+        "designer": "Graphics Designer",
         "supervisor": "Supervisor",
         
         # Statistics
@@ -372,7 +388,23 @@ translations = {
         "multi_language": "Multi-language support",
         "contact_info": "Contact Information",
         "no_ratings_yet": "No ratings yet",
-        "rating_distribution": "Rating Distribution"
+        "rating_distribution": "Rating Distribution",
+        "environmental_club": "Environmental Club Department",
+        "graphics_designer": "Graphics Designer",
+        "system_features": "System Features",
+        "environmental_friendly": "Environmentally Friendly",
+        "real_time_monitoring": "Real-time Monitoring",
+        "smart_analytics": "Smart Analytics",
+        "multi_platform": "Multi-Platform",
+        "easy_to_use": "Easy to Use",
+        "secure_system": "Secure System",
+        "cost_effective": "Cost Effective",
+        "time_saving": "Time Saving",
+        "parent_communication": "Parent Communication",
+        "bus_tracking": "Bus Tracking",
+        "attendance_management": "Attendance Management",
+        "weather_alerts": "Weather Alerts",
+        "reports_generation": "Reports Generation"
     }
 }
 
@@ -599,6 +631,22 @@ st.markdown(f"""
         padding: 1rem;
         border-radius: 15px;
         margin: 0.5rem 0;
+    }}
+    .feature-card {{
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        margin: 0.5rem 0;
+        text-align: center;
+    }}
+    .team-card {{
+        background: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin: 1rem 0;
+        border-top: 5px solid #667eea;
     }}
     </style>
 """, unsafe_allow_html=True)
@@ -1035,52 +1083,138 @@ elif st.session_state.page == "weather":
 elif st.session_state.page == "about":
     st.subheader("ℹ️ " + t("about_system"))
     
-    col1, col2 = st.columns([2, 1])
+    # قسم المميزات
+    st.markdown("### 🚀 " + t("system_features"))
+    
+    features_ar = [
+        "🌱 نظام صديق للبيئة",
+        "⏱️ مراقبة في الوقت الحقيقي", 
+        "📊 تحليلات ذكية",
+        "📱 متعدد المنصات",
+        "🎯 سهل الاستخدام",
+        "🔒 نظام آمن",
+        "💰 موفر للتكاليف",
+        "⏰ موفر للوقت",
+        "👨‍👩‍👧‍👦 تواصل مع أولياء الأمور",
+        "🚍 تتبع الباصات",
+        "📝 إدارة الحضور",
+        "🌦️ تنبيهات الطقس",
+        "📈 إنشاء التقارير"
+    ]
+    
+    features_en = [
+        "🌱 Environmentally Friendly System",
+        "⏱️ Real-time Monitoring", 
+        "📊 Smart Analytics",
+        "📱 Multi-Platform",
+        "🎯 Easy to Use",
+        "🔒 Secure System",
+        "💰 Cost Effective",
+        "⏰ Time Saving",
+        "👨‍👩‍👧‍👦 Parent Communication",
+        "🚍 Bus Tracking",
+        "📝 Attendance Management",
+        "🌦️ Weather Alerts",
+        "📈 Reports Generation"
+    ]
+    
+    features = features_ar if st.session_state.lang == "ar" else features_en
+    
+    cols = st.columns(3)
+    for i, feature in enumerate(features):
+        with cols[i % 3]:
+            st.markdown(f"""
+            <div class='feature-card'>
+                <h4>{feature}</h4>
+            </div>
+            """, unsafe_allow_html=True)
+    
+    # قسم فريق التطوير
+    st.markdown("### 👨‍💻 " + t("development_team"))
+    
+    col1, col2, col3 = st.columns(3)
     
     with col1:
         st.markdown(f"""
-        <div class='report-card'>
-            <h3>🎯 {t('objective')}</h3>
-            <p>{t('system_objective_description')}</p>
-            
-            <h3>🚀 {t('features')}</h3>
-            <ul>
-                <li>{t('real_time_tracking')}</li>
-                <li>{t('smart_notifications')}</li>
-                <li>{t('weather_integration')}</li>
-                <li>{t('analytics_reports')}</li>
-                <li>{t('multi_language')}</li>
-            </ul>
-            
-            <h3>💻 {t('technologies')}</h3>
-            <ul>
-                <li>Python + Streamlit</li>
-                <li>Pandas للبيانات</li>
-                <li>Plotly للرسوم البيانية</li>
-                <li>التصميم المتجاوب</li>
-            </ul>
+        <div class='team-card'>
+            <h3>💻 {t('lead_developer')}</h3>
+            <h4>إياد مصطفى</h4>
+            <p>Iyad Mustafa</p>
+            <p style='color: #666;'>المطور الرئيسي والمسؤول عن برمجة النظام بالكامل</p>
+            <p>📧 iyad.mustafa@almunira.edu.ae</p>
         </div>
         """, unsafe_allow_html=True)
     
     with col2:
         st.markdown(f"""
-        <div class='rating-card'>
-            <h3>👨‍💻 {t('development_team')}</h3>
-            <p><strong>{t('lead_developer')}:</strong> أحمد محمد</p>
-            <p><strong>{t('designer')}:</strong> فاطمة علي</p>
-            <p><strong>{t('supervisor')}:</strong> د. خالد إبراهيم</p>
-            
-            <h3>📞 {t('contact_info')}</h3>
-            <p>📧 info@almunira.edu.ae</p>
-            <p>📱 +971 2 123 4567</p>
-            
-            <h3>🔢 {t('version')}</h3>
-            <p>v2.1.0 - 2024</p>
+        <div class='team-card'>
+            <h3>🎨 {t('designer')}</h3>
+            <h4>ايمن جلال</h4>
+            <p>Ayman Jalal</p>
+            <p style='color: #666;'>مصمم الجرافيك والواجهات والمؤثرات البصرية</p>
+            <p>📧 ayman.jalal@almunira.edu.ae</p>
         </div>
         """, unsafe_allow_html=True)
     
+    with col3:
+        st.markdown(f"""
+        <div class='team-card'>
+            <h3>👨‍🏫 {t('supervisor')}</h3>
+            <h4>{t('environmental_club')}</h4>
+            <p>Environmental Club Department</p>
+            <p style='color: #666;'>المشرف على المشروع وقسم النادي البيئي</p>
+            <p>📧 environmental.club@almunira.edu.ae</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # قسم التقنيات
+    st.markdown("### 💻 " + t("technologies"))
+    
+    tech_col1, tech_col2 = st.columns(2)
+    
+    with tech_col1:
+        st.markdown("""
+        #### 🐍 تقنيات البرمجة:
+        - Python 3.11
+        - Streamlit Framework
+        - Pandas للبيانات
+        - Plotly للرسوم البيانية
+        - datetime لإدارة الوقت
+        
+        #### 🎨 تقنيات التصميم:
+        - CSS3 المتقدم
+        - تصميم متجاوب
+        - ألوان متدرجة
+        - ظلال متقدمة
+        """)
+    
+    with tech_col2:
+        st.markdown("""
+        #### 📊 إدارة البيانات:
+        - CSV Files
+        - Pandas DataFrames
+        - Session State Management
+        - Real-time Updates
+        
+        #### 🌐 المميزات التقنية:
+        - واجهة متعددة اللغات
+        - تحديث فوري
+        - تصميم متكامل
+        - أداء عالي
+        """)
+    
+    # قسم الهدف
+    st.markdown("### 🎯 " + t("objective"))
+    st.markdown(f"""
+    <div class='report-card'>
+        <p>{t('system_objective_description')}</p>
+        <p><strong>💡 رؤيتنا:</strong> أن نكون النظام الرائد في إدارة النقل المدرسي الذكي في دولة الإمارات العربية المتحدة</p>
+        <p><strong>🎯 رسالتنا:</strong> توفير نظام متكامل وآمن وفعال لإدارة نقل الطلاب مع الحفاظ على البيئة</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
     # نظام التقييم
-    st.subheader("⭐ " + t("rate_system"))
+    st.markdown("### ⭐ " + t("rate_system"))
     
     with st.form("rating_form"):
         rating = st.slider(t("your_rating"), 1, 5, 5)
