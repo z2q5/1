@@ -135,7 +135,7 @@ st.markdown("""
 <style>
     /* التصميم العام */
     .main {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background-color: #f8f9fa;
     }
     
     .main-header {
@@ -147,36 +147,23 @@ st.markdown("""
         margin-bottom: 2rem;
         box-shadow: 0 20px 40px rgba(0,0,0,0.1);
         border: 1px solid rgba(255,255,255,0.2);
-        backdrop-filter: blur(10px);
     }
     
     /* كروت الإحصائيات */
     .stat-card {
-        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        background: white;
         padding: 2rem 1.5rem;
         border-radius: 20px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.08);
         text-align: center;
         margin: 0.5rem;
-        border: 1px solid rgba(255,255,255,0.5);
+        border-left: 5px solid #667eea;
         transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .stat-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, #667eea, #764ba2);
     }
     
     .stat-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.12);
     }
     
     /* كروت الطلاب */
@@ -187,24 +174,17 @@ st.markdown("""
         margin: 1rem 0;
         border-left: 6px solid #667eea;
         box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        transition: all 0.3s ease;
-    }
-    
-    .student-card:hover {
-        transform: translateX(10px);
-        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
     }
     
     /* كروت الطقس */
     .weather-card {
         background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
         color: white;
-        padding: 2rem;
+        padding: 1.5rem;
         border-radius: 20px;
         margin: 1rem 0;
         box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         text-align: center;
-        border: 1px solid rgba(255,255,255,0.2);
     }
     
     /* كروت المميزات */
@@ -216,176 +196,85 @@ st.markdown("""
         margin: 0.5rem 0;
         text-align: center;
         box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        transition: all 0.3s ease;
-        border: 1px solid rgba(255,255,255,0.2);
-    }
-    
-    .feature-card:hover {
-        transform: scale(1.05);
-        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
     }
     
     /* كروت الفريق */
     .team-card-blue {
         background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
         color: white;
-        padding: 2.5rem 2rem;
+        padding: 2rem;
         border-radius: 20px;
         text-align: center;
         margin: 0.5rem 0;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-        border: 1px solid rgba(255,255,255,0.2);
-        transition: all 0.3s ease;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     }
     
     .team-card-green {
         background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
         color: white;
-        padding: 2.5rem 2rem;
+        padding: 2rem;
         border-radius: 20px;
         text-align: center;
         margin: 0.5rem 0;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-        border: 1px solid rgba(255,255,255,0.2);
-        transition: all 0.3s ease;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     }
     
     .team-card-orange {
         background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
         color: white;
-        padding: 2.5rem 2rem;
+        padding: 2rem;
         border-radius: 20px;
         text-align: center;
         margin: 0.5rem 0;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-        border: 1px solid rgba(255,255,255,0.2);
-        transition: all 0.3s ease;
-    }
-    
-    .team-card-blue:hover, .team-card-green:hover, .team-card-orange:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     }
     
     /* كروت التقييم */
     .rating-card {
         background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
         color: white;
-        padding: 3rem 2rem;
-        border-radius: 25px;
-        margin: 2rem 0;
+        padding: 2rem;
+        border-radius: 20px;
+        margin: 1rem 0;
         text-align: center;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-        border: 1px solid rgba(255,255,255,0.2);
     }
     
-    /* الأزرار */
+    /* تحسين النص في العناصر */
+    .stTextInput>div>div>input {
+        color: #2c3e50 !important;
+        font-weight: 500;
+    }
+    
+    .stSelectbox>div>div>select {
+        color: #2c3e50 !important;
+    }
+    
+    .stRadio>div>label>div>p {
+        color: #2c3e50 !important;
+        font-weight: 500;
+    }
+    
+    /* تحسين الأزرار */
     .stButton>button {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        padding: 0.75rem 2rem;
-        border-radius: 50px;
+        border-radius: 12px;
         font-weight: 600;
         transition: all 0.3s ease;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
     
     .stButton>button:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        transform: translateY(-2px);
     }
     
-    /* حقل الإدخال */
-    .stTextInput>div>div>input {
-        border-radius: 15px;
-        border: 2px solid #e0e0e0;
-        padding: 0.75rem 1rem;
-        transition: all 0.3s ease;
-    }
-    
-    .stTextInput>div>div>input:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
-    }
-    
-    /* الراديو */
-    .stRadio>div {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 15px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    }
-    
-    /* التبويبات */
+    /* تحسين التبويبات */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 2px;
         background-color: #f8f9fa;
-        padding: 5px;
-        border-radius: 15px;
+        padding: 8px;
+        border-radius: 12px;
     }
     
     .stTabs [data-baseweb="tab"] {
-        height: 50px;
-        white-space: pre-wrap;
-        background-color: white;
-        border-radius: 10px;
-        gap: 1px;
-        padding-top: 10px;
-        padding-bottom: 10px;
-    }
-    
-    .stTabs [aria-selected="true"] {
-        background-color: #667eea;
-        color: white;
-    }
-    
-    /* الإشعارات */
-    .notification-badge {
-        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
-        color: white;
-        border-radius: 50%;
-        width: 25px;
-        height: 25px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 12px;
-        font-weight: bold;
-        margin-left: 5px;
-    }
-    
-    /* الرسائل */
-    .stSuccess {
-        border-radius: 15px;
-        padding: 1.5rem;
-        background: linear-gradient(135deg, #51cf66 0%, #2f9e44 100%);
-        color: white;
-        border: none;
-    }
-    
-    .stWarning {
-        border-radius: 15px;
-        padding: 1.5rem;
-        background: linear-gradient(135deg, #ffd43b 0%, #f08c00 100%);
-        color: white;
-        border: none;
-    }
-    
-    .stError {
-        border-radius: 15px;
-        padding: 1.5rem;
-        background: linear-gradient(135deg, #ff6b6b 0%, #e03131 100%);
-        color: white;
-        border: none;
-    }
-    
-    .stInfo {
-        border-radius: 15px;
-        padding: 1.5rem;
-        background: linear-gradient(135deg, #4dabf7 0%, #1971c2 100%);
-        color: white;
-        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -406,22 +295,27 @@ with col1:
 with col2:
     st.markdown("""
     <div class='main-header'>
-        <h1 style='font-size: 3rem; margin-bottom: 1rem;'>🚍 نظام الباص الذكي</h1>
-        <h3 style='font-size: 1.5rem; margin-bottom: 1rem; opacity: 0.9;'>مدرسة المنيرة الخاصة - أبوظبي</h3>
-        <p style='font-size: 1.2rem; opacity: 0.8;'>نظام متكامل لإدارة النقل المدرسي الذكي</p>
+        <h1 style='font-size: 2.5rem; margin-bottom: 1rem;'>🚍 نظام الباص الذكي</h1>
+        <h3 style='font-size: 1.3rem; margin-bottom: 1rem; opacity: 0.9;'>مدرسة المنيرة الخاصة - أبوظبي</h3>
+        <p style='font-size: 1.1rem; opacity: 0.8;'>نظام متكامل لإدارة النقل المدرسي الذكي</p>
     </div>
     """, unsafe_allow_html=True)
 
 with col3:
     col3a, col3b = st.columns(2)
     with col3a:
-        if st.button("🌙" if st.session_state.theme == "light" else "☀️", use_container_width=True):
+        # زر تبديل الثيم
+        theme_icon = "🌙" if st.session_state.theme == "light" else "☀️"
+        theme_text = "الوضع الليلي" if st.session_state.theme == "light" else "الوضع النهاري"
+        if st.button(f"{theme_icon}", help=theme_text, use_container_width=True):
             st.session_state.theme = "dark" if st.session_state.theme == "light" else "light"
             st.rerun()
     
     with col3b:
-        lang_button = "🌐 EN" if st.session_state.lang == "ar" else "🌐 AR"
-        if st.button(lang_button, use_container_width=True):
+        # زر الترجمة
+        lang_icon = "🌐"
+        lang_text = "English" if st.session_state.lang == "ar" else "العربية"
+        if st.button(f"{lang_icon}", help=lang_text, use_container_width=True):
             st.session_state.lang = "en" if st.session_state.lang == "ar" else "ar"
             st.rerun()
 
@@ -437,13 +331,13 @@ pages = [
     ("ℹ️ حول النظام", "about")
 ]
 
-# إنشاء أزرار التنقل بشكل دائري وجميل
+# إنشاء أزرار التنقل
 cols = st.columns(len(pages))
 for i, (name, page_key) in enumerate(pages):
     with cols[i]:
-        is_active = "🔵" if st.session_state.page == page_key else "⚪"
-        button_text = f"{is_active} {name}"
-        if st.button(button_text, use_container_width=True, type="primary" if st.session_state.page == page_key else "secondary"):
+        is_active = st.session_state.page == page_key
+        button_type = "primary" if is_active else "secondary"
+        if st.button(name, use_container_width=True, type=button_type):
             st.session_state.page = page_key
             st.rerun()
 
@@ -521,10 +415,46 @@ if st.session_state.page == "student":
                         col_a, col_b = st.columns(2)
                         with col_a:
                             if st.button("✅ سأحضر اليوم", use_container_width=True, type="primary"):
-                                self.register_attendance(student, "قادم")
+                                now = datetime.datetime.now()
+                                new_entry = pd.DataFrame([{
+                                    "id": student["id"],
+                                    "name": student["name"], 
+                                    "grade": student["grade"],
+                                    "bus": student["bus"],
+                                    "status": "قادم",
+                                    "time": now.strftime("%H:%M"),
+                                    "date": now.strftime("%Y-%m-%d"),
+                                    "expiry_time": (now + datetime.timedelta(hours=12)).strftime("%Y-%m-%d %H:%M:%S")
+                                }])
+                                
+                                st.session_state.attendance_df = pd.concat([
+                                    st.session_state.attendance_df, new_entry
+                                ], ignore_index=True)
+                                
+                                st.balloons()
+                                st.success(f"🎉 تم التسجيل بنجاح! أنت قادم اليوم")
+                                add_notification(f"طالب جديد سجل حضوره: {student['name']} - الباص {student['bus']}")
+                                
                         with col_b:
                             if st.button("❌ لن أحضر اليوم", use_container_width=True, type="secondary"):
-                                self.register_attendance(student, "لن يأتي")
+                                now = datetime.datetime.now()
+                                new_entry = pd.DataFrame([{
+                                    "id": student["id"],
+                                    "name": student["name"], 
+                                    "grade": student["grade"],
+                                    "bus": student["bus"],
+                                    "status": "لن يأتي",
+                                    "time": now.strftime("%H:%M"),
+                                    "date": now.strftime("%Y-%m-%d"),
+                                    "expiry_time": (now + datetime.timedelta(hours=12)).strftime("%Y-%m-%d %H:%M:%S")
+                                }])
+                                
+                                st.session_state.attendance_df = pd.concat([
+                                    st.session_state.attendance_df, new_entry
+                                ], ignore_index=True)
+                                
+                                st.success(f"📝 تم التسجيل بنجاح! لن تحضر اليوم")
+                                add_notification(f"طالب أعلن عدم حضوره: {student['name']} - الباص {student['bus']}")
                 
                 else:
                     st.error("❌ لم يتم العثور على الطالب")
@@ -565,38 +495,346 @@ if st.session_state.page == "student":
         if stats["total"] > 0:
             st.info(f"📊 حتى الآن: {stats['coming']} طالب مؤكد الحضور")
 
-# ===== دالة تسجيل الحضور =====
-def register_attendance(student, status):
-    now = datetime.datetime.now()
-    new_entry = pd.DataFrame([{
-        "id": student["id"],
-        "name": student["name"], 
-        "grade": student["grade"],
-        "bus": student["bus"],
-        "status": status,
-        "time": now.strftime("%H:%M"),
-        "date": now.strftime("%Y-%m-%d"),
-        "expiry_time": (now + datetime.timedelta(hours=12)).strftime("%Y-%m-%d %H:%M:%S")
-    }])
+# ===== صفحة السائق =====
+elif st.session_state.page == "driver":
+    st.subheader("🚌 لوحة تحكم السائق")
     
-    st.session_state.attendance_df = pd.concat([
-        st.session_state.attendance_df, new_entry
-    ], ignore_index=True)
-    
-    st.balloons()
-    st.success(f"""
-    🎉 **تم التسجيل بنجاح!**
-    
-    **الطالب:** {student['name']}
-    **الحالة:** {status}
-    **وقت التسجيل:** {now.strftime('%H:%M')}
-    **رقم الباص:** {student['bus']}
-    """)
-    
-    add_notification(f"طالب جديد سجل حضوره: {student['name']} - الباص {student['bus']}")
+    if not st.session_state.driver_logged_in:
+        col1, col2 = st.columns(2)
+        with col1:
+            bus_number = st.selectbox("اختر الباص", ["1", "2", "3"])
+        with col2:
+            password = st.text_input("كلمة المرور", type="password", placeholder="أدخل كلمة المرور...")
+        
+        if st.button("تسجيل الدخول", type="primary", use_container_width=True):
+            if password == bus_passwords.get(bus_number, ""):
+                st.session_state.driver_logged_in = True
+                st.session_state.current_bus = bus_number
+                st.success("✅ تم الدخول بنجاح")
+                st.rerun()
+            else:
+                st.error("❌ كلمة مرور غير صحيحة")
+    else:
+        st.success(f"✅ تم الدخول بنجاح - الباص رقم {st.session_state.current_bus}")
+        
+        if st.button("تسجيل الخروج", type="secondary"):
+            st.session_state.driver_logged_in = False
+            st.rerun()
+        
+        # عرض طلاب الباص
+        st.subheader(f"📋 قائمة الطلاب - الباص {st.session_state.current_bus}")
+        
+        bus_students = st.session_state.students_df[
+            st.session_state.students_df["bus"] == st.session_state.current_bus
+        ]
+        
+        if not bus_students.empty:
+            today = datetime.datetime.now().strftime("%Y-%m-%d")
+            
+            if not st.session_state.attendance_df.empty and "date" in st.session_state.attendance_df.columns:
+                today_attendance = st.session_state.attendance_df[
+                    (st.session_state.attendance_df["date"] == today) & 
+                    (st.session_state.attendance_df["bus"] == st.session_state.current_bus)
+                ]
+            else:
+                today_attendance = pd.DataFrame()
+            
+            coming_students = today_attendance[today_attendance["status"] == "قادم"] if not today_attendance.empty else pd.DataFrame()
+            
+            # الإحصائيات
+            col1, col2 = st.columns(2)
+            with col1:
+                st.metric("الطلاب القادمون", len(coming_students))
+            with col2:
+                st.metric("إجمالي طلاب الباص", len(bus_students))
+            
+            # الطلاب القادمون
+            if not coming_students.empty:
+                st.subheader("🎒 الطلاب القادمون اليوم:")
+                for _, student in coming_students.iterrows():
+                    st.success(f"✅ **{student['name']}** - {student['grade']} - الساعة: {student['time']}")
+            else:
+                st.info("🚫 لا يوجد طلاب قادمين اليوم")
+            
+            # جميع طلاب الباص
+            st.subheader("👥 جميع طلاب الباص:")
+            for _, student in bus_students.iterrows():
+                if not today_attendance.empty:
+                    student_status = today_attendance[today_attendance["id"] == student["id"]]
+                    status_icon = "✅" if not student_status.empty and student_status.iloc[0]["status"] == "قادم" else "❌"
+                    status_text = "قادم" if not student_status.empty and student_status.iloc[0]["status"] == "قادم" else "لم يسجل"
+                else:
+                    status_icon = "❌"
+                    status_text = "لم يسجل"
+                
+                st.write(f"{status_icon} **{student['name']}** - {student['grade']} - الحالة: {status_text}")
 
-# ===== الصفحات الأخرى (نفس التصميم المطور) =====
-# [يتبع نفس النمط للصفحات الأخرى مع تحسينات في التصميم...]
+# ===== صفحة أولياء الأمور =====
+elif st.session_state.page == "parents":
+    st.subheader("👨‍👩‍👧 بوابة أولياء الأمور")
+    
+    student_id = st.text_input("أدخل رقم الوزارة الخاص بابنك/ابنتك", placeholder="مثال: 1001")
+    if student_id:
+        student_info = st.session_state.students_df[
+            st.session_state.students_df["id"].astype(str) == str(student_id).strip()
+        ]
+        
+        if not student_info.empty:
+            student = student_info.iloc[0]
+            st.success(f"🎉 تم العثور على الطالب: {student['name']}")
+            
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.subheader("📊 متابعة الحضور")
+                today = datetime.datetime.now().strftime("%Y-%m-%d")
+                
+                if not st.session_state.attendance_df.empty and "date" in st.session_state.attendance_df.columns:
+                    today_status = st.session_state.attendance_df[
+                        (st.session_state.attendance_df["id"] == student["id"]) & 
+                        (st.session_state.attendance_df["date"] == today)
+                    ]
+                else:
+                    today_status = pd.DataFrame()
+                
+                if not today_status.empty:
+                    status = today_status.iloc[0]["status"]
+                    time = today_status.iloc[0]["time"]
+                    status_display = "قادم 🎒" if status == "قادم" else "لن يأتي ❌"
+                    st.success(f"**آخر حالة:** {status_display}\n**آخر تحديث:** {time}")
+                else:
+                    st.info("لا توجد بيانات حضور لهذا اليوم")
+            
+            with col2:
+                st.subheader("🚌 معلومات الباص")
+                st.info(f"""
+                **رقم الباص:** {student['bus']}
+                **وقت الصباح التقريبي:** 7:00 صباحاً
+                **وقت الظهيرة التقريبي:** 2:00 ظهراً
+                **هاتف ولي الأمر:** {student['parent_phone']}
+                """)
+        else:
+            st.error("❌ لم يتم العثور على الطالب")
+
+# ===== صفحة الإدارة =====
+elif st.session_state.page == "admin":
+    st.subheader("🏫 لوحة تحكم الإدارة")
+    
+    admin_password = st.text_input("كلمة مرور الإدارة", type="password", placeholder="أدخل كلمة المرور...")
+    if admin_password == admin_pass:
+        st.success("✅ تم الدخول بنجاح")
+        
+        tab1, tab2, tab3, tab4 = st.tabs([
+            "📊 لوحة التحكم", 
+            "📋 بيانات الحضور", 
+            "👥 إدارة الطلاب", 
+            "⭐ نظام التقييم"
+        ])
+        
+        with tab1:
+            st.subheader("📊 لوحة التحكم")
+            stats = calculate_attendance_stats()
+            
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                st.metric("إجمالي الطلاب", len(st.session_state.students_df))
+            with col2:
+                st.metric("الحاضرون اليوم", stats["coming"])
+            with col3:
+                st.metric("نسبة الحضور", f"{stats['percentage']:.1f}%")
+            with col4:
+                st.metric("الباصات العاملة", 3)
+            
+            # مخططات
+            if not st.session_state.attendance_df.empty:
+                col1, col2 = st.columns(2)
+                with col1:
+                    bus_distribution = st.session_state.attendance_df["bus"].value_counts()
+                    fig1 = px.pie(bus_distribution, values=bus_distribution.values, 
+                                names=bus_distribution.index, title="توزيع الطلاب على الباصات")
+                    st.plotly_chart(fig1)
+        
+        with tab2:
+            st.subheader("📋 بيانات الحضور")
+            if not st.session_state.attendance_df.empty:
+                st.dataframe(st.session_state.attendance_df)
+            else:
+                st.info("لا توجد بيانات حضور")
+        
+        with tab3:
+            st.subheader("👥 إدارة الطلاب")
+            st.dataframe(st.session_state.students_df)
+            
+            with st.expander("➕ إضافة طالب جديد"):
+                with st.form("add_student"):
+                    new_id = st.text_input("ID")
+                    new_name = st.text_input("اسم الطالب")
+                    new_grade = st.text_input("الصف")
+                    new_bus = st.text_input("رقم الباص")
+                    new_phone = st.text_input("هاتف ولي الأمر")
+                    
+                    if st.form_submit_button("إضافة"):
+                        new_student = pd.DataFrame([{
+                            "id": new_id, "name": new_name, "grade": new_grade,
+                            "bus": new_bus, "parent_phone": new_phone
+                        }])
+                        st.session_state.students_df = pd.concat([
+                            st.session_state.students_df, new_student
+                        ], ignore_index=True)
+                        st.success("✅ تم إضافة الطالب بنجاح")
+        
+        with tab4:
+            st.subheader("⭐ نظام التقييم")
+            
+            if not st.session_state.ratings_df.empty:
+                st.subheader("📊 إحصائيات التقييمات")
+                
+                # إحصائيات التقييمات
+                average_rating = st.session_state.ratings_df["rating"].mean()
+                total_ratings = len(st.session_state.ratings_df)
+                
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.metric("متوسط التقييم", f"{average_rating:.1f}/5")
+                with col2:
+                    st.metric("إجمالي التقييمات", total_ratings)
+                
+                # مخطط التقييمات
+                rating_dist = st.session_state.ratings_df["rating"].value_counts().sort_index()
+                fig = px.bar(rating_dist, x=rating_dist.index, y=rating_dist.values,
+                            title="توزيع التقييمات", labels={'x': 'التقييم', 'y': 'عدد التقييمات'})
+                st.plotly_chart(fig)
+                
+                st.subheader("📋 جميع التقييمات")
+                st.dataframe(st.session_state.ratings_df)
+            else:
+                st.info("لا توجد تقييمات حتى الآن")
+    
+    elif admin_password and admin_password != admin_pass:
+        st.error("❌ كلمة مرور غير صحيحة")
+
+# ===== صفحة الطقس =====
+elif st.session_state.page == "weather":
+    st.subheader("🌦️ توقعات الطقس")
+    
+    weather_data = get_weather()
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown(f"""
+        <div class='weather-card'>
+            <h3>🌡️ درجة الحرارة</h3>
+            <h2>{weather_data['temp']}°C</h2>
+            <p>{weather_data['condition_ar']}</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown(f"""
+        <div class='weather-card'>
+            <h3>💧 الرطوبة</h3>
+            <h2>{weather_data['humidity']}%</h2>
+            <p>الرطوبة النسبية</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        st.markdown(f"""
+        <div class='weather-card'>
+            <h3>💨 سرعة الرياح</h3>
+            <h2>{weather_data['wind_speed']} km/h</h2>
+            <p>سرعة الرياح</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.info("""
+    **تأثير الطقس على الحضور:**
+    - ☀️ طقس مشمس: نسبة حضور عالية (95%)
+    - 🌧️ طقس ممطر: نسبة حضور متوسطة (85%) 
+    - 💨 طقس عاصف: نسبة حضور جيدة (90%)
+    """)
+
+# ===== صفحة حول النظام =====
+elif st.session_state.page == "about":
+    st.subheader("ℹ️ حول النظام")
+    
+    st.markdown("### 🚀 مميزات النظام")
+    
+    features = [
+        "🌱 نظام صديق للبيئة",
+        "⏱️ مراقبة في الوقت الحقيقي", 
+        "📊 تحليلات ذكية",
+        "📱 متعدد المنصات",
+        "🎯 سهل الاستخدام",
+        "🔒 نظام آمن",
+        "💰 موفر للتكاليف",
+        "⏰ موفر للوقت",
+        "👨‍👩‍👧‍👦 تواصل مع أولياء الأمور",
+        "🚍 تتبع الباصات",
+        "📝 إدارة الحضور",
+        "🌦️ تنبيهات الطقس",
+        "📈 إنشاء التقارير"
+    ]
+    
+    cols = st.columns(3)
+    for i, feature in enumerate(features):
+        with cols[i % 3]:
+            st.markdown(f"""
+            <div class='feature-card'>
+                <h4>{feature}</h4>
+            </div>
+            """, unsafe_allow_html=True)
+    
+    st.markdown("### 👨‍💻 فريق التطوير")
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown(f"""
+        <div class='team-card-blue'>
+            <h3>💻 المطور الرئيسي</h3>
+            <h2>إياد مصطفى</h2>
+            <p>المسؤول عن برمجة النظام بالكامل</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown(f"""
+        <div class='team-card-green'>
+            <h3>🎨 مصمم الجرافيك</h3>
+            <h2>ايمن جلال</h2>
+            <p>مصمم الواجهات والمؤثرات البصرية</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        st.markdown(f"""
+        <div class='team-card-orange'>
+            <h3>👨‍🏫 المشرف</h3>
+            <h2>قسم النادي البيئي</h2>
+            <p>المشرف على المشروع</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # قسم التقييم في صفحة حول النظام
+    st.markdown("### ⭐ قيم النظام")
+    
+    st.markdown("""
+    <div class='rating-card'>
+        <h3>كيف تقيم تجربتك مع النظام؟</h3>
+        <p>شاركنا برأيك لمساعدتنا في التحسين</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    with st.form("rating_form"):
+        rating = st.slider("تقييمك للنظام", 1, 5, 5, help="1 = سيء, 5 = ممتاز")
+        comments = st.text_area("ملاحظاتك أو اقتراحاتك")
+        
+        if st.form_submit_button("إرسال التقييم", type="primary"):
+            add_rating(rating, comments)
+            st.success("🎉 شكراً لتقييمك النظام! تم إرسال تقييمك بنجاح")
+            st.info("📊 يمكنك رؤية إحصائيات التقييمات في صفحة الإدارة")
 
 # ===== التذييل المطور =====
 st.markdown("---")
@@ -623,28 +861,3 @@ with footer_col2:
 with footer_col3:
     if st.button("🔄 تحديث البيانات", use_container_width=True):
         st.rerun()
-
-# إضافة بعض الرسوم المتحركة باستخدام HTML/CSS
-st.markdown("""
-<script>
-// إضافة تأثيرات بسيطة للصفحة
-document.addEventListener('DOMContentLoaded', function() {
-    // تأثير عند التمرير
-    const cards = document.querySelectorAll('.stat-card, .student-card, .feature-card');
-    cards.forEach(card => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        card.style.transition = 'all 0.6s ease';
-    });
-    
-    setTimeout(() => {
-        cards.forEach((card, index) => {
-            setTimeout(() => {
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            }, index * 100);
-        });
-    }, 500);
-});
-</script>
-""", unsafe_allow_html=True)
