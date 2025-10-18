@@ -52,7 +52,7 @@ def switch_lang():
 st.markdown(f"<h1 style='text-align:center;'>{t('🚍 نظام حضور الباص لمدرسة المنيرة الخاصة', '🚍 Al Munira School Bus Attendance')}</h1>", unsafe_allow_html=True)
 
 # ===== الشريط العلوي =====
-cols = st.columns(5)
+cols = st.columns(6)
 if cols[0].button(t("🧑‍🎓 الطالب", "🧑‍🎓 Student")):
     st.session_state.page = "student"
 if cols[1].button(t("🚌 السائق", "🚌 Driver")):
@@ -63,6 +63,8 @@ if cols[3].button(t("🌦️ الطقس", "🌦️ Weather")):
     st.session_state.page = "weather"
 if cols[4].button(t("🌟 الكريدتس", "🌟 Credits")):
     st.session_state.page = "credits"
+if cols[5].button(t("🌐 English/العربية", "🌐 العربية/English")):
+    switch_lang()
 
 st.markdown("---")
 
@@ -118,24 +120,64 @@ elif st.session_state.page == "admin":
 # ===== صفحة الطقس =====
 elif st.session_state.page == "weather":
     st.subheader(t("توقعات الطقس في الإمارات", "UAE Weather Forecast"))
-    try:
-        api_key = "2b1d4e2f1f9f6a6efb2e3a7d71a6e6ad"
-        url = f"https://api.openweathermap.org/data/2.5/forecast?q=Dubai,AE&appid={api_key}&units=metric&lang={'ar' if st.session_state.lang=='ar' else 'en'}"
-        res = requests.get(url)
-        data = res.json()
-        days = {}
-        for entry in data["list"]:
-            day = entry["dt_txt"].split(" ")[0]
-            temp = entry["main"]["temp"]
-            desc = entry["weather"][0]["description"]
-            if day not in days:
-                days[day] = (temp, desc)
-        for day, (temp, desc) in list(days.items())[:5]:
-            st.write(f"📅 {day}: 🌡️ {temp}°C — {desc}")
-        st.info(t("النظام يتوقع أن الغياب قد يزيد في الأيام ذات الحرارة المرتفعة جدًا.", 
-                  "The system predicts higher absences on extremely hot days."))
-    except Exception:
-        st.error(t("حدث خطأ أثناء جلب بيانات الطقس.", "Error fetching weather data."))
+    
+    # إضافة رسالة تحميل
+    with st.spinner(t("جاري جلب بيانات الطقس...", "Fetching weather data...")):
+        try:
+            api_key = "2b1d4e2f1f9f6a6efb2e3a7d71a6e6ad"
+            url = f"https://api.openweathermap.org/data/2.5/forecast?q=Dubai,AE&appid={api_key}&units=metric&lang={'ar' if st.session_state.lang=='ar' else 'en'}"
+            res = requests.get(url, timeout=10)
+            
+            if res.status_code == 200:
+                data = res.json()
+                days = {}
+                for entry in data["list"]:
+                    day = entry["dt_txt"].split(" ")[0]
+                    temp = entry["main"]["temp"]
+                    desc = entry["weather"][0]["description"]
+                    icon = entry["weather"][0]["icon"]
+                    if day not in days:
+                        days[day] = (temp, desc, icon)
+                
+                # عرض بيانات الطقس بطريقة منظمة
+                st.success(t("تم جلب بيانات الطقس بنجاح!", "Weather data fetched successfully!"))
+                
+                # عرض توقعات 5 أيام
+                st.write(t("**توقعات الطقس للأيام القادمة:**", "**Weather forecast for the coming days:**"))
+                
+                for day, (temp, desc, icon) in list(days.items())[:5]:
+                    date_obj = datetime.datetime.strptime(day, "%Y-%m-%d")
+                    day_name = date_obj.strftime("%A")
+                    day_name_ar = ["الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت", "الأحد"][date_obj.weekday()]
+                    
+                    col1, col2, col3 = st.columns([1,2,2])
+                    with col1:
+                        st.image(f"http://openweathermap.org/img/w/{icon}.png", width=50)
+                    with col2:
+                        st.write(f"**{day_name_ar if st.session_state.lang == 'ar' else day_name}**")
+                        st.write(f"**{day}**")
+                    with col3:
+                        st.write(f"🌡️ **{temp:.1f}°C**")
+                        st.write(f"{desc}")
+                    
+                    st.markdown("---")
+                
+                # تحذير بخصوص الحرارة المرتفعة
+                max_temp = max([temp for temp, _, _ in days.values()])
+                if max_temp > 35:
+                    st.warning(t("⚠️ تحذير: درجات الحرارة مرتفعة اليوم، قد يؤثر هذا على نسبة الحضور.", 
+                                "⚠️ Warning: High temperatures today, this may affect attendance rates."))
+                
+            else:
+                st.error(t("فشل في جلب بيانات الطقس. الرجاء المحاولة لاحقاً.", "Failed to fetch weather data. Please try again later."))
+                
+        except requests.exceptions.Timeout:
+            st.error(t("انتهت مهلة الاتصال. الرجاء التحقق من اتصال الإنترنت والمحاولة مرة أخرى.", 
+                      "Connection timeout. Please check your internet connection and try again."))
+        except requests.exceptions.RequestException as e:
+            st.error(t("حدث خطأ في الاتصال. الرجاء المحاولة لاحقاً.", "Connection error. Please try again later."))
+        except Exception as e:
+            st.error(t("حدث خطأ غير متوقع.", "An unexpected error occurred."))
 
 # ===== صفحة الكريدتس =====
 elif st.session_state.page == "credits":
@@ -160,4 +202,3 @@ elif st.session_state.page == "credits":
 # ===== تذييل =====
 st.markdown("---")
 st.markdown(f"<div style='text-align:center; color:gray;'>{t('© 2025 جميع الحقوق محفوظة لمدرسة المنيرة الخاصة', '© 2025 All Rights Reserved - Al Munira Private School')}</div>", unsafe_allow_html=True)
-
