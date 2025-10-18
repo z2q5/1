@@ -27,8 +27,6 @@ if "driver_logged_in" not in st.session_state:
     st.session_state.driver_logged_in = False
 if "current_bus" not in st.session_state:
     st.session_state.current_bus = "1"
-if "emergency_mode" not in st.session_state:
-    st.session_state.emergency_mode = False
 
 DATA_FILE = "attendance_data.csv"
 STUDENTS_FILE = "students_data.csv"
@@ -53,7 +51,6 @@ translations = {
         "buses_operating": "الباصات العاملة",
         "live_tracking": "التتبع الحي",
         "reports": "التقارير",
-        "emergency": "طوارئ",
         "settings": "الإعدادات",
         "search_student": "ابحث عن طالب...",
         "student_attendance": "تسجيل حضور الطالب",
@@ -89,7 +86,6 @@ translations = {
         "welcome_student": "مرحباً! تم العثور على الطالب",
         "attendance_tracking": "متابعة الحضور",
         "bus_information": "معلومات الباص",
-        "contact": "التواصل",
         "latest_status": "آخر حالة",
         "last_update": "آخر تحديث",
         "attendance_history": "سجل الحضور",
@@ -98,12 +94,6 @@ translations = {
         "approximate_morning_time": "وقت الصباح التقريبي",
         "approximate_afternoon_time": "وقت الظهيرة التقريبي",
         "students_on_bus_today": "طلاب في الباص اليوم",
-        "contact_info": "معلومات التواصل",
-        "for_emergencies": "للطوارئ والاستفسارات",
-        "school_number": "رقم المدرسة",
-        "driver_number": "رقم السائق",
-        "transport_manager": "مدير النقل",
-        "working_hours": "ساعات العمل",
         "invalid_id": "رقم الوزارة غير صحيح",
         "admin_panel": "لوحة تحكم الإدارة",
         "access_granted": "تم الدخول بنجاح",
@@ -181,7 +171,9 @@ translations = {
         "utilization_rate": "معدل الاستخدام",
         "notification_sent": "تم إرسال الإشعار",
         "arabic": "العربية",
-        "english": "English"
+        "english": "English",
+        "working_days": "أيام الدوام: الإثنين - الجمعة",
+        "rating_system": "نظام التقييم"
     },
     "en": {
         "dashboard": "Dashboard",
@@ -201,7 +193,6 @@ translations = {
         "buses_operating": "Buses Operating",
         "live_tracking": "Live Tracking",
         "reports": "Reports",
-        "emergency": "Emergency",
         "settings": "Settings",
         "search_student": "Search student...",
         "student_attendance": "Student Attendance",
@@ -237,7 +228,6 @@ translations = {
         "welcome_student": "Welcome! Student found",
         "attendance_tracking": "Attendance Tracking",
         "bus_information": "Bus Information",
-        "contact": "Contact",
         "latest_status": "Latest Status",
         "last_update": "Last Update",
         "attendance_history": "Attendance History",
@@ -246,12 +236,6 @@ translations = {
         "approximate_morning_time": "Approximate Morning Time",
         "approximate_afternoon_time": "Approximate Afternoon Time",
         "students_on_bus_today": "Students on Bus Today",
-        "contact_info": "Contact Information",
-        "for_emergencies": "For Emergencies and Inquiries",
-        "school_number": "School Number",
-        "driver_number": "Driver Number",
-        "transport_manager": "Transport Manager",
-        "working_hours": "Working Hours",
         "invalid_id": "Invalid Ministry ID",
         "admin_panel": "Admin Panel",
         "access_granted": "Access granted",
@@ -329,7 +313,9 @@ translations = {
         "utilization_rate": "Utilization Rate",
         "notification_sent": "Notification sent",
         "arabic": "العربية",
-        "english": "English"
+        "english": "English",
+        "working_days": "Working Days: Monday - Friday",
+        "rating_system": "Rating System"
     }
 }
 
@@ -350,11 +336,11 @@ def load_students():
     if os.path.exists(STUDENTS_FILE):
         return pd.read_csv(STUDENTS_FILE)
     default_students = [
-        {"id": "1001", "name": "أحمد محمد", "grade": "10-A", "bus": "1", "parent_phone": "0501234567", "points": 150},
-        {"id": "1002", "name": "فاطمة علي", "grade": "9-B", "bus": "2", "parent_phone": "0507654321", "points": 200},
-        {"id": "1003", "name": "خالد إبراهيم", "grade": "8-C", "bus": "3", "parent_phone": "0505555555", "points": 180},
-        {"id": "1004", "name": "سارة عبدالله", "grade": "10-B", "bus": "1", "parent_phone": "0504444444", "points": 220},
-        {"id": "1005", "name": "محمد حسن", "grade": "7-A", "bus": "2", "parent_phone": "0503333333", "points": 170},
+        {"id": "1001", "name": "أحمد محمد", "grade": "10-A", "bus": "1", "parent_phone": "0501234567"},
+        {"id": "1002", "name": "فاطمة علي", "grade": "9-B", "bus": "2", "parent_phone": "0507654321"},
+        {"id": "1003", "name": "خالد إبراهيم", "grade": "8-C", "bus": "3", "parent_phone": "0505555555"},
+        {"id": "1004", "name": "سارة عبدالله", "grade": "10-B", "bus": "1", "parent_phone": "0504444444"},
+        {"id": "1005", "name": "محمد حسن", "grade": "7-A", "bus": "2", "parent_phone": "0503333333"},
     ]
     return pd.DataFrame(default_students)
 
@@ -487,6 +473,13 @@ st.markdown(f"""
     .quick-action-btn:hover {{
         transform: scale(1.05);
         box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }}
+    .student-card {{
+        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        padding: 1rem;
+        border-radius: 15px;
+        margin: 0.5rem 0;
+        border-left: 5px solid #667eea;
     }}
     </style>
 """, unsafe_allow_html=True)
@@ -622,7 +615,7 @@ if st.session_state.page == "dashboard":
     
     # إجراءات سريعة
     st.subheader(t('quick_actions'))
-    quick_cols = st.columns(4)
+    quick_cols = st.columns(3)
     
     with quick_cols[0]:
         if st.button(f"📄 {t('generate_report')}", use_container_width=True):
@@ -637,13 +630,222 @@ if st.session_state.page == "dashboard":
         if st.button(f"📊 {t('view_all_reports')}", use_container_width=True):
             st.session_state.page = "admin"
             st.rerun()
-    
-    with quick_cols[3]:
-        if st.button(f"🚨 {t('emergency')}", use_container_width=True, type="secondary"):
-            st.session_state.emergency_mode = True
-            st.error("🚨 وضع الطوارئ مفعل - تم إشعار الجهات المعنية")
 
-# ===== صفحة الطقس المتقدمة =====
+# ===== صفحة الطالب =====
+elif st.session_state.page == "student":
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        st.subheader(t("student_attendance"))
+        
+        search_id = st.text_input(t("search_by_ministry_id"))
+        if search_id:
+            student_info = st.session_state.students_df[st.session_state.students_df["id"] == search_id]
+            if not student_info.empty:
+                student = student_info.iloc[0]
+                
+                st.markdown(f"""
+                <div class='student-card'>
+                    <h3>🎓 {student['name']}</h3>
+                    <p><strong>الصف:</strong> {student['grade']}</p>
+                    <p><strong>الباص:</strong> {student['bus']}</p>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                status = st.radio(t("today_status"), 
+                                [f"✅ {t('coming')}", f"❌ {t('not_coming')}"],
+                                key="status_radio")
+                
+                if st.button(t("confirm_status"), type="primary"):
+                    now = datetime.datetime.now()
+                    status_text = "قادم" if t('coming') in status else "لن يأتي"
+                    new_entry = pd.DataFrame([[
+                        student["id"], student["name"], student["grade"], 
+                        student["bus"], status_text,
+                        now.strftime("%H:%M"),
+                        now.strftime("%Y-%m-%d")
+                    ]], columns=["id","name","grade","bus","status","time","date"])
+                    
+                    st.session_state.df = pd.concat([st.session_state.df, new_entry], ignore_index=True)
+                    save_data(st.session_state.df)
+                    
+                    st.balloons()
+                    st.success(f"✅ {t('status_recorded')}")
+                    
+                    add_notification(f"طالب جديد سجل حضوره: {student['name']} - الباص {student['bus']}")
+
+    with col2:
+        st.subheader(f"📊 {t('today_statistics')}")
+        stats = calculate_attendance_stats()
+        
+        st.metric(t("total_registered"), stats["total"])
+        st.metric(t("expected_attendance"), stats["coming"])
+        st.metric(t("attendance_rate"), f"{stats['percentage']:.1f}%")
+
+# ===== صفحة السائق =====
+elif st.session_state.page == "driver":
+    st.subheader(t("driver_dashboard"))
+    
+    if not st.session_state.driver_logged_in:
+        col1, col2 = st.columns(2)
+        with col1:
+            bus_number = st.selectbox(t("select_bus"), ["1", "2", "3"])
+        with col2:
+            password = st.text_input(t("password"), type="password")
+        
+        if st.button(t("login")):
+            if password == bus_passwords.get(bus_number, ""):
+                st.session_state.driver_logged_in = True
+                st.session_state.current_bus = bus_number
+                st.success(t("logged_in_success"))
+                st.rerun()
+            else:
+                st.error(t("incorrect_password"))
+    else:
+        st.success(f"✅ {t('logged_in_success')} - الباص {st.session_state.current_bus}")
+        
+        if st.button("تسجيل الخروج"):
+            st.session_state.driver_logged_in = False
+            st.rerun()
+        
+        # قائمة طلاب الباص
+        st.subheader(f"{t('student_list')} - الباص {st.session_state.current_bus}")
+        bus_students = st.session_state.students_df[st.session_state.students_df["bus"] == st.session_state.current_bus]
+        
+        if not bus_students.empty:
+            today = datetime.datetime.now().strftime("%Y-%m-%d")
+            today_data = st.session_state.df[
+                (st.session_state.df["date"] == today) & 
+                (st.session_state.df["bus"] == st.session_state.current_bus)
+            ] if "date" in st.session_state.df.columns else pd.DataFrame()
+            
+            coming_students = today_data[today_data["status"] == "قادم"]
+            
+            st.metric(t("students_coming"), len(coming_students))
+            
+            for _, student in coming_students.iterrows():
+                st.write(f"✅ {student['name']} - {student['grade']} - {student['time']}")
+        else:
+            st.info(t("no_data_today"))
+
+# ===== صفحة أولياء الأمور =====
+elif st.session_state.page == "parents":
+    st.subheader(t("parents_portal"))
+    
+    student_id = st.text_input(t("enter_student_id"))
+    if student_id:
+        student_info = st.session_state.students_df[st.session_state.students_df["id"] == student_id]
+        if not student_info.empty:
+            student = student_info.iloc[0]
+            st.success(f"{t('welcome_student')}: {student['name']}")
+            
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.subheader(t("attendance_tracking"))
+                today = datetime.datetime.now().strftime("%Y-%m-%d")
+                today_status = st.session_state.df[
+                    (st.session_state.df["id"] == student_id) & 
+                    (st.session_state.df["date"] == today)
+                ] if "date" in st.session_state.df.columns else pd.DataFrame()
+                
+                if not today_status.empty:
+                    status = today_status.iloc[0]["status"]
+                    time = today_status.iloc[0]["time"]
+                    st.success(f"{t('latest_status')}: {status} - {t('last_update')}: {time}")
+                else:
+                    st.info("لا توجد بيانات حضور لهذا اليوم")
+            
+            with col2:
+                st.subheader(t("bus_info"))
+                st.write(f"{t('bus_number')}: {student['bus']}")
+                st.write(f"{t('approximate_morning_time')}: 7:00 صباحاً")
+                st.write(f"{t('approximate_afternoon_time')}: 2:00 ظهراً")
+        else:
+            st.error(t("invalid_id"))
+
+# ===== صفحة الإدارة =====
+elif st.session_state.page == "admin":
+    st.subheader(t("admin_panel"))
+    
+    admin_password = st.text_input("كلمة مرور الإدارة", type="password")
+    if admin_password == admin_pass:
+        st.success(t("access_granted"))
+        
+        tab1, tab2, tab3 = st.tabs([t("attendance_data"), t("reports_analytics"), t("student_management")])
+        
+        with tab1:
+            st.subheader(t("attendance_data"))
+            if not st.session_state.df.empty:
+                st.dataframe(st.session_state.df, use_container_width=True)
+                
+                col1, col2 = st.columns(2)
+                with col1:
+                    if st.button(t("download_csv")):
+                        csv = st.session_state.df.to_csv(index=False)
+                        st.download_button(
+                            label="تحميل البيانات",
+                            data=csv,
+                            file_name=f"attendance_data_{datetime.datetime.now().strftime('%Y%m%d')}.csv",
+                            mime="text/csv"
+                        )
+                with col2:
+                    if st.button(t("refresh_data")):
+                        st.session_state.df = load_data()
+                        st.rerun()
+            else:
+                st.info(t("no_attendance_records"))
+        
+        with tab2:
+            st.subheader(t("reports_analytics"))
+            
+            # إحصائيات الحضور
+            stats = calculate_attendance_stats()
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric(t("total_registered"), stats["total"])
+            with col2:
+                st.metric(t("expected_attendance"), stats["coming"])
+            with col3:
+                st.metric(t("expected_absent"), stats["not_coming"])
+            
+            # مخطط الحضور حسب الصف
+            if not st.session_state.df.empty:
+                attendance_by_grade = st.session_state.df[st.session_state.df["status"] == "قادم"]["grade"].value_counts()
+                fig = px.pie(values=attendance_by_grade.values, names=attendance_by_grade.index, title=t("attendance_by_grade"))
+                st.plotly_chart(fig, use_container_width=True)
+        
+        with tab3:
+            st.subheader(t("student_management"))
+            
+            with st.form("add_student_form"):
+                col1, col2 = st.columns(2)
+                with col1:
+                    new_id = st.text_input(t("ministry_id"))
+                    new_name = st.text_input(t("student_name"))
+                with col2:
+                    new_grade = st.text_input(t("grade"))
+                    new_bus = st.selectbox(t("bus_number"), ["1", "2", "3"])
+                    new_phone = st.text_input(t("parent_phone"))
+                
+                if st.form_submit_button(t("add_student")):
+                    new_student = pd.DataFrame([{
+                        "id": new_id,
+                        "name": new_name,
+                        "grade": new_grade,
+                        "bus": new_bus,
+                        "parent_phone": new_phone
+                    }])
+                    st.session_state.students_df = pd.concat([st.session_state.students_df, new_student], ignore_index=True)
+                    save_students(st.session_state.students_df)
+                    st.success(t("student_added"))
+            
+            st.dataframe(st.session_state.students_df, use_container_width=True)
+    
+    elif admin_password:
+        st.error(t("enter_correct_password"))
+
+# ===== صفحة الطقس =====
 elif st.session_state.page == "weather":
     st.subheader(f"🌦️ {t('abuja_weather')}")
     
@@ -686,64 +888,6 @@ elif st.session_state.page == "weather":
                     color_continuous_scale='RdYlGn')
         fig.update_layout(xaxis_title=t('condition'), yaxis_title=t('impact_on_attendance'))
         st.plotly_chart(fig, use_container_width=True)
-        
-        # توقعات مفصلة
-        st.subheader(t('detailed_forecast'))
-        times = ['6:00', '9:00', '12:00', '15:00', '18:00']
-        temps = [28, 35, 38, 36, 32]
-        conditions_forecast = ['صافي', 'مشمس', 'مشمس', 'غائم', 'صافي'] if st.session_state.lang == 'ar' else ['Clear', 'Sunny', 'Sunny', 'Cloudy', 'Clear']
-        
-        forecast_df = pd.DataFrame({
-            'Time': times,
-            'Temperature': temps,
-            'Condition': conditions_forecast
-        })
-        st.dataframe(forecast_df, use_container_width=True)
-
-# ===== صفحة الطالب =====
-elif st.session_state.page == "student":
-    col1, col2 = st.columns([2, 1])
-    
-    with col1:
-        st.subheader(t("student_attendance"))
-        
-        search_id = st.text_input(t("search_by_ministry_id"))
-        if search_id:
-            student_info = st.session_state.students_df[st.session_state.students_df["id"] == search_id]
-            if not student_info.empty:
-                student = student_info.iloc[0]
-                st.success(f"{t('found_student')}: {student['name']} - {t('grade')} {student['grade']}")
-                
-                status = st.radio(t("today_status"), 
-                                [f"✅ {t('coming')}", f"❌ {t('not_coming')}"],
-                                key="status_radio")
-                
-                if st.button(t("confirm_status"), type="primary"):
-                    now = datetime.datetime.now()
-                    status_text = "قادم" if t('coming') in status else "لن يأتي"
-                    new_entry = pd.DataFrame([[
-                        student["id"], student["name"], student["grade"], 
-                        student["bus"], status_text,
-                        now.strftime("%H:%M"),
-                        now.strftime("%Y-%m-%d")
-                    ]], columns=["id","name","grade","bus","status","time","date"])
-                    
-                    st.session_state.df = pd.concat([st.session_state.df, new_entry], ignore_index=True)
-                    save_data(st.session_state.df)
-                    add_notification(f"طالب جديد سجل حضوره: {student['name']} - الباص {student['bus']}")
-                    st.balloons()
-                    st.success(f"✅ {t('status_recorded')}")
-
-    with col2:
-        st.subheader(f"📊 {t('today_statistics')}")
-        stats = calculate_attendance_stats()
-        
-        st.metric(t("total_registered"), stats["total"])
-        st.metric(t("expected_attendance"), stats["coming"])
-        st.metric(t("attendance_rate"), f"{stats['percentage']:.1f}%")
-
-# ===== باقي الصفحات =====
-# [يتم الحفاظ على نفس المنطق للصفحات الأخرى مع الترجمة الكاملة]
 
 # ===== صفحة حول البرنامج =====
 elif st.session_state.page == "about":
@@ -762,15 +906,19 @@ elif st.session_state.page == "about":
         
         features = [
             (t("system_concept"), 
-             t("نظام متكامل لإدارة حضور طلاب الباص المدرسي باستخدام أحدث التقنيات")),
+             "نظام متكامل لإدارة حضور طلاب الباص المدرسي باستخدام أحدث التقنيات"),
             (t("objective"), 
-             t("تحسين كفاءة النقل المدرسي وتوفير وقت أولياء الأمور وزيادة سلامة الطلاب")),
+             "تحسين كفاءة النقل المدرسي وتوفير وقت أولياء الأمور وزيادة سلامة الطلاب"),
             (t("features"), 
-             t("تسجيل حضور ذكي، متابعة مباشرة، إشعارات فورية، تحليلات متقدمة، وتقارير شاملة")),
+             "تسجيل حضور ذكي، متابعة مباشرة، إشعارات فورية، تحليلات متقدمة، وتقارير شاملة"),
             (t("technologies"), 
-             t("يعتمد على Python, Streamlit, Pandas مع واجهة مستخدم عصرية وسهلة الاستخدام")),
+             "يعتمد على Python, Streamlit, Pandas مع واجهة مستخدم عصرية وسهلة الاستخدام"),
             (t("benefits"), 
-             t("توفير 40% من وقت الانتظار، خفض 25% من استهلاك الوقود، زيادة رضا المستخدمين 95%")),
+             "توفير 40% من وقت الانتظار، خفض 25% من استهلاك الوقود، زيادة رضا المستخدمين 95%"),
+            (t("rating_system"), 
+             "نظام تقييم متكامل لقياس أداء النظام ورضا المستخدمين"),
+            (t("working_days"), 
+             "الإثنين - الجمعة من كل أسبوع")
         ]
         
         for title, desc in features:
@@ -786,7 +934,6 @@ elif st.session_state.page == "about":
         st.info(f"""
         **{t('school_name')}**
         📍 أبوظبي، الإمارات العربية المتحدة
-        📞 04-1234567
         🌐 www.almunira-school.ae
         """)
 
@@ -804,6 +951,6 @@ with footer_cols[1]:
 
 with footer_cols[2]:
     st.markdown(f"**{t('development_team')}**")
-    st.markdown(f"{t('lead_developer')}: إياد مصطفى - {t('grade')} 10-B")
+    st.markdown(f"{t('lead_developer')}: إياد مصطفى")
 
 st.markdown(f"<div style='text-align:center; color:gray; margin-top: 2rem;'>© 2025 {t('all_rights_reserved')} - {t('smart_bus_system')}</div>", unsafe_allow_html=True)
