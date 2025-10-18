@@ -193,7 +193,7 @@ translations = {
         "grade_distribution": "توزيع الصفوف",
         "relative_humidity": "الرطوبة النسبية",
         "wind_conditions": "ظروف الرياح",
-        "uv_radiation": "الإشعاع فوق البنفسجي",
+        "uv_radiation": "الإشعاع فوق البنفسجية",
         "weather_impact_on_attendance": "تأثير الطقس على الحضور",
         "system_objective_description": "يهدف نظام الباص الذكي إلى تحسين إدارة النقل المدرسي وتوفير تجربة آمنة ومريحة للطلاب وأولياء الأمور.",
         "real_time_tracking": "تتبع في الوقت الحقيقي",
@@ -219,7 +219,8 @@ translations = {
         "bus_tracking": "تتبع الباصات",
         "attendance_management": "إدارة الحضور",
         "weather_alerts": "تنبيهات الطقس",
-        "reports_generation": "إنشاء التقارير"
+        "reports_generation": "إنشاء التقارير",
+        "no_students_coming": "لا يوجد طلاب قادمين اليوم"
     },
     "en": {
         # Main Titles
@@ -404,7 +405,8 @@ translations = {
         "bus_tracking": "Bus Tracking",
         "attendance_management": "Attendance Management",
         "weather_alerts": "Weather Alerts",
-        "reports_generation": "Reports Generation"
+        "reports_generation": "Reports Generation",
+        "no_students_coming": "No students coming today"
     }
 }
 
@@ -632,22 +634,6 @@ st.markdown(f"""
         border-radius: 15px;
         margin: 0.5rem 0;
     }}
-    .feature-card {{
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 1.5rem;
-        border-radius: 15px;
-        margin: 0.5rem 0;
-        text-align: center;
-    }}
-    .team-card {{
-        background: white;
-        padding: 1.5rem;
-        border-radius: 15px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        margin: 1rem 0;
-        border-top: 5px solid #667eea;
-    }}
     </style>
 """, unsafe_allow_html=True)
 
@@ -767,10 +753,12 @@ if st.session_state.page == "student":
                         save_data(st.session_state.df)
                         
                         st.balloons()
-                        success_msg = f"✅ {t('status_recorded')} - {t('status_valid_until')} {expiry_time.strftime('%H:%M')}"
+                        success_msg = f"✅ {t('status_recorded')} - أنت {status_text} اليوم - {t('status_valid_until')} {expiry_time.strftime('%H:%M')}"
                         st.success(success_msg)
                         
                         add_notification(f"طالب جديد سجل حضوره: {student['name']} - الباص {student['bus']}")
+                        time.sleep(2)
+                        st.rerun()
 
     with col2:
         st.subheader("📊 " + t("today_stats"))
@@ -806,7 +794,7 @@ elif st.session_state.page == "driver":
             st.session_state.driver_logged_in = False
             st.rerun()
         
-        # قائمة طلاب الباص
+        # قائمة طلاب الباص - تم التعديل هنا
         st.subheader(f"📋 {t('student_list')} - {t('bus_number')} {st.session_state.current_bus}")
         bus_students = st.session_state.students_df[st.session_state.students_df["bus"] == st.session_state.current_bus]
         
@@ -821,8 +809,12 @@ elif st.session_state.page == "driver":
             
             st.metric(t("students_coming"), len(coming_students))
             
-            for _, student in coming_students.iterrows():
-                st.write(f"✅ {student['name']} - {student['grade']} - {student['time']}")
+            if not coming_students.empty:
+                st.subheader("🎒 الطلاب القادمون اليوم:")
+                for _, student in coming_students.iterrows():
+                    st.success(f"✅ {student['name']} - {student['grade']} - الساعة: {student['time']}")
+            else:
+                st.info("🚫 " + t("no_students_coming"))
         else:
             st.info(t("no_data_today"))
 
@@ -855,16 +847,16 @@ elif st.session_state.page == "parents":
                     if st.session_state.lang == "en":
                         status_display = "Coming" if status == "قادم" else "Not Coming"
                     
-                    st.success(f"{t('latest_status')}: {status_display} - {t('last_update')}: {time}")
+                    st.success(f"**{t('latest_status')}:** {status_display} - **{t('last_update')}:** {time}")
                 else:
                     no_data_msg = "لا توجد بيانات حضور لهذا اليوم" if st.session_state.lang == "ar" else "No attendance data for today"
                     st.info(no_data_msg)
             
             with col2:
                 st.subheader("🚌 " + t("bus_information"))
-                st.write(f"{t('bus_number')}: {student['bus']}")
-                st.write(f"{t('approximate_morning_time')}: 7:00 AM")
-                st.write(f"{t('approximate_afternoon_time')}: 2:00 PM")
+                st.write(f"**{t('bus_number')}:** {student['bus']}")
+                st.write(f"**{t('approximate_morning_time')}:** 7:00 AM")
+                st.write(f"**{t('approximate_afternoon_time')}:** 2:00 PM")
         else:
             st.error(t("invalid_id"))
 
@@ -1250,12 +1242,18 @@ elif st.session_state.page == "about":
         if st.form_submit_button(t("submit_rating")):
             add_rating(rating, comments)
             st.success("✅ " + t("thank_you_rating"))
-# ===== الشريط السفلي =====
+
+# ===== الشريط السفلي مع حقوق الملكية =====
 st.markdown("---")
 footer_col1, footer_col2, footer_col3 = st.columns([2, 1, 1])
 
 with footer_col1:
-    st.markdown(f"© 2024 {t('school_name')}. {t('all_rights_reserved')}")
+    st.markdown(f"""
+    <div style='text-align: center; color: #666; font-size: 12px;'>
+        © 2024 نظام الباص الذكي - {t('school_name')}. {t('all_rights_reserved')}<br>
+        تم التطوير بواسطة: إياد مصطفى - تصميم: ايمن جلال - إشراف: قسم النادي البيئي
+    </div>
+    """, unsafe_allow_html=True)
 
 with footer_col2:
     if st.session_state.notifications:
@@ -1266,5 +1264,3 @@ with footer_col2:
 with footer_col3:
     if st.button("🔄 " + t("refresh")):
         st.rerun()
-
-
