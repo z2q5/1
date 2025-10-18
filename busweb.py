@@ -1124,8 +1124,16 @@ elif st.session_state.page == "about":
     for i, feature in enumerate(features):
         with cols[i % 3]:
             st.markdown(f"""
-            <div class='feature-card'>
-                <h4>{feature}</h4>
+            <div style='
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 1.5rem;
+                border-radius: 15px;
+                margin: 0.5rem 0;
+                text-align: center;
+                border: none;
+            '>
+                <h4 style='color: white; margin: 0;'>{feature}</h4>
             </div>
             """, unsafe_allow_html=True)
     
@@ -1136,34 +1144,46 @@ elif st.session_state.page == "about":
     
     with col1:
         st.markdown(f"""
-        <div class='team-card'>
-            <h3>💻 {t('lead_developer')}</h3>
-            <h4>إياد مصطفى</h4>
-            <p>Iyad Mustafa</p>
-            <p style='color: #666;'>المطور الرئيسي والمسؤول عن برمجة النظام بالكامل</p>
-            <p>📧 iyad.mustafa@almunira.edu.ae</p>
+        <div style='
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            margin: 0.5rem 0;
+        '>
+            <h3 style='color: white;'>💻 {t('lead_developer')}</h3>
+            <h2 style='color: white; margin: 1rem 0;'>إياد مصطفى</h2>
         </div>
         """, unsafe_allow_html=True)
     
     with col2:
         st.markdown(f"""
-        <div class='team-card'>
-            <h3>🎨 {t('designer')}</h3>
-            <h4>ايمن جلال</h4>
-            <p>Ayman Jalal</p>
-            <p style='color: #666;'>مصمم الجرافيك والواجهات والمؤثرات البصرية</p>
-            <p>📧 ayman.jalal@almunira.edu.ae</p>
+        <div style='
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            margin: 0.5rem 0;
+        '>
+            <h3 style='color: white;'>🎨 {t('designer')}</h3>
+            <h2 style='color: white; margin: 1rem 0;'>ايمن جلال</h2>
         </div>
         """, unsafe_allow_html=True)
     
     with col3:
         st.markdown(f"""
-        <div class='team-card'>
-            <h3>👨‍🏫 {t('supervisor')}</h3>
-            <h4>{t('environmental_club')}</h4>
-            <p>Environmental Club Department</p>
-            <p style='color: #666;'>المشرف على المشروع وقسم النادي البيئي</p>
-            <p>📧 environmental.club@almunira.edu.ae</p>
+        <div style='
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            margin: 0.5rem 0;
+        '>
+            <h3 style='color: white;'>👨‍🏫 {t('supervisor')}</h3>
+            <h2 style='color: white; margin: 1rem 0;'>قسم النادي البيئي</h2>
         </div>
         """, unsafe_allow_html=True)
     
@@ -1174,42 +1194,57 @@ elif st.session_state.page == "about":
     
     with tech_col1:
         st.markdown("""
-        #### 🐍 تقنيات البرمجة:
-        - Python 3.11
-        - Streamlit Framework
-        - Pandas للبيانات
-        - Plotly للرسوم البيانية
-        - datetime لإدارة الوقت
-        
-        #### 🎨 تقنيات التصميم:
-        - CSS3 المتقدم
-        - تصميم متجاوب
-        - ألوان متدرجة
-        - ظلال متقدمة
-        """)
+        <div style='
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin: 0.5rem 0;
+        '>
+            <h4>🐍 تقنيات البرمجة:</h4>
+            <ul>
+                <li>Python 3.11</li>
+                <li>Streamlit Framework</li>
+                <li>Pandas للبيانات</li>
+                <li>Plotly للرسوم البيانية</li>
+                <li>datetime لإدارة الوقت</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
     
     with tech_col2:
         st.markdown("""
-        #### 📊 إدارة البيانات:
-        - CSV Files
-        - Pandas DataFrames
-        - Session State Management
-        - Real-time Updates
-        
-        #### 🌐 المميزات التقنية:
-        - واجهة متعددة اللغات
-        - تحديث فوري
-        - تصميم متكامل
-        - أداء عالي
-        """)
+        <div style='
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin: 0.5rem 0;
+        '>
+            <h4>📊 إدارة البيانات:</h4>
+            <ul>
+                <li>CSV Files</li>
+                <li>Pandas DataFrames</li>
+                <li>Session State Management</li>
+                <li>Real-time Updates</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
     
     # قسم الهدف
     st.markdown("### 🎯 " + t("objective"))
     st.markdown(f"""
-    <div class='report-card'>
-        <p>{t('system_objective_description')}</p>
-        <p><strong>💡 رؤيتنا:</strong> أن نكون النظام الرائد في إدارة النقل المدرسي الذكي في دولة الإمارات العربية المتحدة</p>
-        <p><strong>🎯 رسالتنا:</strong> توفير نظام متكامل وآمن وفعال لإدارة نقل الطلاب مع الحفاظ على البيئة</p>
+    <div style='
+        background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin: 1rem 0;
+    '>
+        <h3 style='color: white; text-align: center;'>رؤية ورسالة النظام</h3>
+        <p style='color: white; text-align: center; font-size: 1.1rem;'>{t('system_objective_description')}</p>
+        <p style='color: white; text-align: center;'><strong>💡 رؤيتنا:</strong> أن نكون النظام الرائد في إدارة النقل المدرسي الذكي</p>
+        <p style='color: white; text-align: center;'><strong>🎯 رسالتنا:</strong> توفير نظام متكامل وآمن وفعال لإدارة نقل الطلاب</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -1240,3 +1275,4 @@ with footer_col2:
 with footer_col3:
     if st.button("🔄 " + t("refresh")):
         st.rerun()
+
