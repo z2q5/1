@@ -24,10 +24,10 @@ if "driver_logged_in" not in st.session_state:
 if "current_bus" not in st.session_state:
     st.session_state.current_bus = "1"
 
-# ===== البيانات الافتراضية =====
+# ===== البيانات الافتراضية - التصحيح النهائي =====
 def initialize_data():
-    """تهيئة جميع البيانات"""
-    # بيانات الطلاب الافتراضية
+    """تهيئة جميع البيانات بشكل صحيح"""
+    # بيانات الطلاب الافتراضية - التأكد من أن الأعمدة صحيحة
     students_data = [
         {"id": "1001", "name": "أحمد محمد", "grade": "10-A", "bus": "1", "parent_phone": "0501234567"},
         {"id": "1002", "name": "فاطمة علي", "grade": "9-B", "bus": "2", "parent_phone": "0507654321"},
@@ -37,7 +37,8 @@ def initialize_data():
         {"id": "1006", "name": "ريم أحمد", "grade": "11-A", "bus": "3", "parent_phone": "0506666666"},
     ]
     
-    if 'students_df' not in st.session_state:
+    # التأكد من أن البيانات محفوظة في session state
+    if 'students_df' not in st.session_state or st.session_state.students_df.empty:
         st.session_state.students_df = pd.DataFrame(students_data)
     
     if 'attendance_df' not in st.session_state:
@@ -48,7 +49,7 @@ def initialize_data():
     if 'ratings_df' not in st.session_state:
         st.session_state.ratings_df = pd.DataFrame(columns=["rating", "comments", "timestamp"])
 
-# تهيئة البيانات
+# تهيئة البيانات عند بدء التشغيل
 initialize_data()
 
 # ===== كلمات المرور =====
@@ -76,8 +77,11 @@ def calculate_attendance_stats():
     """حساب إحصائيات الحضور"""
     today = datetime.datetime.now().strftime("%Y-%m-%d")
     
-    # التأكد من وجود البيانات
-    if st.session_state.attendance_df.empty or "date" not in st.session_state.attendance_df.columns:
+    if st.session_state.attendance_df.empty:
+        return {"total": 0, "coming": 0, "percentage": 0}
+    
+    # التأكد من وجود عمود التاريخ
+    if "date" not in st.session_state.attendance_df.columns:
         return {"total": 0, "coming": 0, "percentage": 0}
     
     today_data = st.session_state.attendance_df[
@@ -238,112 +242,121 @@ for i, (name, key) in enumerate(zip(pages, page_keys)):
 
 st.markdown("---")
 
-# ===== صفحة الطالب =====
+# ===== صفحة الطالب - التصحيح النهائي =====
 if st.session_state.page == "student":
     col1, col2 = st.columns([2, 1])
     
     with col1:
         st.subheader("🎓 تسجيل حضور الطالب")
         
-        # عرض أكواد الطلاب للمساعدة
-        with st.expander("📋 أكواد الطلاب المتاحة (انقر هنا)"):
-            st.write("**يمكنك استخدام أي من هذه الأرقام:**")
-            st.code("1001, 1002, 1003, 1004, 1005, 1006")
-            st.write("""
-            **الأرقام والطلاب:**
-            - 1001: أحمد محمد (الباص 1)
-            - 1002: فاطمة علي (الباص 2)  
-            - 1003: خالد إبراهيم (الباص 3)
-            - 1004: سارة عبدالله (الباص 1)
-            - 1005: محمد حسن (الباص 2)
-            - 1006: ريم أحمد (الباص 3)
-            """)
+        # إزالة زر الأكواد التجريبية ووضع المعلومات مباشرة
+        st.info("""
+        **💡 معلومات مهمة:**
+        - أدخل رقم الوزارة الخاص بك
+        - الأرقام المتاحة: 1001, 1002, 1003, 1004, 1005, 1006
+        - بعد إدخال الرقم، س تظهر معلوماتك تلقائياً
+        """)
         
         student_id = st.text_input("🔍 أدخل رقم الوزارة", placeholder="أدخل رقم الوزارة هنا...")
         
         if student_id:
-            # البحث عن الطالب
-            student_info = st.session_state.students_df[
-                st.session_state.students_df["id"] == student_id
-            ]
+            # التأكد من أن بيانات الطلاب محملة بشكل صحيح
+            if st.session_state.students_df.empty:
+                st.error("❌ جاري تحميل بيانات الطلاب...")
+                initialize_data()
+                st.rerun()
             
-            if not student_info.empty:
-                student = student_info.iloc[0]
+            # البحث عن الطالب - التصحيح النهائي هنا
+            try:
+                # تحويل student_id إلى string للمقارنة الصحيحة
+                student_id_str = str(student_id).strip()
                 
-                st.markdown(f"""
-                <div class='student-card'>
-                    <h3>🎓 {student['name']}</h3>
-                    <p><strong>الصف:</strong> {student['grade']}</p>
-                    <p><strong>رقم الباص:</strong> {student['bus']}</p>
-                    <p><strong>هاتف ولي الأمر:</strong> {student['parent_phone']}</p>
-                </div>
-                """, unsafe_allow_html=True)
+                # البحث في DataFrame
+                student_info = st.session_state.students_df[
+                    st.session_state.students_df["id"].astype(str) == student_id_str
+                ]
                 
-                # التحقق من التسجيل المسبق
-                already_registered, current_status, expiry_time = has_student_registered_today(student_id)
-                
-                if already_registered:
-                    st.warning(f"""
-                    ⚠️ **لقد سجلت حالتك مسبقاً**
+                if not student_info.empty:
+                    student = student_info.iloc[0]
                     
-                    **الحالة الحالية:** {current_status}
-                    **الحالة سارية حتى:** {expiry_time.strftime('%H:%M') if expiry_time else 'N/A'}
-                    """)
+                    st.markdown(f"""
+                    <div class='student-card'>
+                        <h3>🎓 {student['name']}</h3>
+                        <p><strong>الصف:</strong> {student['grade']}</p>
+                        <p><strong>رقم الباص:</strong> {student['bus']}</p>
+                        <p><strong>هاتف ولي الأمر:</strong> {student['parent_phone']}</p>
+                    </div>
+                    """, unsafe_allow_html=True)
                     
-                    if st.button("تغيير الحالة", type="secondary", use_container_width=True):
-                        # إزالة التسجيل القديم
-                        today = datetime.datetime.now().strftime("%Y-%m-%d")
-                        st.session_state.attendance_df = st.session_state.attendance_df[
-                            ~((st.session_state.attendance_df["id"] == student_id) & 
-                              (st.session_state.attendance_df["date"] == today))
-                        ]
-                        st.success("✅ تم إعادة تعيين حالتك، يمكنك التسجيل مرة أخرى")
-                        st.rerun()
-                else:
-                    # خيارات التسجيل
-                    status = st.radio("الحالة اليوم", ["✅ سأحضر اليوم", "❌ لن أحضر اليوم"])
+                    # التحقق من التسجيل المسبق
+                    already_registered, current_status, expiry_time = has_student_registered_today(student_id_str)
                     
-                    if st.button("تأكيد الحالة", type="primary", use_container_width=True):
-                        now = datetime.datetime.now()
-                        status_text = "قادم" if "سأحضر" in status else "لن يأتي"
+                    if already_registered:
+                        st.warning(f"""
+                        ⚠️ **لقد سجلت حالتك مسبقاً**
                         
-                        new_entry = pd.DataFrame([{
-                            "id": student["id"],
-                            "name": student["name"], 
-                            "grade": student["grade"],
-                            "bus": student["bus"],
-                            "status": status_text,
-                            "time": now.strftime("%H:%M"),
-                            "date": now.strftime("%Y-%m-%d"),
-                            "expiry_time": (now + datetime.timedelta(hours=12)).strftime("%Y-%m-%d %H:%M:%S")
-                        }])
-                        
-                        st.session_state.attendance_df = pd.concat([
-                            st.session_state.attendance_df, new_entry
-                        ], ignore_index=True)
-                        
-                        st.balloons()
-                        st.success(f"""
-                        🎉 **تم التسجيل بنجاح!**
-                        
-                        **الطالب:** {student['name']}
-                        **الحالة:** {status_text}
-                        **وقت التسجيل:** {now.strftime('%H:%M')}
-                        **رقم الباص:** {student['bus']}
+                        **الحالة الحالية:** {current_status}
+                        **الحالة سارية حتى:** {expiry_time.strftime('%H:%M')}
                         """)
                         
-                        add_notification(f"طالب جديد سجل حضوره: {student['name']} - الباص {student['bus']}")
-            else:
-                st.error("❌ لم يتم العثور على الطالب")
-                st.info("""
-                **جرب أحد هذه الأرقام:**
-                - 1001 (أحمد محمد)
-                - 1002 (فاطمة علي) 
-                - 1003 (خالد إبراهيم)
-                - 1004 (سارة عبدالله)
-                - 1005 (محمد حسن)
-                - 1006 (ريم أحمد)
-                """)
+                        if st.button("تغيير الحالة", type="secondary", use_container_width=True):
+                            # إزالة التسجيل القديم
+                            today = datetime.datetime.now().strftime("%Y-%m-%d")
+                            st.session_state.attendance_df = st.session_state.attendance_df[
+                                ~((st.session_state.attendance_df["id"] == student_id_str) & 
+                                  (st.session_state.attendance_df["date"] == today))
+                            ]
+                            st.success("✅ تم إعادة تعيين حالتك، يمكنك التسجيل مرة أخرى")
+                            st.rerun()
+                    else:
+                        # خيارات التسجيل
+                        status = st.radio("الحالة اليوم", ["✅ سأحضر اليوم", "❌ لن أحضر اليوم"])
+                        
+                        if st.button("تأكيد الحالة", type="primary", use_container_width=True):
+                            now = datetime.datetime.now()
+                            status_text = "قادم" if "سأحضر" in status else "لن يأتي"
+                            
+                            new_entry = pd.DataFrame([{
+                                "id": student["id"],
+                                "name": student["name"], 
+                                "grade": student["grade"],
+                                "bus": student["bus"],
+                                "status": status_text,
+                                "time": now.strftime("%H:%M"),
+                                "date": now.strftime("%Y-%m-%d"),
+                                "expiry_time": (now + datetime.timedelta(hours=12)).strftime("%Y-%m-%d %H:%M:%S")
+                            }])
+                            
+                            st.session_state.attendance_df = pd.concat([
+                                st.session_state.attendance_df, new_entry
+                            ], ignore_index=True)
+                            
+                            st.balloons()
+                            st.success(f"""
+                            🎉 **تم التسجيل بنجاح!**
+                            
+                            **الطالب:** {student['name']}
+                            **الحالة:** {status_text}
+                            **وقت التسجيل:** {now.strftime('%H:%M')}
+                            **رقم الباص:** {student['bus']}
+                            """)
+                            
+                            add_notification(f"طالب جديد سجل حضوره: {student['name']} - الباص {student['bus']}")
+                else:
+                    st.error("❌ لم يتم العثور على الطالب")
+                    st.info("""
+                    **تأكد من إدخال الرقم الصحيح:**
+                    - 1001 (أحمد محمد)
+                    - 1002 (فاطمة علي) 
+                    - 1003 (خالد إبراهيم)
+                    - 1004 (سارة عبدالله)
+                    - 1005 (محمد حسن)
+                    - 1006 (ريم أحمد)
+                    """)
+                    
+            except Exception as e:
+                st.error(f"❌ حدث خطأ في البحث: {e}")
+                st.info("جرب إدخال أحد هذه الأرقام: 1001, 1002, 1003, 1004, 1005, 1006")
 
     with col2:
         st.subheader("📊 إحصائيات اليوم")
@@ -435,8 +448,9 @@ elif st.session_state.page == "parents":
     
     student_id = st.text_input("أدخل رقم الوزارة الخاص بابنك/ابنتك", placeholder="مثال: 1001")
     if student_id:
+        # البحث عن الطالب
         student_info = st.session_state.students_df[
-            st.session_state.students_df["id"] == student_id
+            st.session_state.students_df["id"].astype(str) == str(student_id).strip()
         ]
         
         if not student_info.empty:
@@ -451,7 +465,7 @@ elif st.session_state.page == "parents":
                 
                 if not st.session_state.attendance_df.empty and "date" in st.session_state.attendance_df.columns:
                     today_status = st.session_state.attendance_df[
-                        (st.session_state.attendance_df["id"] == student_id) & 
+                        (st.session_state.attendance_df["id"] == student["id"]) & 
                         (st.session_state.attendance_df["date"] == today)
                     ]
                 else:
