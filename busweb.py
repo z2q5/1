@@ -147,16 +147,17 @@ elif st.session_state.page == "credits":
         - 🏫 المدرسة: **مدرسة المنيرة الخاصة**  
         - 📅 سنة التطوير: **2025**  
         - 💡 هذا النظام لا يزال تحت التجربة وقد تحدث بعض الأخطاء.
-        "",
+        """,
         """
-        - 🧠 Concept & Development: **Eyad Mustafa - Grade 10-B**  
-        - 🎨 Graphics: **Ayman Galal**  
-        - 🏫 School: **Al Munira Private School**  
-        - 📅 Year: **2025**  
-        - 💡 This system is still under testing; minor bugs may occur.
+        -  Concept & Development: **Eyad Mustafa - Grade 10-B**  
+        -  Graphics: **Ayman Galal**  
+        -  School: **Al Munira Private School**  
+        -  Year: **2025**  
+        -  This system is still under testing; minor bugs may occur.
         """
     ))
 
 # ===== تذييل =====
 st.markdown("---")
 st.markdown(f"<div style='text-align:center; color:gray;'>{t('© 2025 جميع الحقوق محفوظة لمدرسة المنيرة الخاصة', '© 2025 All Rights Reserved - Al Munira Private School')}</div>", unsafe_allow_html=True)
+
