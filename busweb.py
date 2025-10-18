@@ -1187,49 +1187,41 @@ elif st.session_state.page == "about":
         </div>
         """, unsafe_allow_html=True)
     
-    # قسم التقنيات
+    # قسم التقنيات - العودة للتصميم القديم
     st.markdown("### 💻 " + t("technologies"))
     
     tech_col1, tech_col2 = st.columns(2)
     
     with tech_col1:
         st.markdown("""
-        <div style='
-            background: white;
-            padding: 1.5rem;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            margin: 0.5rem 0;
-        '>
-            <h4>🐍 تقنيات البرمجة:</h4>
-            <ul>
-                <li>Python 3.11</li>
-                <li>Streamlit Framework</li>
-                <li>Pandas للبيانات</li>
-                <li>Plotly للرسوم البيانية</li>
-                <li>datetime لإدارة الوقت</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
+        #### 🐍 تقنيات البرمجة:
+        - Python 3.11
+        - Streamlit Framework
+        - Pandas للبيانات
+        - Plotly للرسوم البيانية
+        - datetime لإدارة الوقت
+        
+        #### 🎨 تقنيات التصميم:
+        - CSS3 المتقدم
+        - تصميم متجاوب
+        - ألوان متدرجة
+        - ظلال متقدمة
+        """)
     
     with tech_col2:
         st.markdown("""
-        <div style='
-            background: white;
-            padding: 1.5rem;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            margin: 0.5rem 0;
-        '>
-            <h4>📊 إدارة البيانات:</h4>
-            <ul>
-                <li>CSV Files</li>
-                <li>Pandas DataFrames</li>
-                <li>Session State Management</li>
-                <li>Real-time Updates</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
+        #### 📊 إدارة البيانات:
+        - CSV Files
+        - Pandas DataFrames
+        - Session State Management
+        - Real-time Updates
+        
+        #### 🌐 المميزات التقنية:
+        - واجهة متعددة اللغات
+        - تحديث فوري
+        - تصميم متكامل
+        - أداء عالي
+        """)
     
     # قسم الهدف
     st.markdown("### 🎯 " + t("objective"))
@@ -1258,7 +1250,6 @@ elif st.session_state.page == "about":
         if st.form_submit_button(t("submit_rating")):
             add_rating(rating, comments)
             st.success("✅ " + t("thank_you_rating"))
-
 # ===== الشريط السفلي =====
 st.markdown("---")
 footer_col1, footer_col2, footer_col3 = st.columns([2, 1, 1])
@@ -1275,4 +1266,5 @@ with footer_col2:
 with footer_col3:
     if st.button("🔄 " + t("refresh")):
         st.rerun()
+
 
