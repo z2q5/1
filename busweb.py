@@ -11,7 +11,7 @@ import plotly.graph_objects as go
 
 # ===== إعداد الصفحة =====
 st.set_page_config(
-    page_title="نظام حضور الباص - المنيرة الخاصة", 
+    page_title="Smart Bus System - Al Munira Private School", 
     layout="wide",
     page_icon="🚍"
 )
@@ -20,7 +20,7 @@ st.set_page_config(
 if "lang" not in st.session_state:
     st.session_state.lang = "ar"
 if "page" not in st.session_state:
-    st.session_state.page = "dashboard"
+    st.session_state.page = "student"
 if "notifications" not in st.session_state:
     st.session_state.notifications = []
 if "driver_logged_in" not in st.session_state:
@@ -34,12 +34,12 @@ DATA_FILE = "attendance_data.csv"
 STUDENTS_FILE = "students_data.csv"
 RATINGS_FILE = "ratings_data.csv"
 
-# ===== الترجمة الشاملة =====
+# ===== الترجمة الشاملة لكل النصوص =====
 translations = {
     "ar": {
-        "dashboard": "لوحة التحكم",
+        # العناوين الرئيسية
         "student": "الطالب",
-        "driver": "السائق",
+        "driver": "السائق", 
         "parents": "أولياء الأمور",
         "admin": "الإدارة",
         "weather": "الطقس",
@@ -47,83 +47,79 @@ translations = {
         "school_name": "مدرسة المنيرة الخاصة - أبوظبي",
         "smart_bus_system": "نظام الباص الذكي",
         "welcome": "مرحباً بك في نظام الباص الذكي",
-        "today_stats": "إحصائيات اليوم",
-        "total_students": "إجمالي الطلاب",
-        "present_today": "الحاضرون اليوم",
-        "attendance_rate": "نسبة الحضور",
-        "buses_operating": "الباصات العاملة",
-        "live_tracking": "التتبع الحي",
-        "reports": "التقارير",
-        "settings": "الإعدادات",
-        "search_student": "ابحث عن طالب...",
+        
+        # أزرار وتحكم
+        "search": "بحث",
+        "submit": "إرسال",
+        "login": "تسجيل الدخول",
+        "logout": "تسجيل الخروج",
+        "confirm": "تأكيد",
+        "cancel": "إلغاء",
+        "save": "حفظ",
+        "delete": "حذف",
+        "edit": "تعديل",
+        "add": "إضافة",
+        "update": "تحديث",
+        "refresh": "تحديث",
+        "download": "تحميل",
+        "upload": "رفع",
+        "select": "اختر",
+        "change": "تغيير",
+        
+        # نصوص الصفحات
         "student_attendance": "تسجيل حضور الطالب",
         "search_by_ministry_id": "ابحث برقم الوزارة",
-        "found_student": "تم العثور على الطالب",
-        "today_status": "الحالة اليوم",
-        "coming": "قادم",
-        "not_coming": "لن يأتي",
-        "confirm_status": "تأكيد الحالة",
-        "status_recorded": "تم تسجيل الحالة بنجاح",
-        "manual_registration": "التسجيل اليدوي",
-        "ministry_id": "رقم الوزارة",
+        "enter_ministry_id": "أدخل رقم الوزارة",
         "student_name": "اسم الطالب",
         "grade": "الصف",
         "bus_number": "رقم الباص",
-        "submit": "إرسال",
-        "your_status_submitted": "تم إرسال حالتك بنجاح",
-        "today_statistics": "إحصائيات اليوم",
-        "total_registered": "إجمالي المسجلين",
-        "expected_attendance": "الحضور المتوقع",
+        "today_status": "الحالة اليوم",
+        "coming": "سأحضر",
+        "not_coming": "لن أحضر",
+        "confirm_status": "تأكيد الحالة",
+        "status_recorded": "تم تسجيل الحالة بنجاح",
+        "already_registered": "لقد سجلت حالتك مسبقاً",
+        "current_status": "الحالة الحالية",
+        "status_valid_until": "الحالة سارية حتى",
+        "change_status": "تغيير الحالة",
+        
         "driver_dashboard": "لوحة تحكم السائق",
         "select_bus": "اختر الباص",
         "password": "كلمة المرور",
-        "login": "تسجيل الدخول",
-        "logged_in_success": "تم الدخول بنجاح",
         "incorrect_password": "كلمة مرور غير صحيحة",
         "student_list": "قائمة الطلاب",
-        "students_coming": "طلاب سيحضرون",
+        "students_coming": "الطلاب القادمون",
         "no_data_today": "لا توجد بيانات للباص اليوم",
+        
         "parents_portal": "بوابة أولياء الأمور",
         "enter_student_id": "أدخل رقم الوزارة الخاص بابنك/ابنتك",
-        "student_ministry_id": "رقم الوزارة للطالب",
-        "welcome_student": "مرحباً! تم العثور على الطالب",
         "attendance_tracking": "متابعة الحضور",
         "bus_information": "معلومات الباص",
         "latest_status": "آخر حالة",
         "last_update": "آخر تحديث",
-        "attendance_history": "سجل الحضور",
-        "no_records_yet": "لا توجد سجلات حضور حتى الآن",
-        "bus_info": "معلومات الباص",
         "approximate_morning_time": "وقت الصباح التقريبي",
         "approximate_afternoon_time": "وقت الظهيرة التقريبي",
-        "students_on_bus_today": "طلاب في الباص اليوم",
-        "invalid_id": "رقم الوزارة غير صحيح",
+        
         "admin_panel": "لوحة تحكم الإدارة",
+        "admin_password": "كلمة مرور الإدارة",
         "access_granted": "تم الدخول بنجاح",
         "attendance_data": "بيانات الحضور",
         "download_csv": "تحميل كملف CSV",
-        "refresh_data": "تحديث البيانات",
-        "no_attendance_records": "لا توجد بيانات حضور حتى الآن",
         "reports_analytics": "التقارير والإحصائيات",
         "attendance_reports": "تقارير الحضور",
-        "expected_absent": "الغياب المتوقع",
-        "bus_performance": "أداء الباصات",
-        "attendance_by_grade": "الحضور حسب الصف",
         "student_management": "إدارة الطلاب",
         "add_new_student": "إضافة طالب جديد",
         "parent_phone": "هاتف ولي الأمر",
-        "add_student": "إضافة طالب",
         "student_added": "تم إضافة الطالب بنجاح",
-        "system_settings": "إعدادات النظام",
-        "enter_correct_password": "أدخل كلمة مرور صحيحة",
-        "weather_impact": "تأثير الطقس على الحضور",
+        
+        "weather_forecast": "توقعات الطقس",
         "temperature": "درجة الحرارة",
-        "condition": "الحالة",
-        "high_temp_warning": "تحذير: حرارة مرتفعة - متوقع زيادة في نسبة الغياب",
-        "ac_recommendation": "توصية: تأكد من تكييف الباص ووجود مياه باردة",
-        "cold_weather": "جو بارد - قد يؤثر على الحضور",
-        "moderate_weather": "جو معتدل - متوقع نسبة حضور عالية",
-        "predicted_attendance": "الحضور المتوقع",
+        "humidity": "الرطوبة",
+        "wind_speed": "سرعة الرياح",
+        "uv_index": "مؤشر الأشعة فوق البنفسجية",
+        "air_quality": "جودة الهواء",
+        "weather_impact": "تأثير الطقس على الحضور",
+        
         "about_system": "حول النظام",
         "system_concept": "فكرة النظام",
         "objective": "الهدف",
@@ -134,70 +130,83 @@ translations = {
         "lead_developer": "المطور الرئيسي",
         "designer": "المصمم",
         "supervisor": "المشرف",
-        "all_rights_reserved": "جميع الحقوق محفوظة",
-        "interactive_dashboard": "لوحة التحكم التفاعلية",
-        "smart_reports": "التقارير الذكية",
-        "real_time_analytics": "التحليلات اللحظية",
-        "student_ranking": "تصنيف الطلاب",
-        "bus_locations": "مواقع الباصات",
-        "weather_alerts": "تنبيهات الطقس",
-        "quick_actions": "إجراءات سريعة",
-        "generate_report": "إنشاء تقرير",
-        "send_notification": "إرسال إشعار",
-        "view_all_reports": "عرض جميع التقارير",
-        "weekly_analysis": "تحليل أسبوعي",
-        "monthly_trends": "الاتجاهات الشهرية",
-        "performance_metrics": "مقاييس الأداء",
-        "attendance_trend": "اتجاه الحضور",
-        "bus_utilization": "استخدام الباصات",
-        "student_engagement": "مشاركة الطلاب",
-        "parent_satisfaction": "رضا أولياء الأمور",
-        "efficiency_score": "معدل الكفاءة",
-        "abuja_weather": "طقس أبوظبي",
-        "detailed_forecast": "توقعات مفصلة",
-        "weather_impact_analysis": "تحليل تأثير الطقس",
-        "humidity": "الرطوبة",
-        "wind_speed": "سرعة الرياح",
-        "uv_index": "مؤشر الأشعة فوق البنفسجية",
-        "air_quality": "جودة الهواء",
-        "recommendations": "التوصيات",
-        "excellent_conditions": "ظروف ممتازة للحضور",
-        "moderate_impact": "تأثير متوسط على الحضور",
-        "high_impact": "تأثير كبير على الحضور",
-        "take_precautions": "اتخذ الاحتياطات اللازمة",
-        "excellent_air_quality": "جودة هواء ممتازة",
-        "good_air_quality": "جودة هواء جيدة",
-        "moderate_air_quality": "جودة هواء متوسطة",
-        "poor_air_quality": "جودة هواء سيئة",
-        "version": "الإصدار",
-        "days": "الأيام",
-        "utilization_rate": "معدل الاستخدام",
-        "notification_sent": "تم إرسال الإشعار",
+        
+        # الإحصائيات
+        "today_stats": "إحصائيات اليوم",
+        "total_students": "إجمالي الطلاب",
+        "present_today": "الحاضرون اليوم",
+        "attendance_rate": "نسبة الحضور",
+        "buses_operating": "الباصات العاملة",
+        "total_registered": "إجمالي المسجلين",
+        "expected_attendance": "الحضور المتوقع",
+        "expected_absent": "الغياب المتوقع",
+        "average_rating": "متوسط التقييم",
+        "total_ratings": "إجمالي التقييمات",
+        
+        # الرسائل
+        "success": "نجح",
+        "error": "خطأ",
+        "warning": "تحذير",
+        "info": "معلومات",
+        "loading": "جاري التحميل",
+        "processing": "جاري المعالجة",
+        "saved_successfully": "تم الحفظ بنجاح",
+        "updated_successfully": "تم التحديث بنجاح",
+        "deleted_successfully": "تم الحذف بنجاح",
+        
+        # أيام الأسبوع
+        "monday": "الإثنين",
+        "tuesday": "الثلاثاء",
+        "wednesday": "الأربعاء",
+        "thursday": "الخميس",
+        "friday": "الجمعة",
+        "saturday": "السبت",
+        "sunday": "الأحد",
+        
+        # أزرار اللغة
         "arabic": "العربية",
         "english": "English",
-        "working_days": "أيام الدوام: الإثنين - الجمعة",
+        
+        # تقييم النظام
         "rating_system": "نظام التقييم",
-        "system_rating": "تقييم النظام",
         "rate_system": "قيم النظام",
         "your_rating": "تقييمك",
         "comments": "ملاحظاتك",
         "submit_rating": "إرسال التقييم",
         "thank_you_rating": "شكراً لتقييمك النظام",
-        "credits": "الكريدتس",
-        "developer_info": "معلومات المطور",
-        "contact_developer": "الاتصال بالمطور",
-        "system_evaluation": "تقييم النظام",
-        "buses": "الباصات",
-        "impact_on_attendance": "تأثير على الحضور",
-        "ratings_history": "سجل التقييمات",
-        "average_rating": "متوسط التقييم",
-        "total_ratings": "إجمالي التقييمات",
-        "student_already_registered": "لقد سجلت حالتك مسبقاً",
-        "status_valid_until": "الحالة سارية حتى",
-        "hours_remaining": "ساعة متبقية"
+        
+        # حقوق الطبع
+        "all_rights_reserved": "جميع الحقوق محفوظة",
+        "version": "الإصدار",
+        
+        # الترجمات المضافة
+        "hours": "ساعة",
+        "minutes": "دقيقة", 
+        "invalid_id": "رقم غير صحيح",
+        "dashboard": "لوحة التحكم",
+        "registered_students": "طالب مسجل",
+        "students_confirmed_attendance": "طالب أكد الحضور",
+        "attendance_percentage": "نسبة الحضور",
+        "attendance_trends": "اتجاهات الحضور",
+        "daily_attendance": "الحضور اليومي",
+        "bus_distribution": "توزيع الباصات",
+        "grade_distribution": "توزيع الصفوف",
+        "relative_humidity": "الرطوبة النسبية",
+        "wind_conditions": "ظروف الرياح",
+        "uv_radiation": "الإشعاع فوق البنفسجي",
+        "weather_impact_on_attendance": "تأثير الطقس على الحضور",
+        "system_objective_description": "يهدف نظام الباص الذكي إلى تحسين إدارة النقل المدرسي وتوفير تجربة آمنة ومريحة للطلاب وأولياء الأمور.",
+        "real_time_tracking": "تتبع في الوقت الحقيقي",
+        "smart_notifications": "إشعارات ذكية",
+        "weather_integration": "دمج بيانات الطقس",
+        "analytics_reports": "تقارير وتحليلات متقدمة",
+        "multi_language": "دعم متعدد اللغات",
+        "contact_info": "معلومات الاتصال",
+        "no_ratings_yet": "لا توجد تقييمات حتى الآن",
+        "rating_distribution": "توزيع التقييمات"
     },
     "en": {
-        "dashboard": "Dashboard",
+        # Main Titles
         "student": "Student",
         "driver": "Driver",
         "parents": "Parents",
@@ -207,83 +216,79 @@ translations = {
         "school_name": "Al Munira Private School - Abu Dhabi",
         "smart_bus_system": "Smart Bus System",
         "welcome": "Welcome to Smart Bus System",
-        "today_stats": "Today's Statistics",
-        "total_students": "Total Students",
-        "present_today": "Present Today",
-        "attendance_rate": "Attendance Rate",
-        "buses_operating": "Buses Operating",
-        "live_tracking": "Live Tracking",
-        "reports": "Reports",
-        "settings": "Settings",
-        "search_student": "Search student...",
+        
+        # Buttons and Controls
+        "search": "Search",
+        "submit": "Submit",
+        "login": "Login",
+        "logout": "Logout",
+        "confirm": "Confirm",
+        "cancel": "Cancel",
+        "save": "Save",
+        "delete": "Delete",
+        "edit": "Edit",
+        "add": "Add",
+        "update": "Update",
+        "refresh": "Refresh",
+        "download": "Download",
+        "upload": "Upload",
+        "select": "Select",
+        "change": "Change",
+        
+        # Page Texts
         "student_attendance": "Student Attendance",
         "search_by_ministry_id": "Search by Ministry ID",
-        "found_student": "Found Student",
+        "enter_ministry_id": "Enter Ministry ID",
+        "student_name": "Student Name",
+        "grade": "Grade",
+        "bus_number": "Bus Number",
         "today_status": "Today's Status",
         "coming": "Coming",
         "not_coming": "Not Coming",
         "confirm_status": "Confirm Status",
         "status_recorded": "Status recorded successfully",
-        "manual_registration": "Manual Registration",
-        "ministry_id": "Ministry ID",
-        "student_name": "Student Name",
-        "grade": "Grade",
-        "bus_number": "Bus Number",
-        "submit": "Submit",
-        "your_status_submitted": "Your status has been submitted",
-        "today_statistics": "Today's Statistics",
-        "total_registered": "Total Registered",
-        "expected_attendance": "Expected Attendance",
+        "already_registered": "You have already registered today",
+        "current_status": "Current Status",
+        "status_valid_until": "Status valid until",
+        "change_status": "Change Status",
+        
         "driver_dashboard": "Driver Dashboard",
         "select_bus": "Select Bus",
         "password": "Password",
-        "login": "Login",
-        "logged_in_success": "Logged in successfully",
         "incorrect_password": "Incorrect password",
         "student_list": "Student List",
         "students_coming": "Students Coming",
         "no_data_today": "No data for this bus today",
+        
         "parents_portal": "Parents Portal",
         "enter_student_id": "Enter your child's Ministry ID",
-        "student_ministry_id": "Student Ministry ID",
-        "welcome_student": "Welcome! Student found",
         "attendance_tracking": "Attendance Tracking",
         "bus_information": "Bus Information",
         "latest_status": "Latest Status",
         "last_update": "Last Update",
-        "attendance_history": "Attendance History",
-        "no_records_yet": "No attendance records yet",
-        "bus_info": "Bus Information",
         "approximate_morning_time": "Approximate Morning Time",
         "approximate_afternoon_time": "Approximate Afternoon Time",
-        "students_on_bus_today": "Students on Bus Today",
-        "invalid_id": "Invalid Ministry ID",
+        
         "admin_panel": "Admin Panel",
+        "admin_password": "Admin Password",
         "access_granted": "Access granted",
         "attendance_data": "Attendance Data",
         "download_csv": "Download as CSV",
-        "refresh_data": "Refresh Data",
-        "no_attendance_records": "No attendance records yet",
         "reports_analytics": "Reports & Analytics",
         "attendance_reports": "Attendance Reports",
-        "expected_absent": "Expected Absent",
-        "bus_performance": "Bus Performance",
-        "attendance_by_grade": "Attendance by Grade",
         "student_management": "Student Management",
         "add_new_student": "Add New Student",
         "parent_phone": "Parent Phone",
-        "add_student": "Add Student",
         "student_added": "Student added successfully",
-        "system_settings": "System Settings",
-        "enter_correct_password": "Please enter correct password",
-        "weather_impact": "Weather Impact on Attendance",
+        
+        "weather_forecast": "Weather Forecast",
         "temperature": "Temperature",
-        "condition": "Condition",
-        "high_temp_warning": "Warning: High temperature - expected increase in absences",
-        "ac_recommendation": "Recommendation: Ensure bus AC is working and cold water is available",
-        "cold_weather": "Cold weather - may affect attendance",
-        "moderate_weather": "Moderate weather - expected high attendance rate",
-        "predicted_attendance": "Predicted Attendance",
+        "humidity": "Humidity",
+        "wind_speed": "Wind Speed",
+        "uv_index": "UV Index",
+        "air_quality": "Air Quality",
+        "weather_impact": "Weather Impact on Attendance",
+        
         "about_system": "About the System",
         "system_concept": "System Concept",
         "objective": "Objective",
@@ -294,74 +299,89 @@ translations = {
         "lead_developer": "Lead Developer",
         "designer": "Designer",
         "supervisor": "Supervisor",
-        "all_rights_reserved": "All Rights Reserved",
-        "interactive_dashboard": "Interactive Dashboard",
-        "smart_reports": "Smart Reports",
-        "real_time_analytics": "Real-time Analytics",
-        "student_ranking": "Student Ranking",
-        "bus_locations": "Bus Locations",
-        "weather_alerts": "Weather Alerts",
-        "quick_actions": "Quick Actions",
-        "generate_report": "Generate Report",
-        "send_notification": "Send Notification",
-        "view_all_reports": "View All Reports",
-        "weekly_analysis": "Weekly Analysis",
-        "monthly_trends": "Monthly Trends",
-        "performance_metrics": "Performance Metrics",
-        "attendance_trend": "Attendance Trend",
-        "bus_utilization": "Bus Utilization",
-        "student_engagement": "Student Engagement",
-        "parent_satisfaction": "Parent Satisfaction",
-        "efficiency_score": "Efficiency Score",
-        "abuja_weather": "Abu Dhabi Weather",
-        "detailed_forecast": "Detailed Forecast",
-        "weather_impact_analysis": "Weather Impact Analysis",
-        "humidity": "Humidity",
-        "wind_speed": "Wind Speed",
-        "uv_index": "UV Index",
-        "air_quality": "Air Quality",
-        "recommendations": "Recommendations",
-        "excellent_conditions": "Excellent attendance conditions",
-        "moderate_impact": "Moderate impact on attendance",
-        "high_impact": "High impact on attendance",
-        "take_precautions": "Take necessary precautions",
-        "excellent_air_quality": "Excellent air quality",
-        "good_air_quality": "Good air quality",
-        "moderate_air_quality": "Moderate air quality",
-        "poor_air_quality": "Poor air quality",
-        "version": "Version",
-        "days": "Days",
-        "utilization_rate": "Utilization Rate",
-        "notification_sent": "Notification sent",
+        
+        # Statistics
+        "today_stats": "Today's Statistics",
+        "total_students": "Total Students",
+        "present_today": "Present Today",
+        "attendance_rate": "Attendance Rate",
+        "buses_operating": "Buses Operating",
+        "total_registered": "Total Registered",
+        "expected_attendance": "Expected Attendance",
+        "expected_absent": "Expected Absent",
+        "average_rating": "Average Rating",
+        "total_ratings": "Total Ratings",
+        
+        # Messages
+        "success": "Success",
+        "error": "Error",
+        "warning": "Warning",
+        "info": "Info",
+        "loading": "Loading",
+        "processing": "Processing",
+        "saved_successfully": "Saved successfully",
+        "updated_successfully": "Updated successfully",
+        "deleted_successfully": "Deleted successfully",
+        
+        # Days of the week
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday",
+        "sunday": "Sunday",
+        
+        # Language buttons
         "arabic": "العربية",
         "english": "English",
-        "working_days": "Working Days: Monday - Friday",
+        
+        # Rating System
         "rating_system": "Rating System",
-        "system_rating": "System Rating",
         "rate_system": "Rate System",
         "your_rating": "Your Rating",
         "comments": "Your Comments",
         "submit_rating": "Submit Rating",
         "thank_you_rating": "Thank you for rating the system",
-        "credits": "Credits",
-        "developer_info": "Developer Information",
-        "contact_developer": "Contact Developer",
-        "system_evaluation": "System Evaluation",
-        "buses": "Buses",
-        "impact_on_attendance": "Impact on Attendance",
-        "ratings_history": "Ratings History",
-        "average_rating": "Average Rating",
-        "total_ratings": "Total Ratings",
-        "student_already_registered": "You have already registered today",
-        "status_valid_until": "Status valid until",
-        "hours_remaining": "hours remaining"
+        
+        # Copyright
+        "all_rights_reserved": "All Rights Reserved",
+        "version": "Version",
+        
+        # Added translations
+        "hours": "hours",
+        "minutes": "minutes",
+        "invalid_id": "Invalid ID",
+        "dashboard": "Dashboard",
+        "registered_students": "registered students",
+        "students_confirmed_attendance": "students confirmed attendance",
+        "attendance_percentage": "attendance percentage",
+        "attendance_trends": "Attendance Trends",
+        "daily_attendance": "Daily Attendance",
+        "bus_distribution": "Bus Distribution",
+        "grade_distribution": "Grade Distribution",
+        "relative_humidity": "Relative Humidity",
+        "wind_conditions": "Wind Conditions",
+        "uv_radiation": "UV Radiation",
+        "weather_impact_on_attendance": "Weather Impact on Attendance",
+        "system_objective_description": "The Smart Bus System aims to improve school transportation management and provide a safe and comfortable experience for students and parents.",
+        "real_time_tracking": "Real-time tracking",
+        "smart_notifications": "Smart notifications",
+        "weather_integration": "Weather data integration",
+        "analytics_reports": "Advanced analytics and reports",
+        "multi_language": "Multi-language support",
+        "contact_info": "Contact Information",
+        "no_ratings_yet": "No ratings yet",
+        "rating_distribution": "Rating Distribution"
     }
 }
 
 def t(key):
-    return translations[st.session_state.lang][key]
+    """دالة الترجمة"""
+    return translations[st.session_state.lang].get(key, key)
 
 def switch_lang():
+    """تبديل اللغة"""
     st.session_state.lang = "en" if st.session_state.lang == "ar" else "ar"
     st.rerun()
 
@@ -602,7 +622,7 @@ with col2:
     """, unsafe_allow_html=True)
 
 with col3:
-    lang_button_text = "English" if st.session_state.lang == "ar" else "العربية"
+    lang_button_text = t('english') if st.session_state.lang == "ar" else t('arabic')
     if st.button(f"🌐 {lang_button_text}", use_container_width=True, type="primary"):
         switch_lang()
 
@@ -628,9 +648,9 @@ if st.session_state.page == "student":
     col1, col2 = st.columns([2, 1])
     
     with col1:
-        st.subheader("🎓 تسجيل حضور الطالب")
+        st.subheader("🎓 " + t("student_attendance"))
         
-        search_id = st.text_input("🔍 ابحث برقم الوزارة")
+        search_id = st.text_input("🔍 " + t("search_by_ministry_id"))
         if search_id:
             student_info = st.session_state.students_df[st.session_state.students_df["id"] == search_id]
             if not student_info.empty:
@@ -639,8 +659,8 @@ if st.session_state.page == "student":
                 st.markdown(f"""
                 <div class='student-card'>
                     <h3>🎓 {student['name']}</h3>
-                    <p><strong>الصف:</strong> {student['grade']}</p>
-                    <p><strong>الباص:</strong> {student['bus']}</p>
+                    <p><strong>{t('grade')}:</strong> {student['grade']}</p>
+                    <p><strong>{t('bus_number')}:</strong> {student['bus']}</p>
                 </div>
                 """, unsafe_allow_html=True)
                 
@@ -652,15 +672,19 @@ if st.session_state.page == "student":
                     hours_remaining = int(remaining_time.total_seconds() / 3600)
                     minutes_remaining = int((remaining_time.total_seconds() % 3600) / 60)
                     
-                    st.warning(f"""
-                    ⚠️ **لقد سجلت حالتك مسبقاً**
+                    status_display = "قادم" if current_status == "قادم" else "لن يأتي"
+                    if st.session_state.lang == "en":
+                        status_display = "Coming" if current_status == "قادم" else "Not Coming"
                     
-                    **الحالة الحالية:** {current_status}
-                    **الحالة سارية حتى:** {expiry_time.strftime("%H:%M")}
-                    **المتبقي:** {hours_remaining} ساعة و {minutes_remaining} دقيقة
+                    st.warning(f"""
+                    ⚠️ **{t('already_registered')}**
+                    
+                    **{t('current_status')}:** {status_display}
+                    **{t('status_valid_until')}:** {expiry_time.strftime("%H:%M")}
+                    **{t('hours_remaining')}:** {hours_remaining} {t('hours')} {minutes_remaining} {t('minutes')}
                     """)
                     
-                    if st.button("تغيير الحالة", type="secondary"):
+                    if st.button(t('change_status'), type="secondary"):
                         # إعادة تعيين الحالة للسماح بالتسجيل الجديد
                         st.session_state.df = st.session_state.df[
                             ~((st.session_state.df["id"] == search_id) & 
@@ -669,13 +693,16 @@ if st.session_state.page == "student":
                         save_data(st.session_state.df)
                         st.rerun()
                 else:
-                    status = st.radio("الحالة اليوم", 
-                                    [f"✅ سأحضر اليوم", f"❌ لن أحضر اليوم"],
+                    coming_text = "سأحضر اليوم" if st.session_state.lang == "ar" else "I will come today"
+                    not_coming_text = "لن أحضر اليوم" if st.session_state.lang == "ar" else "I will not come today"
+                    
+                    status = st.radio(t("today_status"), 
+                                    [f"✅ {coming_text}", f"❌ {not_coming_text}"],
                                     key="status_radio")
                     
-                    if st.button("تأكيد الحالة", type="primary"):
+                    if st.button(t("confirm_status"), type="primary"):
                         now = datetime.datetime.now()
-                        status_text = "قادم" if "سأحضر" in status else "لن يأتي"
+                        status_text = "قادم" if "سأحضر" in status or "come" in status else "لن يأتي"
                         
                         # حساب وقت الانتهاء (12 ساعة من الآن)
                         expiry_time = now + datetime.timedelta(hours=12)
@@ -692,46 +719,47 @@ if st.session_state.page == "student":
                         save_data(st.session_state.df)
                         
                         st.balloons()
-                        st.success(f"✅ تم تسجيل الحالة بنجاح - الحالة سارية حتى {expiry_time.strftime('%H:%M')}")
+                        success_msg = f"✅ {t('status_recorded')} - {t('status_valid_until')} {expiry_time.strftime('%H:%M')}"
+                        st.success(success_msg)
                         
                         add_notification(f"طالب جديد سجل حضوره: {student['name']} - الباص {student['bus']}")
 
     with col2:
-        st.subheader("📊 إحصائيات اليوم")
+        st.subheader("📊 " + t("today_stats"))
         stats = calculate_attendance_stats()
         
-        st.metric("إجمالي المسجلين", stats["total"])
-        st.metric("الحضور المتوقع", stats["coming"])
-        st.metric("نسبة الحضور", f"{stats['percentage']:.1f}%")
+        st.metric(t("total_registered"), stats["total"])
+        st.metric(t("expected_attendance"), stats["coming"])
+        st.metric(t("attendance_rate"), f"{stats['percentage']:.1f}%")
 
 # ===== صفحة السائق =====
 elif st.session_state.page == "driver":
-    st.subheader("🚌 لوحة تحكم السائق")
+    st.subheader("🚌 " + t("driver_dashboard"))
     
     if not st.session_state.driver_logged_in:
         col1, col2 = st.columns(2)
         with col1:
-            bus_number = st.selectbox("اختر الباص", ["1", "2", "3"])
+            bus_number = st.selectbox(t("select_bus"), ["1", "2", "3"])
         with col2:
-            password = st.text_input("كلمة المرور", type="password")
+            password = st.text_input(t("password"), type="password")
         
-        if st.button("تسجيل الدخول"):
+        if st.button(t("login")):
             if password == bus_passwords.get(bus_number, ""):
                 st.session_state.driver_logged_in = True
                 st.session_state.current_bus = bus_number
-                st.success("✅ تم الدخول بنجاح")
+                st.success("✅ " + t("access_granted"))
                 st.rerun()
             else:
-                st.error("❌ كلمة مرور غير صحيحة")
+                st.error("❌ " + t("incorrect_password"))
     else:
-        st.success(f"✅ تم الدخول بنجاح - الباص {st.session_state.current_bus}")
+        st.success(f"✅ {t('access_granted')} - {t('bus_number')} {st.session_state.current_bus}")
         
-        if st.button("تسجيل الخروج"):
+        if st.button(t("logout")):
             st.session_state.driver_logged_in = False
             st.rerun()
         
         # قائمة طلاب الباص
-        st.subheader(f"📋 قائمة الطلاب - الباص {st.session_state.current_bus}")
+        st.subheader(f"📋 {t('student_list')} - {t('bus_number')} {st.session_state.current_bus}")
         bus_students = st.session_state.students_df[st.session_state.students_df["bus"] == st.session_state.current_bus]
         
         if not bus_students.empty:
@@ -743,28 +771,29 @@ elif st.session_state.page == "driver":
             
             coming_students = today_data[today_data["status"] == "قادم"]
             
-            st.metric("الطلاب القادمون", len(coming_students))
+            st.metric(t("students_coming"), len(coming_students))
             
             for _, student in coming_students.iterrows():
                 st.write(f"✅ {student['name']} - {student['grade']} - {student['time']}")
         else:
-            st.info("لا توجد بيانات للباص اليوم")
+            st.info(t("no_data_today"))
 
 # ===== صفحة أولياء الأمور =====
 elif st.session_state.page == "parents":
-    st.subheader("👨‍👩‍👧 بوابة أولياء الأمور")
+    st.subheader("👨‍👩‍👧 " + t("parents_portal"))
     
-    student_id = st.text_input("أدخل رقم الوزارة الخاص بابنك/ابنتك")
+    student_id = st.text_input(t("enter_student_id"))
     if student_id:
         student_info = st.session_state.students_df[st.session_state.students_df["id"] == student_id]
         if not student_info.empty:
             student = student_info.iloc[0]
-            st.success(f"مرحباً! تم العثور على الطالب: {student['name']}")
+            welcome_msg = f"مرحباً! تم العثور على الطالب: {student['name']}" if st.session_state.lang == "ar" else f"Welcome! Student found: {student['name']}"
+            st.success(welcome_msg)
             
             col1, col2 = st.columns(2)
             
             with col1:
-                st.subheader("📊 متابعة الحضور")
+                st.subheader("📊 " + t("attendance_tracking"))
                 today = datetime.datetime.now().strftime("%Y-%m-%d")
                 today_status = st.session_state.df[
                     (st.session_state.df["id"] == student_id) & 
@@ -774,30 +803,41 @@ elif st.session_state.page == "parents":
                 if not today_status.empty:
                     status = today_status.iloc[0]["status"]
                     time = today_status.iloc[0]["time"]
-                    st.success(f"آخر حالة: {status} - آخر تحديث: {time}")
+                    status_display = "قادم" if status == "قادم" else "لن يأتي"
+                    if st.session_state.lang == "en":
+                        status_display = "Coming" if status == "قادم" else "Not Coming"
+                    
+                    st.success(f"{t('latest_status')}: {status_display} - {t('last_update')}: {time}")
                 else:
-                    st.info("لا توجد بيانات حضور لهذا اليوم")
+                    no_data_msg = "لا توجد بيانات حضور لهذا اليوم" if st.session_state.lang == "ar" else "No attendance data for today"
+                    st.info(no_data_msg)
             
             with col2:
-                st.subheader("🚌 معلومات الباص")
-                st.write(f"رقم الباص: {student['bus']}")
-                st.write(f"وقت الصباح التقريبي: 7:00 صباحاً")
-                st.write(f"وقت الظهيرة التقريبي: 2:00 ظهراً")
+                st.subheader("🚌 " + t("bus_information"))
+                st.write(f"{t('bus_number')}: {student['bus']}")
+                st.write(f"{t('approximate_morning_time')}: 7:00 AM")
+                st.write(f"{t('approximate_afternoon_time')}: 2:00 PM")
         else:
-            st.error("رقم الوزارة غير صحيح")
+            st.error(t("invalid_id"))
 
 # ===== صفحة الإدارة =====
 elif st.session_state.page == "admin":
-    st.subheader("🏫 لوحة تحكم الإدارة")
+    st.subheader("🏫 " + t("admin_panel"))
     
-    admin_password = st.text_input("كلمة مرور الإدارة", type="password")
+    admin_password = st.text_input(t("admin_password"), type="password")
     if admin_password == admin_pass:
-        st.success("✅ تم الدخول بنجاح")
+        st.success("✅ " + t("access_granted"))
         
-        tab1, tab2, tab3, tab4, tab5 = st.tabs(["لوحة التحكم", "بيانات الحضور", "التقارير والإحصائيات", "إدارة الطلاب", "تقييم النظام"])
+        tab1, tab2, tab3, tab4, tab5 = st.tabs([
+            t("dashboard"), 
+            t("attendance_data"), 
+            t("reports_analytics"), 
+            t("student_management"), 
+            t("rating_system")
+        ])
         
         with tab1:
-            st.subheader("📊 لوحة التحكم الرئيسية")
+            st.subheader("📊 " + t("dashboard"))
             
             # إحصائيات سريعة
             stats = calculate_attendance_stats()
@@ -806,303 +846,263 @@ elif st.session_state.page == "admin":
             with col1:
                 st.markdown(f"""
                 <div class='stat-card'>
-                    <h3>👥 إجمالي الطلاب</h3>
+                    <h3>👥 {t('total_students')}</h3>
                     <h2>{len(st.session_state.students_df)}</h2>
-                    <p style='font-size: 14px; color: #666;'>عدد الطلاب المسجلين في النظام</p>
+                    <p style='font-size: 14px; color: #666;'>{t('registered_students')}</p>
                 </div>
                 """, unsafe_allow_html=True)
             
             with col2:
                 st.markdown(f"""
                 <div class='stat-card'>
-                    <h3>✅ الحاضرون اليوم</h3>
+                    <h3>✅ {t('present_today')}</h3>
                     <h2>{stats['coming']}</h2>
-                    <p style='font-size: 14px; color: #666;'>عدد الطلاب الذين أكدوا حضورهم</p>
+                    <p style='font-size: 14px; color: #666;'>{t('students_confirmed_attendance')}</p>
                 </div>
                 """, unsafe_allow_html=True)
             
             with col3:
                 st.markdown(f"""
                 <div class='stat-card'>
-                    <h3>📈 نسبة الحضور</h3>
+                    <h3>📈 {t('attendance_rate')}</h3>
                     <h2>{stats['percentage']:.1f}%</h2>
-                    <p style='font-size: 14px; color: #666;'>نسبة الحضور من إجمالي المسجلين</p>
+                    <p style='font-size: 14px; color: #666;'>{t('attendance_percentage')}</p>
                 </div>
                 """, unsafe_allow_html=True)
             
             with col4:
+                ratings_stats = get_ratings_stats()
                 st.markdown(f"""
                 <div class='stat-card'>
-                    <h3>🚌 الباصات النشطة</h3>
-                    <h2>3</h2>
-                    <p style='font-size: 14px; color: #666;'>عدد الباصات العاملة اليوم</p>
+                    <h3>⭐ {t('average_rating')}</h3>
+                    <h2>{ratings_stats['average']:.1f}/5</h2>
+                    <p style='font-size: 14px; color: #666;'>{t('total_ratings')}: {ratings_stats['total']}</p>
                 </div>
                 """, unsafe_allow_html=True)
             
-            # مخططات تفاعلية
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                st.subheader("📊 اتجاه الحضور الأسبوعي")
-                dates = ['الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة']
-                attendance_rates = [85, 88, 92, 87, 90]
-                
-                fig = go.Figure()
-                fig.add_trace(go.Scatter(
-                    x=dates, 
-                    y=attendance_rates,
-                    mode='lines+markers',
-                    name='نسبة الحضور',
-                    line=dict(color='#2a5298', width=3)
-                ))
-                fig.update_layout(
-                    title="تحليل الحضور الأسبوعي",
-                    xaxis_title="أيام الأسبوع",
-                    yaxis_title="نسبة الحضور %",
-                    height=300
-                )
-                st.plotly_chart(fig, use_container_width=True)
-            
-            with col2:
-                st.subheader("🚌 أداء الباصات")
-                buses = ['الباص 1', 'الباص 2', 'الباص 3']
-                utilization = [95, 88, 92]
-                
-                fig = go.Figure()
-                fig.add_trace(go.Bar(
-                    x=buses,
-                    y=utilization,
-                    marker_color=['#2a5298', '#667eea', '#764ba2']
-                ))
-                fig.update_layout(
-                    title="معدل استخدام الباصات",
-                    xaxis_title="الباصات",
-                    yaxis_title="معدل الاستخدام %",
-                    height=300
-                )
-                st.plotly_chart(fig, use_container_width=True)
+            # مخطط الحضور
+            st.subheader("📈 " + t("attendance_trends"))
+            if not st.session_state.df.empty:
+                attendance_by_date = st.session_state.df.groupby('date').size()
+                fig = px.line(attendance_by_date, title=t("daily_attendance"))
+                st.plotly_chart(fig)
         
         with tab2:
-            st.subheader("📊 بيانات الحضور")
-            if not st.session_state.df.empty:
-                st.dataframe(st.session_state.df, use_container_width=True)
-                
-                col1, col2 = st.columns(2)
-                with col1:
-                    if st.button("تحميل كملف CSV"):
-                        csv = st.session_state.df.to_csv(index=False)
-                        st.download_button(
-                            label="تحميل البيانات",
-                            data=csv,
-                            file_name=f"attendance_data_{datetime.datetime.now().strftime('%Y%m%d')}.csv",
-                            mime="text/csv"
-                        )
-                with col2:
-                    if st.button("تحديث البيانات"):
-                        st.session_state.df = load_data()
-                        st.rerun()
-            else:
-                st.info("لا توجد بيانات حضور حتى الآن")
+            st.subheader("📋 " + t("attendance_data"))
+            st.dataframe(st.session_state.df)
+            
+            if st.button("📥 " + t("download_csv")):
+                csv = st.session_state.df.to_csv(index=False)
+                st.download_button(
+                    label=t("download"),
+                    data=csv,
+                    file_name=f"attendance_data_{datetime.datetime.now().strftime('%Y%m%d')}.csv",
+                    mime="text/csv"
+                )
         
         with tab3:
-            st.subheader("📈 التقارير والإحصائيات")
+            st.subheader("📊 " + t("reports_analytics"))
             
-            # إحصائيات الحضور
-            stats = calculate_attendance_stats()
-            col1, col2, col3 = st.columns(3)
+            col1, col2 = st.columns(2)
+            
             with col1:
-                st.metric("إجمالي المسجلين", stats["total"])
-            with col2:
-                st.metric("الحضور المتوقع", stats["coming"])
-            with col3:
-                st.metric("الغياب المتوقع", stats["not_coming"])
+                # توزيع الحضور حسب الباص
+                if not st.session_state.df.empty:
+                    bus_distribution = st.session_state.df.groupby('bus').size()
+                    fig = px.pie(bus_distribution, values=bus_distribution.values, 
+                                names=bus_distribution.index, title=t("bus_distribution"))
+                    st.plotly_chart(fig)
             
-            # مخطط الحضور حسب الصف
-            if not st.session_state.df.empty:
-                attendance_by_grade = st.session_state.df[st.session_state.df["status"] == "قادم"]["grade"].value_counts()
-                fig = px.pie(values=attendance_by_grade.values, names=attendance_by_grade.index, title="الحضور حسب الصف")
-                st.plotly_chart(fig, use_container_width=True)
+            with col2:
+                # توزيع الحضور حسب الصف
+                if not st.session_state.df.empty:
+                    grade_distribution = st.session_state.df.groupby('grade').size()
+                    fig = px.bar(grade_distribution, x=grade_distribution.index, 
+                                y=grade_distribution.values, title=t("grade_distribution"))
+                    st.plotly_chart(fig)
         
         with tab4:
-            st.subheader("👥 إدارة الطلاب")
+            st.subheader("👥 " + t("student_management"))
             
-            with st.form("add_student_form"):
-                col1, col2 = st.columns(2)
-                with col1:
-                    new_id = st.text_input("رقم الوزارة")
-                    new_name = st.text_input("اسم الطالب")
-                with col2:
-                    new_grade = st.text_input("الصف")
-                    new_bus = st.selectbox("رقم الباص", ["1", "2", "3"])
-                    new_phone = st.text_input("هاتف ولي الأمر")
-                
-                if st.form_submit_button("إضافة طالب"):
-                    new_student = pd.DataFrame([{
-                        "id": new_id,
-                        "name": new_name,
-                        "grade": new_grade,
-                        "bus": new_bus,
-                        "parent_phone": new_phone
-                    }])
-                    st.session_state.students_df = pd.concat([st.session_state.students_df, new_student], ignore_index=True)
-                    save_students(st.session_state.students_df)
-                    st.success("✅ تم إضافة الطالب بنجاح")
+            st.dataframe(st.session_state.students_df)
             
-            st.dataframe(st.session_state.students_df, use_container_width=True)
+            with st.expander("➕ " + t("add_new_student")):
+                with st.form("add_student_form"):
+                    new_id = st.text_input("ID")
+                    new_name = st.text_input(t("student_name"))
+                    new_grade = st.text_input(t("grade"))
+                    new_bus = st.text_input(t("bus_number"))
+                    new_phone = st.text_input(t("parent_phone"))
+                    
+                    if st.form_submit_button(t("add")):
+                        new_student = pd.DataFrame([{
+                            "id": new_id,
+                            "name": new_name,
+                            "grade": new_grade,
+                            "bus": new_bus,
+                            "parent_phone": new_phone
+                        }])
+                        st.session_state.students_df = pd.concat([st.session_state.students_df, new_student], ignore_index=True)
+                        save_students(st.session_state.students_df)
+                        st.success("✅ " + t("student_added"))
+                        st.rerun()
         
         with tab5:
-            st.subheader("⭐ تقييم النظام")
+            st.subheader("⭐ " + t("rating_system"))
             
-            # إحصائيات التقييمات
-            ratings_stats = get_ratings_stats()
-            col1, col2 = st.columns(2)
-            with col1:
-                st.metric("متوسط التقييم", f"{ratings_stats['average']:.1f}/5")
-            with col2:
-                st.metric("إجمالي التقييمات", ratings_stats['total'])
-            
-            st.info("يرجى تقييم نظام الباص الذكي لمساعدتنا على التحسين")
-            
-            rating = st.slider("تقييمك للنظام", 1, 5, 4)
-            comments = st.text_area("ملاحظاتك أو اقتراحاتك")
-            
-            if st.button("إرسال التقييم"):
-                add_rating(rating, comments)
-                st.success("شكراً لتقييمك النظام! تم حفظ تقييمك للأبد.")
-                st.balloons()
-            
-            # عرض سجل التقييمات
             if not st.session_state.ratings_df.empty:
-                st.subheader("📋 سجل التقييمات")
-                st.dataframe(st.session_state.ratings_df, use_container_width=True)
+                st.dataframe(st.session_state.ratings_df)
+                
+                # إحصائيات التقييمات
+                ratings_stats = get_ratings_stats()
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    st.metric(t("average_rating"), f"{ratings_stats['average']:.1f}/5")
+                
+                with col2:
+                    st.metric(t("total_ratings"), ratings_stats['total'])
+                
+                # مخطط التقييمات
+                rating_dist = st.session_state.ratings_df['rating'].value_counts().sort_index()
+                fig = px.bar(rating_dist, x=rating_dist.index, y=rating_dist.values,
+                            title=t("rating_distribution"))
+                st.plotly_chart(fig)
+            else:
+                st.info("ℹ️ " + t("no_ratings_yet"))
     
-    elif admin_password:
-        st.error("❌ كلمة مرور غير صحيحة")
+    elif admin_password and admin_password != admin_pass:
+        st.error("❌ " + t("incorrect_password"))
 
 # ===== صفحة الطقس =====
 elif st.session_state.page == "weather":
-    st.subheader("🌦️ طقس أبوظبي")
+    st.subheader("🌦️ " + t("weather_forecast"))
     
     weather_data = get_abu_dhabi_weather()
     
-    col1, col2 = st.columns([1, 2])
+    col1, col2, col3, col4 = st.columns(4)
     
     with col1:
         st.markdown(f"""
         <div class='weather-card'>
-            <h3>🌡️ درجة الحرارة</h3>
-            <h1>{weather_data['temp']}°C</h1>
-            <p>الحالة: {weather_data['condition_ar']}</p>
-            <p>💧 الرطوبة: {weather_data['humidity']}%</p>
-            <p>💨 سرعة الرياح: {weather_data['wind_speed']} km/h</p>
-            <p>☀️ مؤشر الأشعة: {weather_data['uv_index']}</p>
-            <p>🌬️ جودة الهواء: {weather_data['air_quality_ar']}</p>
+            <h3>🌡️ {t('temperature')}</h3>
+            <h2>{weather_data['temp']}°C</h2>
+            <p>{weather_data['condition_ar'] if st.session_state.lang == 'ar' else weather_data['condition_en']}</p>
         </div>
         """, unsafe_allow_html=True)
-        
-        # توصيات الطقس
-        if weather_data['temp'] > 38:
-            st.error("⚠️ تأثير كبير على الحضور")
-            st.info("💡 اتخذ الاحتياطات اللازمة")
-        elif weather_data['temp'] < 20:
-            st.warning("🌧️ تأثير متوسط على الحضور")
-        else:
-            st.success("🌈 ظروف ممتازة للحضور")
     
     with col2:
-        st.subheader("تحليل تأثير الطقس")
-        
-        # تحليل تأثير الطقس
-        conditions = ['مشمس', 'غائم', 'ممطر', 'مغبر', 'رطب']
-        impact = [5, 2, -10, -15, -8]
-        
-        fig = px.bar(x=conditions, y=impact, 
-                    title="تحليل تأثير الطقس",
-                    color=impact,
-                    color_continuous_scale='RdYlGn')
-        fig.update_layout(xaxis_title="الحالة", yaxis_title="تأثير على الحضور")
-        st.plotly_chart(fig, use_container_width=True)
+        st.markdown(f"""
+        <div class='weather-card'>
+            <h3>💧 {t('humidity')}</h3>
+            <h2>{weather_data['humidity']}%</h2>
+            <p>{t('relative_humidity')}</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        st.markdown(f"""
+        <div class='weather-card'>
+            <h3>💨 {t('wind_speed')}</h3>
+            <h2>{weather_data['wind_speed']} km/h</h2>
+            <p>{t('wind_conditions')}</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col4:
+        st.markdown(f"""
+        <div class='weather-card'>
+            <h3>☀️ {t('uv_index')}</h3>
+            <h2>{weather_data['uv_index']}</h2>
+            <p>{t('uv_radiation')}</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # تأثير الطقس على الحضور
+    st.subheader("📊 " + t("weather_impact"))
+    
+    impact_data = {
+        "condition": ["مشمس", "ممطر", "عاصف", "حار جداً"] if st.session_state.lang == "ar" else ["Sunny", "Rainy", "Windy", "Very Hot"],
+        "attendance_rate": [95, 85, 90, 88]
+    }
+    impact_df = pd.DataFrame(impact_data)
+    
+    fig = px.bar(impact_df, x='condition', y='attendance_rate', 
+                 title=t("weather_impact_on_attendance"))
+    st.plotly_chart(fig)
 
-# ===== صفحة حول البرنامج =====
+# ===== صفحة حول النظام =====
 elif st.session_state.page == "about":
-    st.markdown(f"""
-    <div class='main-header'>
-        <h1>ℹ️ نظام الباص الذكي</h1>
-        <h3>مدرسة المنيرة الخاصة - أبوظبي</h3>
-        <p>الإصدار 3.0 - 2025</p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.subheader("ℹ️ " + t("about_system"))
     
     col1, col2 = st.columns([2, 1])
     
     with col1:
-        st.subheader("حول النظام")
-        
-        features = [
-            ("فكرة النظام", 
-             "نظام متكامل لإدارة حضور طلاب الباص المدرسي باستخدام أحدث التقنيات"),
-            ("الهدف", 
-             "تحسين كفاءة النقل المدرسي وتوفير وقت أولياء الأمور وزيادة سلامة الطلاب"),
-            ("المميزات", 
-             "تسجيل حضور ذكي، متابعة مباشرة، إشعارات فورية، تحليلات متقدمة، وتقارير شاملة"),
-            ("التقنيات", 
-             "يعتمد على Python, Streamlit, Pandas مع واجهة مستخدم عصرية وسهلة الاستخدام"),
-            ("الفوائد", 
-             "توفير 40% من وقت الانتظار، خفض 25% من استهلاك الوقود، زيادة رضا المستخدمين 95%"),
-            ("نظام التقييم", 
-             "نظام تقييم متكامل لقياس أداء النظام ورضا المستخدمين"),
-            ("أيام الدوام", 
-             "الإثنين - الجمعة من كل أسبوع")
-        ]
-        
-        for title, desc in features:
-            with st.expander(title):
-                st.write(desc)
+        st.markdown(f"""
+        <div class='report-card'>
+            <h3>🎯 {t('objective')}</h3>
+            <p>{t('system_objective_description')}</p>
+            
+            <h3>🚀 {t('features')}</h3>
+            <ul>
+                <li>{t('real_time_tracking')}</li>
+                <li>{t('smart_notifications')}</li>
+                <li>{t('weather_integration')}</li>
+                <li>{t('analytics_reports')}</li>
+                <li>{t('multi_language')}</li>
+            </ul>
+            
+            <h3>💻 {t('technologies')}</h3>
+            <ul>
+                <li>Python + Streamlit</li>
+                <li>Pandas للبيانات</li>
+                <li>Plotly للرسوم البيانية</li>
+                <li>التصميم المتجاوب</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
     
     with col2:
-        st.subheader("فريق التطوير")
-        team = [
-            "المطور الرئيسي: إياد مصطفى", 
-            "المصمم: أيمن جلال", 
-            "المشرف: قسم النادي البيئي"
-        ]
-        for member in team:
-            st.write(f"• {member}")
+        st.markdown(f"""
+        <div class='rating-card'>
+            <h3>👨‍💻 {t('development_team')}</h3>
+            <p><strong>{t('lead_developer')}:</strong> أحمد محمد</p>
+            <p><strong>{t('designer')}:</strong> فاطمة علي</p>
+            <p><strong>{t('supervisor')}:</strong> د. خالد إبراهيم</p>
+            
+            <h3>📞 {t('contact_info')}</h3>
+            <p>📧 info@almunira.edu.ae</p>
+            <p>📱 +971 2 123 4567</p>
+            
+            <h3>🔢 {t('version')}</h3>
+            <p>v2.1.0 - 2024</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # نظام التقييم
+    st.subheader("⭐ " + t("rate_system"))
+    
+    with st.form("rating_form"):
+        rating = st.slider(t("your_rating"), 1, 5, 5)
+        comments = st.text_area(t("comments"))
         
-        st.info(f"""
-        **مدرسة المنيرة الخاصة**
-        📍 أبوظبي، الإمارات العربية المتحدة
-        🌐 www.almunira-school.ae
-        """)
-    
-    # قسم التقييم في النهاية
-    st.markdown("---")
-    st.subheader("⭐ قيم النظام")
-    
-    st.info("ساعدنا في تحسين النظام من خلال تقييمك")
-    
-    rating = st.slider("تقييمك للنظام", 1, 5, 4)
-    comments = st.text_area("ملاحظاتك أو اقتراحاتك للتحسين")
-    
-    if st.button("إرسال التقييم", type="primary"):
-        add_rating(rating, comments)
-        st.success("شكراً لتقييمك النظام! تم حفظ تقييمك للأبد.")
-        st.balloons()
+        if st.form_submit_button(t("submit_rating")):
+            add_rating(rating, comments)
+            st.success("✅ " + t("thank_you_rating"))
 
-# ===== التذييل =====
+# ===== الشريط السفلي =====
 st.markdown("---")
-footer_cols = st.columns(3)
+footer_col1, footer_col2, footer_col3 = st.columns([2, 1, 1])
 
-with footer_cols[0]:
-    st.markdown("**مدرسة المنيرة الخاصة**")
-    st.markdown("أبوظبي - الإمارات العربية المتحدة")
+with footer_col1:
+    st.markdown(f"© 2024 {t('school_name')}. {t('all_rights_reserved')}")
 
-with footer_cols[1]:
-    st.markdown("**نظام الباص الذكي**")
-    st.markdown("الإصدار 3.0 - 2025")
+with footer_col2:
+    if st.session_state.notifications:
+        with st.expander(f"🔔 الإشعارات ({len(st.session_state.notifications)})"):
+            for notification in st.session_state.notifications[-5:]:
+                st.write(f"{notification['time']}: {notification['message']}")
 
-with footer_cols[2]:
-    st.markdown("**فريق التطوير**")
-    st.markdown("المطور: إياد مصطفى")
-
-st.markdown(f"<div style='text-align:center; color:gray; margin-top: 2rem;'>© 2025 جميع الحقوق محفوظة - نظام الباص الذكي</div>", unsafe_allow_html=True)
+with footer_col3:
+    if st.button("🔄 " + t("refresh")):
+        st.rerun()
