@@ -751,5 +751,6 @@ elif st.session_state.page == "admin":
                 st.subheader("📋 سجل التقييمات")
                 st.dataframe(st.session_state.ratings_df, use_container_width=True)
     
-    elif admin_password:
-        st.error("❌ أ
+       elif admin_password:
+        st.error("❐ كلمة مرور غير صحيحة")
+
