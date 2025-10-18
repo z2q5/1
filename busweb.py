@@ -202,7 +202,7 @@ if st.session_state.page == "student":
                         now.strftime("%Y-%m-%d")
                     ]], columns=["id","name","grade","bus","status","time","date"])
                     
-                    global df
+                    df global 
                     df = pd.concat([df, new_entry], ignore_index=True)
                     save_data(df)
                     
@@ -521,3 +521,4 @@ with footer_cols[2]:
     st.markdown(t("إياد مصطفى - الصف 10-B", "Eyad Mustafa - Grade 10-B"))
 
 st.markdown(f"<div style='text-align:center; color:gray; margin-top: 2rem;'>{t('© 2025 جميع الحقوق محفوظة - مشروع مسابقة الابتكار المدرسي', '© 2025 All Rights Reserved - School Innovation Competition Project')}</div>", unsafe_allow_html=True)
+
