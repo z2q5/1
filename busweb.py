@@ -149,7 +149,22 @@ translations = {
         "status_stable": "⭐ الإصدار المستقر",
         "footer": "🚍 نظام الباص الذكي - الإصدار 1.1",
         "rights": "© 2025 جميع الحقوق محفوظة",
-        "team": "تم التطوير بواسطة: إياد مصطفى | التصميم: ايمن جلال | الإشراف: قسم النادي البيئي"
+        "team": "تم التطوير بواسطة: إياد مصطفى | التصميم: ايمن جلال | الإشراف: قسم النادي البيئي",
+        "weather_sunny": "مشمس",
+        "weather_partly_cloudy": "غائم جزئياً",
+        "weather_rainy": "ممطر",
+        "weather_windy": "عاصف",
+        "temperature": "درجة الحرارة",
+        "humidity": "الرطوبة",
+        "wind_speed": "سرعة الرياح",
+        "not_found": "لم يتم العثور على الطالب",
+        "error": "حدث خطأ في النظام",
+        "reset_success": "تم إعادة تعيين حالتك",
+        "login_success": "تم الدخول بنجاح",
+        "login_error": "كلمة مرور غير صحيحة",
+        "data_reset_success": "تم إعادة تعيين البيانات",
+        "backup_success": "تم إنشاء نسخة احتياطية",
+        "password_updated": "تم تحديث كلمة المرور"
     },
     "en": {
         "title": "🚍 Smart Bus System",
@@ -242,12 +257,31 @@ translations = {
         "status_stable": "⭐ Stable Release",
         "footer": "🚍 Smart Bus System - Version 1.1",
         "rights": "© 2025 All Rights Reserved",
-        "team": "Developed by: Iyad Mustafa | Design: Ayman Jalal | Supervision: Environmental Club"
+        "team": "Developed by: Iyad Mustafa | Design: Ayman Jalal | Supervision: Environmental Club",
+        "weather_sunny": "Sunny",
+        "weather_partly_cloudy": "Partly Cloudy",
+        "weather_rainy": "Rainy",
+        "weather_windy": "Windy",
+        "temperature": "Temperature",
+        "humidity": "Humidity",
+        "wind_speed": "Wind Speed",
+        "not_found": "Student not found",
+        "error": "System error occurred",
+        "reset_success": "Your status has been reset",
+        "login_success": "Login successful",
+        "login_error": "Incorrect password",
+        "data_reset_success": "Data reset successfully",
+        "backup_success": "Backup created successfully",
+        "password_updated": "Password updated successfully"
     }
 }
 
 def t(key):
-    return translations[st.session_state.lang][key]
+    """دالة الترجمة الآمنة"""
+    try:
+        return translations[st.session_state.lang][key]
+    except KeyError:
+        return key  # إرجاع المفتاح نفسه إذا لم توجد ترجمة
 
 # ===== وظائف مساعدة =====
 def add_notification(message):
@@ -257,11 +291,22 @@ def add_notification(message):
     })
 
 def get_weather():
+    """بيانات الطقس مع الترجمة"""
+    conditions = [
+        t("weather_sunny"),
+        t("weather_partly_cloudy"), 
+        t("weather_rainy"),
+        t("weather_windy")
+    ]
+    
+    condition_ar = random.choice(conditions)
+    condition_en = random.choice(["Sunny", "Partly Cloudy", "Rainy", "Windy"])
+    
     return {
         "temp": random.randint(28, 42),
         "humidity": random.randint(30, 80),
         "wind_speed": random.randint(5, 25),
-        "condition": "☀️ " + t("sunny") if st.session_state.lang == "ar" else "☀️ Sunny"
+        "condition": condition_ar
     }
 
 def calculate_attendance_stats():
@@ -349,44 +394,35 @@ def apply_custom_styles():
     
     st.markdown(f"""
     <style>
-        .main {{ background-color: #f8f9fa; }}
+        .main {{ 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }}
+        
+        .stApp {{
+            background: transparent;
+        }}
+        
         {dark_theme}
         
         .main-header {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
             padding: 2.5rem 2rem;
-            border-radius: 20px;
-            color: white;
+            border-radius: 25px;
+            color: #2c3e50;
             text-align: center;
             margin-bottom: 2rem;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            position: relative;
-            overflow: hidden;
-        }}
-        
-        .main-header::before {{
-            content: "";
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
-            background-size: 20px 20px;
-            animation: float 20s infinite linear;
-        }}
-        
-        @keyframes float {{
-            0% {{ transform: translate(0, 0) rotate(0deg); }}
-            100% {{ transform: translate(-20px, -20px) rotate(360deg); }}
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }}
         
         .glass-card {{
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(15px);
             border-radius: 20px;
             padding: 2rem;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
             margin-bottom: 1.5rem;
         }}
@@ -395,49 +431,59 @@ def apply_custom_styles():
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 1.5rem;
-            border-radius: 15px;
+            border-radius: 20px;
             text-align: center;
             margin: 0.5rem;
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
             transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }}
         
         .stat-card:hover {{
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.6);
         }}
         
         .student-card {{
             background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
             padding: 1.5rem;
-            border-radius: 15px;
+            border-radius: 20px;
             margin: 1rem 0;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-            border-left: 5px solid #667eea;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }}
+        
+        .student-card:hover {{
+            transform: translateX(10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
         }}
         
         .weather-card {{
             background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
             color: white;
             padding: 1.5rem;
-            border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.3);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(79, 172, 254, 0.4);
             text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }}
         
         .feature-card {{
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 1.5rem;
-            border-radius: 12px;
+            border-radius: 15px;
             margin: 0.5rem 0;
             text-align: center;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
             transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }}
         
         .feature-card:hover {{
             transform: scale(1.05);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
         }}
         
         .stButton>button {{
@@ -445,35 +491,46 @@ def apply_custom_styles():
             color: white;
             border: none;
             padding: 0.75rem 1.5rem;
-            border-radius: 12px;
+            border-radius: 15px;
             font-weight: 600;
             transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }}
         
         .stButton>button:hover {{
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.6);
         }}
         
         .stTextInput>div>div>input {{
-            border-radius: 12px;
+            border-radius: 15px;
             border: 2px solid #e9ecef;
-            padding: 0.75rem;
+            padding: 0.75rem 1rem;
             font-size: 1rem;
+            transition: all 0.3s ease;
         }}
         
         .stTextInput>div>div>input:focus {{
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
         }}
         
         @keyframes fadeIn {{
-            from {{ opacity: 0; transform: translateY(20px); }}
+            from {{ opacity: 0; transform: translateY(30px); }}
             to {{ opacity: 1; transform: translateY(0); }}
         }}
         
         .animate-fadeIn {{
-            animation: fadeIn 0.6s ease-out;
+            animation: fadeIn 0.8s ease-out;
+        }}
+        
+        .section-title {{
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+            font-size: 1.5rem;
         }}
     </style>
     """, unsafe_allow_html=True)
@@ -496,9 +553,9 @@ with col1:
 with col2:
     st.markdown(f"""
     <div class='main-header animate-fadeIn'>
-        <h1 style='font-size: 2.5rem; margin-bottom: 0.5rem;'>{t('title')}</h1>
-        <h3 style='font-size: 1.3rem; margin-bottom: 0.5rem; opacity: 0.95;'>{t('subtitle')}</h3>
-        <p style='font-size: 1.1rem; opacity: 0.85;'>{t('description')}</p>
+        <h1 style='font-size: 2.8rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>{t('title')}</h1>
+        <h3 style='font-size: 1.4rem; margin-bottom: 0.5rem; color: #666;'>{t('subtitle')}</h3>
+        <p style='font-size: 1.1rem; color: #888;'>{t('description')}</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -541,128 +598,127 @@ if st.session_state.page == "student":
     with col1:
         st.markdown(f"""
         <div style='text-align: center; margin-bottom: 2rem;'>
-            <h2 class='animate-fadeIn'>{t('student_title')}</h2>
-            <p style='color: #666; font-size: 1.1rem;'>{t('student_desc')}</p>
+            <h2 class='section-title'>{t('student_title')}</h2>
+            <p style='color: white; font-size: 1.1rem;'>{t('student_desc')}</p>
         </div>
         """, unsafe_allow_html=True)
         
-        with st.container():
-            st.markdown("<div class='glass-card animate-fadeIn'>", unsafe_allow_html=True)
-            
-            student_id = st.text_input(
-                t("student_id"),
-                placeholder=t("student_id_placeholder"),
-                key="student_id_input"
-            )
-            
-            if student_id:
-                try:
-                    student_info = st.session_state.students_df[
-                        st.session_state.students_df["id"].astype(str) == str(student_id).strip()
-                    ]
+        st.markdown("<div class='glass-card animate-fadeIn'>", unsafe_allow_html=True)
+        
+        student_id = st.text_input(
+            t("student_id"),
+            placeholder=t("student_id_placeholder"),
+            key="student_id_input"
+        )
+        
+        if student_id:
+            try:
+                student_info = st.session_state.students_df[
+                    st.session_state.students_df["id"].astype(str) == str(student_id).strip()
+                ]
+                
+                if not student_info.empty:
+                    student = student_info.iloc[0]
                     
-                    if not student_info.empty:
-                        student = student_info.iloc[0]
-                        
-                        st.markdown(f"""
-                        <div class='student-card animate-fadeIn'>
-                            <div style='text-align: center;'>
-                                <h3 style='color: #2c3e50; margin-bottom: 1rem;'>🎓 {student['name']}</h3>
-                                <div style='display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 1rem;'>
-                                    <div style='text-align: center;'>
-                                        <div style='background: #667eea; color: white; padding: 0.5rem 1rem; border-radius: 8px; font-weight: bold;'>{t('grade')}: {student['grade']}</div>
-                                    </div>
-                                    <div style='text-align: center;'>
-                                        <div style='background: #764ba2; color: white; padding: 0.5rem 1rem; border-radius: 8px; font-weight: bold;'>{t('bus')}: {student['bus']}</div>
-                                    </div>
+                    st.markdown(f"""
+                    <div class='student-card animate-fadeIn'>
+                        <div style='text-align: center;'>
+                            <h3 style='color: #2c3e50; margin-bottom: 1rem;'>🎓 {student['name']}</h3>
+                            <div style='display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 1rem;'>
+                                <div style='text-align: center;'>
+                                    <div style='background: #667eea; color: white; padding: 0.5rem 1rem; border-radius: 10px; font-weight: bold;'>{t('grade')}: {student['grade']}</div>
                                 </div>
-                                <p style='color: #666; margin: 0;'><strong>{t('parent_phone')}:</strong> {student['parent_phone']}</p>
+                                <div style='text-align: center;'>
+                                    <div style='background: #764ba2; color: white; padding: 0.5rem 1rem; border-radius: 10px; font-weight: bold;'>{t('bus')}: {student['bus']}</div>
+                                </div>
                             </div>
+                            <p style='color: #666; margin: 0;'><strong>{t('parent_phone')}:</strong> {student['parent_phone']}</p>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    already_registered, current_status = has_student_registered_today(student_id)
+                    
+                    if already_registered:
+                        status_color = "#51cf66" if current_status == t("status_coming") else "#ff6b6b"
+                        status_icon = "✅" if current_status == t("status_coming") else "❌"
+                        st.markdown(f"""
+                        <div class='animate-fadeIn' style='background: {status_color}; color: white; padding: 1.5rem; border-radius: 15px; text-align: center; margin: 1rem 0;'>
+                            <h4>{status_icon} {t('already_registered')}</h4>
+                            <p style='margin: 0.5rem 0; font-size: 1.1rem;'>{t('current_status')}: <strong>{current_status}</strong></p>
                         </div>
                         """, unsafe_allow_html=True)
                         
-                        already_registered, current_status = has_student_registered_today(student_id)
-                        
-                        if already_registered:
-                            status_color = "#51cf66" if current_status == t("status_coming") else "#ff6b6b"
-                            status_icon = "✅" if current_status == t("status_coming") else "❌"
-                            st.markdown(f"""
-                            <div class='animate-fadeIn' style='background: {status_color}; color: white; padding: 1.5rem; border-radius: 12px; text-align: center; margin: 1rem 0;'>
-                                <h4>{status_icon} {t('already_registered')}</h4>
-                                <p style='margin: 0.5rem 0; font-size: 1.1rem;'>{t('current_status')}: <strong>{current_status}</strong></p>
-                            </div>
-                            """, unsafe_allow_html=True)
-                            
-                            if st.button(t("change_status"), use_container_width=True, type="secondary"):
-                                today = datetime.datetime.now().strftime("%Y-%m-%d")
-                                st.session_state.attendance_df = st.session_state.attendance_df[
-                                    ~((st.session_state.attendance_df["id"].astype(str) == str(student_id).strip()) & 
-                                      (st.session_state.attendance_df["date"] == today))
-                                ]
-                                st.success("✅ تم إعادة تعيين حالتك")
-                                st.rerun()
-                        else:
-                            st.markdown(f"<h4 style='text-align: center; color: #2c3e50; margin-bottom: 1rem;'>{t('choose_status')}</h4>", unsafe_allow_html=True)
-                            
-                            col_a, col_b = st.columns(2)
-                            with col_a:
-                                if st.button(t("coming"), use_container_width=True, type="primary"):
-                                    now = register_attendance(student, t("status_coming"))
-                                    st.balloons()
-                                    st.success(f"""
-                                    **{t('registered_success')}**
-                                    
-                                    **{t('student_name')}:** {student['name']}
-                                    **{t('status')}:** {t('status_coming')}
-                                    **{t('time')}:** {now.strftime('%H:%M')}
-                                    **{t('bus_number')}:** {student['bus']}
-                                    """)
-                                    
-                            with col_b:
-                                if st.button(t("not_coming"), use_container_width=True, type="secondary"):
-                                    now = register_attendance(student, t("status_not_coming"))
-                                    st.success(f"""
-                                    **{t('registered_success')}**
-                                    
-                                    **{t('student_name')}:** {student['name']}
-                                    **{t('status')}:** {t('status_not_coming')}
-                                    **{t('time')}:** {now.strftime('%H:%M')}
-                                    **{t('bus_number')}:** {student['bus']}
-                                    """)
-                    
+                        if st.button(t("change_status"), use_container_width=True, type="secondary"):
+                            today = datetime.datetime.now().strftime("%Y-%m-%d")
+                            st.session_state.attendance_df = st.session_state.attendance_df[
+                                ~((st.session_state.attendance_df["id"].astype(str) == str(student_id).strip()) & 
+                                  (st.session_state.attendance_df["date"] == today))
+                            ]
+                            st.success(t("reset_success"))
+                            st.rerun()
                     else:
-                        st.error("❌ لم يتم العثور على الطالب")
+                        st.markdown(f"<h4 style='text-align: center; color: #2c3e50; margin-bottom: 1rem;'>{t('choose_status')}</h4>", unsafe_allow_html=True)
                         
-                except Exception as e:
-                    st.error("❌ حدث خطأ في النظام")
-            
-            st.markdown("</div>", unsafe_allow_html=True)
+                        col_a, col_b = st.columns(2)
+                        with col_a:
+                            if st.button(t("coming"), use_container_width=True, type="primary"):
+                                now = register_attendance(student, t("status_coming"))
+                                st.balloons()
+                                st.success(f"""
+                                **{t('registered_success')}**
+                                
+                                **{t('student_name')}:** {student['name']}
+                                **{t('status')}:** {t('status_coming')}
+                                **{t('time')}:** {now.strftime('%H:%M')}
+                                **{t('bus_number')}:** {student['bus']}
+                                """)
+                                
+                        with col_b:
+                            if st.button(t("not_coming"), use_container_width=True, type="secondary"):
+                                now = register_attendance(student, t("status_not_coming"))
+                                st.success(f"""
+                                **{t('registered_success')}**
+                                
+                                **{t('student_name')}:** {student['name']}
+                                **{t('status')}:** {t('status_not_coming')}
+                                **{t('time')}:** {now.strftime('%H:%M')}
+                                **{t('bus_number')}:** {student['bus']}
+                                """)
+                
+                else:
+                    st.error(f"❌ {t('not_found')}")
+                    
+            except Exception as e:
+                st.error(f"❌ {t('error')}")
+        
+        st.markdown("</div>", unsafe_allow_html=True)
 
     with col2:
-        st.markdown(f"<div style='text-align: center; margin-bottom: 1rem;'><h3>{t('stats_title')}</h3></div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='text-align: center; margin-bottom: 1rem;'><h3 style='color: white;'>{t('stats_title')}</h3></div>", unsafe_allow_html=True)
         
         stats = calculate_attendance_stats()
         
         st.markdown(f"""
         <div class='stat-card animate-fadeIn'>
-            <h3 style='margin-bottom: 0.5rem;'>👥</h3>
-            <h2 style='margin: 0;'>{stats['total']}</h2>
+            <h3 style='margin-bottom: 0.5rem; font-size: 2rem;'>👥</h3>
+            <h2 style='margin: 0; font-size: 2.5rem;'>{stats['total']}</h2>
             <p style='margin: 0; opacity: 0.9;'>{t('total_registered')}</p>
         </div>
         """, unsafe_allow_html=True)
         
         st.markdown(f"""
         <div class='stat-card animate-fadeIn'>
-            <h3 style='margin-bottom: 0.5rem;'>✅</h3>
-            <h2 style='margin: 0;'>{stats['coming']}</h2>
+            <h3 style='margin-bottom: 0.5rem; font-size: 2rem;'>✅</h3>
+            <h2 style='margin: 0; font-size: 2.5rem;'>{stats['coming']}</h2>
             <p style='margin: 0; opacity: 0.9;'>{t('expected_attendance')}</p>
         </div>
         """, unsafe_allow_html=True)
         
         st.markdown(f"""
         <div class='stat-card animate-fadeIn'>
-            <h3 style='margin-bottom: 0.5rem;'>📈</h3>
-            <h2 style='margin: 0;'>{stats['percentage']:.1f}%</h2>
+            <h3 style='margin-bottom: 0.5rem; font-size: 2rem;'>📈</h3>
+            <h2 style='margin: 0; font-size: 2.5rem;'>{stats['percentage']:.1f}%</h2>
             <p style='margin: 0; opacity: 0.9;'>{t('attendance_rate')}</p>
         </div>
         """, unsafe_allow_html=True)
@@ -686,15 +742,15 @@ elif st.session_state.page == "driver":
             if password == bus_passwords.get(bus_number, ""):
                 st.session_state.driver_logged_in = True
                 st.session_state.current_bus = bus_number
-                st.success("✅ تم الدخول بنجاح")
+                st.success(t("login_success"))
                 st.rerun()
             else:
-                st.error("❌ كلمة مرور غير صحيحة")
+                st.error(t("login_error"))
         
         st.markdown("</div>", unsafe_allow_html=True)
         
     else:
-        st.success(f"✅ تم الدخول بنجاح - الباص رقم {st.session_state.current_bus}")
+        st.success(f"✅ {t('login_success')} - الباص رقم {st.session_state.current_bus}")
         
         if st.button(t("logout"), type="secondary"):
             st.session_state.driver_logged_in = False
@@ -731,7 +787,7 @@ elif st.session_state.page == "driver":
                 for _, student in coming_students.iterrows():
                     with st.container():
                         st.markdown(f"""
-                        <div style='background: #d4edda; padding: 1rem; border-radius: 10px; border-right: 5px solid #28a745; margin: 0.5rem 0;'>
+                        <div style='background: #d4edda; padding: 1rem; border-radius: 15px; border-right: 5px solid #28a745; margin: 0.5rem 0;'>
                             <h4 style='color: #155724; margin: 0;'>✅ {student['name']}</h4>
                             <p style='color: #155724; margin: 0.3rem 0;'>📚 {student['grade']} | ⏰ {student['time']}</p>
                         </div>
@@ -761,7 +817,7 @@ elif st.session_state.page == "driver":
                     status_icon = "⏳"
                 
                 st.markdown(f"""
-                <div style='background: {bg_color}; padding: 1rem; border-radius: 10px; border-right: 5px solid {border_color}; margin: 0.5rem 0;'>
+                <div style='background: {bg_color}; padding: 1rem; border-radius: 15px; border-right: 5px solid {border_color}; margin: 0.5rem 0;'>
                     <h4 style='color: #2c3e50; margin: 0;'>{status_icon} {student['name']}</h4>
                     <p style='color: #2c3e50; margin: 0.3rem 0;'>📚 {student['grade']} | 📱 {student['parent_phone']}</p>
                 </div>
@@ -814,7 +870,7 @@ elif st.session_state.page == "parents":
                 **{t('parent_phone')}:** {student['parent_phone']}
                 """)
         else:
-            st.error("❌ لم يتم العثور على الطالب")
+            st.error(f"❌ {t('not_found')}")
 
 # ===== صفحة الإعدادات =====
 elif st.session_state.page == "admin":
@@ -864,7 +920,7 @@ elif st.session_state.page == "admin":
         if st.button(t("save_changes")):
             if new_pass:
                 bus_passwords[bus_select] = new_pass
-                st.success(f"✅ تم تحديث كلمة مرور الباص {bus_select}")
+                st.success(f"✅ {t('password_updated')} {bus_select}")
         st.markdown("</div>", unsafe_allow_html=True)
     
     with tab3:
@@ -882,10 +938,10 @@ elif st.session_state.page == "admin":
             st.subheader(t("system_actions"))
             if st.button(t("reset_data"), type="secondary", use_container_width=True):
                 initialize_data()
-                st.success("✅ تم إعادة تعيين البيانات")
+                st.success(t("data_reset_success"))
             
             if st.button(t("backup"), use_container_width=True):
-                st.info("✅ تم إنشاء نسخة احتياطية")
+                st.info(t("backup_success"))
         st.markdown("</div>", unsafe_allow_html=True)
 
 # ===== صفحة حول النظام =====
@@ -916,14 +972,14 @@ elif st.session_state.page == "about":
         st.subheader(t("development_team"))
         
         st.markdown("""
-        <div style='background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 1.5rem; border-radius: 12px; text-align: center; margin: 1rem 0;'>
+        <div class='feature-card'>
             <h4>إياد مصطفى</h4>
             <p>مطور النظام</p>
         </div>
         """, unsafe_allow_html=True)
         
         st.markdown("""
-        <div style='background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; padding: 1.5rem; border-radius: 12px; text-align: center; margin: 1rem 0;'>
+        <div class='feature-card'>
             <h4>ايمن جلال</h4>
             <p>مصمم الواجهة</p>
         </div>
@@ -932,17 +988,17 @@ elif st.session_state.page == "about":
     
     st.markdown("""
     <div class='glass-card' style='text-align: center;'>
-        <h3>📋 معلومات الإصدار</h3>
-        <p><strong>الإصدار:</strong> 1.1</p>
-        <p><strong>تاريخ الإصدار:</strong> أكتوبر 2025</p>
-        <p><strong>الحالة:</strong> ⭐ الإصدار المستقر</p>
+        <h3>{t('version_info')}</h3>
+        <p><strong>{t('version')}:</strong> 1.1</p>
+        <p><strong>{t('release_date')}:</strong> أكتوبر 2025</p>
+        <p><strong>{t('status')}:</strong> ⭐ {t('status_stable')}</p>
     </div>
-    """, unsafe_allow_html=True)
+    """.format(t=t), unsafe_allow_html=True)
 
 # ===== التذييل =====
 st.markdown("---")
 st.markdown(f"""
-<div style='text-align: center; color: #666; padding: 2rem 0;'>
+<div style='text-align: center; color: white; padding: 2rem 0;'>
     <p style='margin: 0.3rem 0; font-size: 1.1rem;'><strong>{t('footer')}</strong></p>
     <p style='margin: 0.3rem 0;'>{t('subtitle')}</p>
     <p style='margin: 0.3rem 0;'>{t('rights')}</p>
