@@ -31,6 +31,10 @@ def save_data():
         with open(DATA_DIR / "attendance.pkl", "wb") as f:
             pickle.dump(st.session_state.attendance_df.to_dict(), f)
         
+        # حفظ بيانات التقييمات
+        with open(DATA_DIR / "ratings.pkl", "wb") as f:
+            pickle.dump(st.session_state.ratings_df.to_dict(), f)
+        
         # حفظ الإعدادات
         settings = {
             "bus_passwords": st.session_state.bus_passwords,
@@ -59,6 +63,14 @@ def load_data():
                 attendance_data = pickle.load(f)
                 st.session_state.attendance_df = pd.DataFrame(attendance_data)
         
+        # تحميل بيانات التقييمات
+        if (DATA_DIR / "ratings.pkl").exists():
+            with open(DATA_DIR / "ratings.pkl", "rb") as f:
+                ratings_data = pickle.load(f)
+                st.session_state.ratings_df = pd.DataFrame(ratings_data)
+        else:
+            st.session_state.ratings_df = pd.DataFrame(columns=["rating", "comment", "timestamp"])
+                
         # تحميل الإعدادات
         if (DATA_DIR / "settings.json").exists():
             with open(DATA_DIR / "settings.json", "r", encoding="utf-8") as f:
@@ -90,6 +102,8 @@ if "admin_password" not in st.session_state:
     st.session_state.admin_password = "admin123"
 if "admin_logged_in" not in st.session_state:
     st.session_state.admin_logged_in = False
+if "ratings_df" not in st.session_state:
+    st.session_state.ratings_df = pd.DataFrame(columns=["rating", "comment", "timestamp"])
 
 # تحميل البيانات المحفوظة
 load_data()
@@ -223,7 +237,16 @@ translations = {
         "current_theme": "الثيم الحالي",
         "language": "اللغة",
         "arabic": "العربية",
-        "english": "الإنجليزية"
+        "english": "الإنجليزية",
+        "rating_system": "⭐ نظام التقييم",
+        "rate_app": "قيم التطبيق",
+        "your_rating": "تقييمك",
+        "your_comment": "تعليقك (اختياري)",
+        "submit_rating": "إرسال التقييم",
+        "thank_you_rating": "شكراً لتقييمك!",
+        "average_rating": "متوسط التقييم",
+        "total_ratings": "إجمالي التقييمات",
+        "rating_success": "تم إرسال تقييمك بنجاح"
     },
     "en": {
         "title": "🚍 Smart Bus System",
@@ -329,7 +352,16 @@ translations = {
         "current_theme": "Current Theme",
         "language": "Language",
         "arabic": "Arabic",
-        "english": "English"
+        "english": "English",
+        "rating_system": "⭐ Rating System",
+        "rate_app": "Rate the App",
+        "your_rating": "Your Rating",
+        "your_comment": "Your Comment (Optional)",
+        "submit_rating": "Submit Rating",
+        "thank_you_rating": "Thank you for your rating!",
+        "average_rating": "Average Rating",
+        "total_ratings": "Total Ratings",
+        "rating_success": "Your rating has been submitted successfully"
     }
 }
 
@@ -376,7 +408,7 @@ def calculate_attendance_stats():
     ]
     
     total = len(today_data)
-    coming = len(today_data[today_data["status"] == t("status_coming")]) if not today_data.empty else 0
+    coming = len(today_data[today_data["status"] == "قادم"]) if not today_data.empty else 0
     percentage = (coming / total * 100) if total > 0 else 0
     
     return {
@@ -428,14 +460,42 @@ def register_attendance(student, status):
     save_data()
     return now
 
+def add_rating(rating, comment):
+    """إضافة تقييم جديد"""
+    new_rating = pd.DataFrame([{
+        "rating": rating,
+        "comment": comment,
+        "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    }])
+    
+    if st.session_state.ratings_df.empty:
+        st.session_state.ratings_df = new_rating
+    else:
+        st.session_state.ratings_df = pd.concat([
+            st.session_state.ratings_df, new_rating
+        ], ignore_index=True)
+    
+    save_data()
+
+def get_average_rating():
+    """حساب متوسط التقييم"""
+    if st.session_state.ratings_df.empty:
+        return 0, 0
+    return st.session_state.ratings_df["rating"].mean(), len(st.session_state.ratings_df)
+
 def toggle_theme():
     st.session_state.theme = "dark" if st.session_state.theme == "light" else "light"
     save_data()
     st.rerun()
 
 def toggle_language():
+    # حفظ اللغة الحالية قبل التغيير
+    current_lang = st.session_state.lang
+    # تبديل اللغة
     st.session_state.lang = "en" if st.session_state.lang == "ar" else "ar"
+    # حفظ الإعدادات
     save_data()
+    # إعادة تحميل الصفحة
     st.rerun()
 
 # ===== تصميم متطور بدون مربعات بيضاء =====
@@ -462,6 +522,11 @@ def apply_custom_styles():
         .stSelectbox>div>div>select {
             background-color: #2d3746;
             color: white;
+        }
+        .stTextArea>div>div>textarea {
+            background-color: #2d3746;
+            color: white;
+            border: 1px solid #4a5568;
         }
         """
     else:
@@ -545,6 +610,38 @@ def apply_custom_styles():
             transform: scale(1.02);
         }}
         
+        .rating-card {{
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+        }}
+        
+        .star-rating {{
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 1rem 0;
+            font-size: 2rem;
+        }}
+        
+        .star {{
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }}
+        
+        .star:hover {{
+            transform: scale(1.2);
+        }}
+        
+        .star.active {{
+            color: #FFD700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }}
+        
         .stButton>button {{
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -579,6 +676,15 @@ def apply_custom_styles():
             color: white;
             border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 10px;
+        }}
+        
+        .stTextArea>div>div>textarea {{
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 0.75rem;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
         }}
         
         .content-section {{
@@ -708,8 +814,8 @@ if st.session_state.page == "student":
                     already_registered, current_status = has_student_registered_today(student_id)
                     
                     if already_registered:
-                        status_color = "rgba(81, 207, 102, 0.3)" if current_status == t("status_coming") else "rgba(255, 107, 107, 0.3)"
-                        status_icon = "✅" if current_status == t("status_coming") else "❌"
+                        status_color = "rgba(81, 207, 102, 0.3)" if current_status == "قادم" else "rgba(255, 107, 107, 0.3)"
+                        status_icon = "✅" if current_status == "قادم" else "❌"
                         st.markdown(f"""
                         <div style='background: {status_color}; color: white; padding: 1.5rem; border-radius: 12px; text-align: center; margin: 1rem 0; border: 1px solid rgba(255,255,255,0.2);'>
                             <h4>{status_icon} {t('already_registered')}</h4>
@@ -731,26 +837,26 @@ if st.session_state.page == "student":
                         
                         col_a, col_b = st.columns(2)
                         with col_a:
-                            if st.button(t("coming"), use_container_width=True, type="primary"):
-                                now = register_attendance(student, t("status_coming"))
+                            if st.button("✅ سأحضر اليوم", use_container_width=True, type="primary"):
+                                now = register_attendance(student, "قادم")
                                 st.balloons()
                                 st.success(f"""
                                 **{t('registered_success')}**
                                 
                                 **{t('student_name')}:** {student['name']}
-                                **{t('status')}:** {t('status_coming')}
+                                **{t('status')}:** قادم
                                 **{t('time')}:** {now.strftime('%H:%M')}
                                 **{t('bus_number')}:** {student['bus']}
                                 """)
                                 
                         with col_b:
-                            if st.button(t("not_coming"), use_container_width=True, type="secondary"):
-                                now = register_attendance(student, t("status_not_coming"))
+                            if st.button("❌ لن أحضر اليوم", use_container_width=True, type="secondary"):
+                                now = register_attendance(student, "لن يأتي")
                                 st.success(f"""
                                 **{t('registered_success')}**
                                 
                                 **{t('student_name')}:** {student['name']}
-                                **{t('status')}:** {t('status_not_coming')}
+                                **{t('status')}:** لن أحضر
                                 **{t('time')}:** {now.strftime('%H:%M')}
                                 **{t('bus_number')}:** {student['bus']}
                                 """)
@@ -833,7 +939,7 @@ elif st.session_state.page == "driver":
             
             coming_students = today_attendance[
                 (today_attendance["bus"] == st.session_state.current_bus) & 
-                (today_attendance["status"] == t("status_coming"))
+                (today_attendance["status"] == "قادم")
             ] if not today_attendance.empty else pd.DataFrame()
             
             col1, col2, col3 = st.columns(3)
@@ -865,7 +971,7 @@ elif st.session_state.page == "driver":
                 
                 if not student_attendance.empty:
                     status = student_attendance.iloc[0]["status"]
-                    if status == t("status_coming"):
+                    if status == "قادم":
                         bg_color = "rgba(212, 237, 218, 0.2)"
                         border_color = "#28a745"
                         status_icon = "✅"
@@ -916,10 +1022,10 @@ elif st.session_state.page == "parents":
                 if not today_status.empty:
                     status = today_status.iloc[0]["status"]
                     time = today_status.iloc[0]["time"]
-                    if status == t("status_coming"):
-                        st.success(f"**الحالة:** {t('status_coming')} 🎒\n**آخر تحديث:** {time}")
+                    if status == "قادم":
+                        st.success(f"**الحالة:** قادم 🎒\n**آخر تحديث:** {time}")
                     else:
-                        st.error(f"**الحالة:** {t('status_not_coming')} ❌\n**آخر تحديث:** {time}")
+                        st.error(f"**الحالة:** لن يأتي ❌\n**آخر تحديث:** {time}")
                 else:
                     st.info("لا توجد بيانات حضور لهذا اليوم")
             
@@ -1019,7 +1125,7 @@ elif st.session_state.page == "admin":
                 else:
                     st.error("❌ كلمة المرور الحالية غير صحيحة")
 
-# ===== صفحة حول النظام =====
+# ===== صفحة حول النظام مع التقييم =====
 elif st.session_state.page == "about":
     col1, col2 = st.columns([2, 1])
     
@@ -1056,6 +1162,71 @@ elif st.session_state.page == "about":
             <p>مصمم الواجهة</p>
         </div>
         """, unsafe_allow_html=True)
+    
+    # قسم التقييم
+    st.markdown("---")
+    st.subheader(t("rating_system"))
+    
+    # عرض إحصائيات التقييم
+    avg_rating, total_ratings = get_average_rating()
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown(f"""
+        <div class='rating-card'>
+            <h3>{t('average_rating')}</h3>
+            <h1 style='font-size: 3rem; color: #FFD700;'>{avg_rating:.1f} ⭐</h1>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown(f"""
+        <div class='rating-card'>
+            <h3>{t('total_ratings')}</h3>
+            <h1 style='font-size: 3rem; color: #667eea;'>{total_ratings}</h1>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # نموذج التقييم
+    st.markdown(f"<h3 style='text-align: center; color: white; margin: 2rem 0;'>{t('rate_app')}</h3>", unsafe_allow_html=True)
+    
+    with st.form("rating_form"):
+        # نظام النجوم
+        st.markdown(f"<p style='color: white; text-align: center;'>{t('your_rating')}</p>", unsafe_allow_html=True)
+        
+        col1, col2, col3, col4, col5 = st.columns(5)
+        stars = [1, 2, 3, 4, 5]
+        selected_rating = 0
+        
+        with col1:
+            if st.button("⭐", key="star1", use_container_width=True):
+                selected_rating = 1
+        with col2:
+            if st.button("⭐⭐", key="star2", use_container_width=True):
+                selected_rating = 2
+        with col3:
+            if st.button("⭐⭐⭐", key="star3", use_container_width=True):
+                selected_rating = 3
+        with col4:
+            if st.button("⭐⭐⭐⭐", key="star4", use_container_width=True):
+                selected_rating = 4
+        with col5:
+            if st.button("⭐⭐⭐⭐⭐", key="star5", use_container_width=True):
+                selected_rating = 5
+        
+        if selected_rating > 0:
+            st.info(f"📝 {t('your_rating')}: {selected_rating} ⭐")
+        
+        comment = st.text_area(t("your_comment"), placeholder="اكتب تعليقك هنا...")
+        
+        submitted = st.form_submit_button(t("submit_rating"))
+        
+        if submitted and selected_rating > 0:
+            add_rating(selected_rating, comment)
+            st.success(f"🎉 {t('rating_success')}")
+            st.balloons()
+        elif submitted:
+            st.error("❌ يرجى اختيار تقييم قبل الإرسال")
     
     st.markdown(f"""
     <div style='background: rgba(255,255,255,0.1); padding: 2rem; border-radius: 15px; border: 1px solid rgba(255,255,255,0.2); text-align: center; margin-top: 2rem;'>
