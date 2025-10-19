@@ -299,14 +299,13 @@ def get_weather():
         t("weather_windy")
     ]
     
-    condition_ar = random.choice(conditions)
-    condition_en = random.choice(["Sunny", "Partly Cloudy", "Rainy", "Windy"])
+    condition = random.choice(conditions)
     
     return {
         "temp": random.randint(28, 42),
         "humidity": random.randint(30, 80),
         "wind_speed": random.randint(5, 25),
-        "condition": condition_ar
+        "condition": condition
     }
 
 def calculate_attendance_stats():
@@ -986,14 +985,15 @@ elif st.session_state.page == "about":
         """, unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
     
-    st.markdown("""
+    # إصلاح السطر الذي كان يسبب الخطأ
+    st.markdown(f"""
     <div class='glass-card' style='text-align: center;'>
         <h3>{t('version_info')}</h3>
         <p><strong>{t('version')}:</strong> 1.1</p>
         <p><strong>{t('release_date')}:</strong> أكتوبر 2025</p>
-        <p><strong>{t('status')}:</strong> ⭐ {t('status_stable')}</p>
+        <p><strong>الحالة:</strong> ⭐ {t('status_stable')}</p>
     </div>
-    """.format(t=t), unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
 # ===== التذييل =====
 st.markdown("---")
