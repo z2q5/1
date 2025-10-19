@@ -1462,7 +1462,7 @@ elif st.session_state.page == "about":
     
     with col2:
         if st.button("⭐⭐", key="star2", use_container_width=True):
-            select_rating(2
+            select_rating(2)
                                   if st.session_state.selected_rating >= 2:
             st.markdown(f"<div class='star-label'>{get_rating_label(2)}</div>", unsafe_allow_html=True)
     
@@ -1540,4 +1540,5 @@ if st.session_state.get('data_loaded', False):
     st.sidebar.success("✅ تم تحميل البيانات بنجاح")
 else:
     st.session_state.data_loaded = True
+
 
