@@ -3,8 +3,9 @@ import pandas as pd
 import datetime
 import os
 import random
-import plotly.express as px
-import plotly.graph_objects as go
+import json
+import pickle
+from pathlib import Path
 
 # ===== إعداد الصفحة =====
 st.set_page_config(
@@ -13,6 +14,62 @@ st.set_page_config(
     page_icon="🚍",
     initial_sidebar_state="collapsed"
 )
+
+# ===== مسار حفظ البيانات =====
+DATA_DIR = Path("./data")
+DATA_DIR.mkdir(exist_ok=True)
+
+# ===== وظائف حفظ البيانات =====
+def save_data():
+    """حفظ جميع البيانات في الملفات"""
+    try:
+        # حفظ بيانات الطلاب
+        with open(DATA_DIR / "students.pkl", "wb") as f:
+            pickle.dump(st.session_state.students_df.to_dict(), f)
+        
+        # حفظ بيانات الحضور
+        with open(DATA_DIR / "attendance.pkl", "wb") as f:
+            pickle.dump(st.session_state.attendance_df.to_dict(), f)
+        
+        # حفظ الإعدادات
+        settings = {
+            "bus_passwords": st.session_state.bus_passwords,
+            "admin_password": st.session_state.admin_password,
+            "theme": st.session_state.theme,
+            "lang": st.session_state.lang
+        }
+        with open(DATA_DIR / "settings.json", "w", encoding="utf-8") as f:
+            json.dump(settings, f, ensure_ascii=False)
+            
+    except Exception as e:
+        st.error(f"خطأ في حفظ البيانات: {e}")
+
+def load_data():
+    """تحميل البيانات المحفوظة"""
+    try:
+        # تحميل بيانات الطلاب
+        if (DATA_DIR / "students.pkl").exists():
+            with open(DATA_DIR / "students.pkl", "rb") as f:
+                students_data = pickle.load(f)
+                st.session_state.students_df = pd.DataFrame(students_data)
+        
+        # تحميل بيانات الحضور
+        if (DATA_DIR / "attendance.pkl").exists():
+            with open(DATA_DIR / "attendance.pkl", "rb") as f:
+                attendance_data = pickle.load(f)
+                st.session_state.attendance_df = pd.DataFrame(attendance_data)
+        
+        # تحميل الإعدادات
+        if (DATA_DIR / "settings.json").exists():
+            with open(DATA_DIR / "settings.json", "r", encoding="utf-8") as f:
+                settings = json.load(f)
+                st.session_state.bus_passwords = settings.get("bus_passwords", {"1": "1111", "2": "2222", "3": "3333"})
+                st.session_state.admin_password = settings.get("admin_password", "admin123")
+                st.session_state.theme = settings.get("theme", "light")
+                st.session_state.lang = settings.get("lang", "ar")
+                
+    except Exception as e:
+        st.error(f"خطأ في تحميل البيانات: {e}")
 
 # ===== حالة التطبيق =====
 if "lang" not in st.session_state:
@@ -27,21 +84,29 @@ if "current_bus" not in st.session_state:
     st.session_state.current_bus = "1"
 if "theme" not in st.session_state:
     st.session_state.theme = "light"
+if "bus_passwords" not in st.session_state:
+    st.session_state.bus_passwords = {"1": "1111", "2": "2222", "3": "3333"}
+if "admin_password" not in st.session_state:
+    st.session_state.admin_password = "admin123"
+if "admin_logged_in" not in st.session_state:
+    st.session_state.admin_logged_in = False
+
+# تحميل البيانات المحفوظة
+load_data()
 
 # ===== البيانات الافتراضية =====
 def initialize_data():
-    students_data = [
-        {"id": "1001", "name": "أحمد محمد", "grade": "10-A", "bus": "1", "parent_phone": "0501234567"},
-        {"id": "1002", "name": "فاطمة علي", "grade": "9-B", "bus": "2", "parent_phone": "0507654321"},
-        {"id": "1003", "name": "خالد إبراهيم", "grade": "8-C", "bus": "3", "parent_phone": "0505555555"},
-        {"id": "1004", "name": "سارة عبدالله", "grade": "10-B", "bus": "1", "parent_phone": "0504444444"},
-        {"id": "1005", "name": "محمد حسن", "grade": "7-A", "bus": "2", "parent_phone": "0503333333"},
-        {"id": "1006", "name": "ريم أحمد", "grade": "11-A", "bus": "3", "parent_phone": "0506666666"},
-        {"id": "1007", "name": "يوسف خالد", "grade": "6-B", "bus": "1", "parent_phone": "0507777777"},
-        {"id": "1008", "name": "نورة سعيد", "grade": "9-A", "bus": "2", "parent_phone": "0508888888"},
-    ]
-    
     if 'students_df' not in st.session_state:
+        students_data = [
+            {"id": "1001", "name": "أحمد محمد", "grade": "10-A", "bus": "1", "parent_phone": "0501234567"},
+            {"id": "1002", "name": "فاطمة علي", "grade": "9-B", "bus": "2", "parent_phone": "0507654321"},
+            {"id": "1003", "name": "خالد إبراهيم", "grade": "8-C", "bus": "3", "parent_phone": "0505555555"},
+            {"id": "1004", "name": "سارة عبدالله", "grade": "10-B", "bus": "1", "parent_phone": "0504444444"},
+            {"id": "1005", "name": "محمد حسن", "grade": "7-A", "bus": "2", "parent_phone": "0503333333"},
+            {"id": "1006", "name": "ريم أحمد", "grade": "11-A", "bus": "3", "parent_phone": "0506666666"},
+            {"id": "1007", "name": "يوسف خالد", "grade": "6-B", "bus": "1", "parent_phone": "0507777777"},
+            {"id": "1008", "name": "نورة سعيد", "grade": "9-A", "bus": "2", "parent_phone": "0508888888"},
+        ]
         st.session_state.students_df = pd.DataFrame(students_data)
     
     if 'attendance_df' not in st.session_state:
@@ -52,10 +117,6 @@ def initialize_data():
 # تهيئة البيانات
 initialize_data()
 
-# ===== كلمات المرور =====
-bus_passwords = {"1": "1111", "2": "2222", "3": "3333"}
-admin_pass = "admin123"
-
 # ===== الترجمة =====
 translations = {
     "ar": {
@@ -65,7 +126,7 @@ translations = {
         "student": "🎓 الطالب",
         "driver": "🚌 السائق",
         "parents": "👨‍👩‍👧 أولياء الأمور",
-        "settings": "⚙️ الإعدادات",
+        "admin": "🏫 الإدارة",
         "about": "ℹ️ حول النظام",
         "student_title": "🎓 تسجيل حضور الطالب",
         "student_desc": "أدخل رقم الوزارة لتسجيل حالتك اليوم",
@@ -113,30 +174,21 @@ translations = {
         "bus_info": "🚌 معلومات الباص",
         "morning_time": "وقت الصباح التقريبي",
         "afternoon_time": "وقت الظهيرة التقريبي",
-        "settings_title": "⚙️ إعدادات النظام",
-        "appearance": "🎨 المظهر",
-        "security": "🔐 الأمان",
-        "data": "📊 البيانات",
-        "current_theme": "الثيم الحالي",
-        "light_theme": "☀️ فاتح",
-        "dark_theme": "🌙 مظلم",
-        "toggle_theme": "تبديل الثيم",
-        "language_settings": "إعدادات اللغة",
-        "current_language": "اللغة الحالية",
-        "arabic": "العربية",
-        "english": "English",
-        "toggle_language": "تبديل اللغة",
-        "current_passwords": "كلمات المرور الحالية",
-        "change_password": "تغيير كلمة المرور",
-        "select_bus_password": "اختر الباص",
-        "new_password": "كلمة المرور الجديدة",
-        "save_changes": "حفظ التغييرات",
+        "admin_title": "🏫 لوحة تحكم الإدارة",
+        "admin_login": "🔐 تسجيل دخول الإدارة",
+        "admin_password": "كلمة مرور الإدارة",
         "system_stats": "إحصائيات النظام",
         "students_count": "عدد الطلاب",
         "attendance_records": "سجلات الحضور",
         "system_actions": "إجراءات النظام",
         "reset_data": "🔄 إعادة تعيين البيانات",
         "backup": "📥 نسخة احتياطية",
+        "change_admin_password": "تغيير كلمة مرور الإدارة",
+        "current_passwords": "كلمات المرور الحالية",
+        "change_bus_password": "تغيير كلمات مرور الباصات",
+        "select_bus_password": "اختر الباص",
+        "new_password": "كلمة المرور الجديدة",
+        "save_changes": "حفظ التغييرات",
         "about_title": "ℹ️ حول النظام",
         "about_description": "نظام متكامل لإدارة النقل المدرسي الذكي في مدرسة المنيرة الخاصة بأبوظبي.",
         "features": "🎯 المميزات الرئيسية",
@@ -164,7 +216,14 @@ translations = {
         "login_error": "كلمة مرور غير صحيحة",
         "data_reset_success": "تم إعادة تعيين البيانات",
         "backup_success": "تم إنشاء نسخة احتياطية",
-        "password_updated": "تم تحديث كلمة المرور"
+        "password_updated": "تم تحديث كلمة المرور",
+        "theme_light": "☀️ فاتح",
+        "theme_dark": "🌙 مظلم",
+        "toggle_theme": "تبديل الثيم",
+        "current_theme": "الثيم الحالي",
+        "language": "اللغة",
+        "arabic": "العربية",
+        "english": "الإنجليزية"
     },
     "en": {
         "title": "🚍 Smart Bus System",
@@ -173,7 +232,7 @@ translations = {
         "student": "🎓 Student",
         "driver": "🚌 Driver",
         "parents": "👨‍👩‍👧 Parents",
-        "settings": "⚙️ Settings",
+        "admin": "🏫 Admin",
         "about": "ℹ️ About",
         "student_title": "🎓 Student Attendance Registration",
         "student_desc": "Enter your ministry number to register your status today",
@@ -221,30 +280,21 @@ translations = {
         "bus_info": "🚌 Bus Information",
         "morning_time": "Approximate Morning Time",
         "afternoon_time": "Approximate Afternoon Time",
-        "settings_title": "⚙️ System Settings",
-        "appearance": "🎨 Appearance",
-        "security": "🔐 Security",
-        "data": "📊 Data",
-        "current_theme": "Current Theme",
-        "light_theme": "☀️ Light",
-        "dark_theme": "🌙 Dark",
-        "toggle_theme": "Toggle Theme",
-        "language_settings": "Language Settings",
-        "current_language": "Current Language",
-        "arabic": "Arabic",
-        "english": "English",
-        "toggle_language": "Toggle Language",
-        "current_passwords": "Current Passwords",
-        "change_password": "Change Password",
-        "select_bus_password": "Select Bus",
-        "new_password": "New Password",
-        "save_changes": "Save Changes",
+        "admin_title": "🏫 Admin Control Panel",
+        "admin_login": "🔐 Admin Login",
+        "admin_password": "Admin Password",
         "system_stats": "System Statistics",
         "students_count": "Students Count",
         "attendance_records": "Attendance Records",
         "system_actions": "System Actions",
         "reset_data": "🔄 Reset Data",
         "backup": "📥 Backup",
+        "change_admin_password": "Change Admin Password",
+        "current_passwords": "Current Passwords",
+        "change_bus_password": "Change Bus Passwords",
+        "select_bus_password": "Select Bus",
+        "new_password": "New Password",
+        "save_changes": "Save Changes",
         "about_title": "ℹ️ About System",
         "about_description": "Integrated system for smart school transportation management at Al Munira Private School in Abu Dhabi.",
         "features": "🎯 Main Features",
@@ -272,7 +322,14 @@ translations = {
         "login_error": "Incorrect password",
         "data_reset_success": "Data reset successfully",
         "backup_success": "Backup created successfully",
-        "password_updated": "Password updated successfully"
+        "password_updated": "Password updated successfully",
+        "theme_light": "☀️ Light",
+        "theme_dark": "🌙 Dark",
+        "toggle_theme": "Toggle Theme",
+        "current_theme": "Current Theme",
+        "language": "Language",
+        "arabic": "Arabic",
+        "english": "English"
     }
 }
 
@@ -281,7 +338,7 @@ def t(key):
     try:
         return translations[st.session_state.lang][key]
     except KeyError:
-        return key  # إرجاع المفتاح نفسه إذا لم توجد ترجمة
+        return key
 
 # ===== وظائف مساعدة =====
 def add_notification(message):
@@ -289,9 +346,9 @@ def add_notification(message):
         "time": datetime.datetime.now().strftime("%H:%M"),
         "message": message
     })
+    save_data()
 
 def get_weather():
-    """بيانات الطقس مع الترجمة"""
     conditions = [
         t("weather_sunny"),
         t("weather_partly_cloudy"), 
@@ -368,121 +425,124 @@ def register_attendance(student, status):
         st.session_state.attendance_df, new_entry
     ], ignore_index=True)
     
+    save_data()
     return now
 
 def toggle_theme():
     st.session_state.theme = "dark" if st.session_state.theme == "light" else "light"
+    save_data()
     st.rerun()
 
 def toggle_language():
     st.session_state.lang = "en" if st.session_state.lang == "ar" else "ar"
+    save_data()
     st.rerun()
 
-# ===== تصميم متطور =====
+# ===== تصميم متطور بدون مربعات بيضاء =====
 def apply_custom_styles():
     if st.session_state.theme == "dark":
         dark_theme = """
-        .main { background-color: #0e1117; color: #fafafa; }
-        .stApp { background-color: #0e1117; }
-        .stButton>button { background-color: #262730; color: #fafafa; border: 1px solid #555; }
-        .stTextInput>div>div>input { background-color: #262730; color: #fafafa; border: 1px solid #555; }
-        .stSelectbox>div>div>select { background-color: #262730; color: #fafafa; }
+        .main { 
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+        }
+        .stApp {
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+        }
+        .stButton>button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+        }
+        .stTextInput>div>div>input {
+            background-color: #2d3746;
+            color: white;
+            border: 1px solid #4a5568;
+        }
+        .stSelectbox>div>div>select {
+            background-color: #2d3746;
+            color: white;
+        }
         """
     else:
-        dark_theme = ""
+        dark_theme = """
+        .main { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #2c3e50;
+        }
+        .stApp {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        """
     
     st.markdown(f"""
     <style>
-        .main {{ 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }}
-        
-        .stApp {{
-            background: transparent;
-        }}
-        
         {dark_theme}
         
         .main-header {{
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(20px);
-            padding: 2.5rem 2rem;
-            border-radius: 25px;
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 2rem;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }}
-        
-        .glass-card {{
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(15px);
-            border-radius: 20px;
             padding: 2rem;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            color: white;
+            text-align: center;
             margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
         }}
         
         .stat-card {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 1.5rem;
-            border-radius: 20px;
-            text-align: center;
-            margin: 0.5rem;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }}
-        
-        .stat-card:hover {{
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.6);
-        }}
-        
-        .student-card {{
-            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-            padding: 1.5rem;
-            border-radius: 20px;
-            margin: 1rem 0;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            transition: all 0.3s ease;
-        }}
-        
-        .student-card:hover {{
-            transform: translateX(10px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-        }}
-        
-        .weather-card {{
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-            padding: 1.5rem;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(79, 172, 254, 0.4);
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }}
-        
-        .feature-card {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
             color: white;
             padding: 1.5rem;
             border-radius: 15px;
+            text-align: center;
+            margin: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }}
+        
+        .stat-card:hover {{
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.25);
+        }}
+        
+        .student-card {{
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin: 1rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }}
+        
+        .weather-card {{
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+        }}
+        
+        .feature-card {{
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
             margin: 0.5rem 0;
             text-align: center;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-            transition: all 0.3s ease;
             border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
         }}
         
         .feature-card:hover {{
-            transform: scale(1.05);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.02);
         }}
         
         .stButton>button {{
@@ -490,46 +550,57 @@ def apply_custom_styles():
             color: white;
             border: none;
             padding: 0.75rem 1.5rem;
-            border-radius: 15px;
+            border-radius: 10px;
             font-weight: 600;
             transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }}
         
         .stButton>button:hover {{
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.6);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }}
         
         .stTextInput>div>div>input {{
-            border-radius: 15px;
-            border: 2px solid #e9ecef;
-            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 0.75rem;
             font-size: 1rem;
-            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
         }}
         
         .stTextInput>div>div>input:focus {{
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-            transform: translateY(-2px);
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
         }}
         
-        @keyframes fadeIn {{
-            from {{ opacity: 0; transform: translateY(30px); }}
-            to {{ opacity: 1; transform: translateY(0); }}
+        .stSelectbox>div>div>select {{
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
         }}
         
-        .animate-fadeIn {{
-            animation: fadeIn 0.8s ease-out;
+        .content-section {{
+            background: transparent;
+            padding: 0;
+            border-radius: 0;
+            box-shadow: none;
+            border: none;
         }}
         
         .section-title {{
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: bold;
+            color: white;
+            text-align: center;
+            margin-bottom: 1rem;
             font-size: 1.5rem;
+            font-weight: bold;
+        }}
+        
+        .info-text {{
+            color: rgba(255, 255, 255, 0.9);
+            text-align: center;
+            margin-bottom: 2rem;
         }}
     </style>
     """, unsafe_allow_html=True)
@@ -542,7 +613,7 @@ col1, col2, col3 = st.columns([2, 3, 1])
 with col1:
     weather_data = get_weather()
     st.markdown(f"""
-    <div class='weather-card animate-fadeIn'>
+    <div class='weather-card'>
         <h3>🌡️ {weather_data['temp']}°C</h3>
         <p>{weather_data['condition']}</p>
         <p>💧 {weather_data['humidity']}% | 💨 {weather_data['wind_speed']} km/h</p>
@@ -551,10 +622,10 @@ with col1:
 
 with col2:
     st.markdown(f"""
-    <div class='main-header animate-fadeIn'>
-        <h1 style='font-size: 2.8rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>{t('title')}</h1>
-        <h3 style='font-size: 1.4rem; margin-bottom: 0.5rem; color: #666;'>{t('subtitle')}</h3>
-        <p style='font-size: 1.1rem; color: #888;'>{t('description')}</p>
+    <div class='main-header'>
+        <h1 style='font-size: 2.5rem; margin-bottom: 0.5rem;'>{t('title')}</h1>
+        <h3 style='font-size: 1.3rem; margin-bottom: 0.5rem; opacity: 0.9;'>{t('subtitle')}</h3>
+        <p style='font-size: 1.1rem; opacity: 0.8;'>{t('description')}</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -575,7 +646,7 @@ pages = [
     (t("student"), "student"),
     (t("driver"), "driver"), 
     (t("parents"), "parents"),
-    (t("settings"), "admin"),
+    (t("admin"), "admin"),
     (t("about"), "about")
 ]
 
@@ -596,13 +667,11 @@ if st.session_state.page == "student":
     
     with col1:
         st.markdown(f"""
-        <div style='text-align: center; margin-bottom: 2rem;'>
+        <div class='content-section'>
             <h2 class='section-title'>{t('student_title')}</h2>
-            <p style='color: white; font-size: 1.1rem;'>{t('student_desc')}</p>
+            <p class='info-text'>{t('student_desc')}</p>
         </div>
         """, unsafe_allow_html=True)
-        
-        st.markdown("<div class='glass-card animate-fadeIn'>", unsafe_allow_html=True)
         
         student_id = st.text_input(
             t("student_id"),
@@ -620,18 +689,18 @@ if st.session_state.page == "student":
                     student = student_info.iloc[0]
                     
                     st.markdown(f"""
-                    <div class='student-card animate-fadeIn'>
+                    <div class='student-card'>
                         <div style='text-align: center;'>
-                            <h3 style='color: #2c3e50; margin-bottom: 1rem;'>🎓 {student['name']}</h3>
+                            <h3 style='margin-bottom: 1rem;'>🎓 {student['name']}</h3>
                             <div style='display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 1rem;'>
                                 <div style='text-align: center;'>
-                                    <div style='background: #667eea; color: white; padding: 0.5rem 1rem; border-radius: 10px; font-weight: bold;'>{t('grade')}: {student['grade']}</div>
+                                    <div style='background: rgba(255,255,255,0.2); color: white; padding: 0.5rem 1rem; border-radius: 8px; font-weight: bold;'>{t('grade')}: {student['grade']}</div>
                                 </div>
                                 <div style='text-align: center;'>
-                                    <div style='background: #764ba2; color: white; padding: 0.5rem 1rem; border-radius: 10px; font-weight: bold;'>{t('bus')}: {student['bus']}</div>
+                                    <div style='background: rgba(255,255,255,0.2); color: white; padding: 0.5rem 1rem; border-radius: 8px; font-weight: bold;'>{t('bus')}: {student['bus']}</div>
                                 </div>
                             </div>
-                            <p style='color: #666; margin: 0;'><strong>{t('parent_phone')}:</strong> {student['parent_phone']}</p>
+                            <p style='margin: 0; opacity: 0.9;'><strong>{t('parent_phone')}:</strong> {student['parent_phone']}</p>
                         </div>
                     </div>
                     """, unsafe_allow_html=True)
@@ -639,10 +708,10 @@ if st.session_state.page == "student":
                     already_registered, current_status = has_student_registered_today(student_id)
                     
                     if already_registered:
-                        status_color = "#51cf66" if current_status == t("status_coming") else "#ff6b6b"
+                        status_color = "rgba(81, 207, 102, 0.3)" if current_status == t("status_coming") else "rgba(255, 107, 107, 0.3)"
                         status_icon = "✅" if current_status == t("status_coming") else "❌"
                         st.markdown(f"""
-                        <div class='animate-fadeIn' style='background: {status_color}; color: white; padding: 1.5rem; border-radius: 15px; text-align: center; margin: 1rem 0;'>
+                        <div style='background: {status_color}; color: white; padding: 1.5rem; border-radius: 12px; text-align: center; margin: 1rem 0; border: 1px solid rgba(255,255,255,0.2);'>
                             <h4>{status_icon} {t('already_registered')}</h4>
                             <p style='margin: 0.5rem 0; font-size: 1.1rem;'>{t('current_status')}: <strong>{current_status}</strong></p>
                         </div>
@@ -654,10 +723,11 @@ if st.session_state.page == "student":
                                 ~((st.session_state.attendance_df["id"].astype(str) == str(student_id).strip()) & 
                                   (st.session_state.attendance_df["date"] == today))
                             ]
+                            save_data()
                             st.success(t("reset_success"))
                             st.rerun()
                     else:
-                        st.markdown(f"<h4 style='text-align: center; color: #2c3e50; margin-bottom: 1rem;'>{t('choose_status')}</h4>", unsafe_allow_html=True)
+                        st.markdown(f"<h4 style='text-align: center; color: white; margin-bottom: 1rem;'>{t('choose_status')}</h4>", unsafe_allow_html=True)
                         
                         col_a, col_b = st.columns(2)
                         with col_a:
@@ -690,8 +760,6 @@ if st.session_state.page == "student":
                     
             except Exception as e:
                 st.error(f"❌ {t('error')}")
-        
-        st.markdown("</div>", unsafe_allow_html=True)
 
     with col2:
         st.markdown(f"<div style='text-align: center; margin-bottom: 1rem;'><h3 style='color: white;'>{t('stats_title')}</h3></div>", unsafe_allow_html=True)
@@ -699,7 +767,7 @@ if st.session_state.page == "student":
         stats = calculate_attendance_stats()
         
         st.markdown(f"""
-        <div class='stat-card animate-fadeIn'>
+        <div class='stat-card'>
             <h3 style='margin-bottom: 0.5rem; font-size: 2rem;'>👥</h3>
             <h2 style='margin: 0; font-size: 2.5rem;'>{stats['total']}</h2>
             <p style='margin: 0; opacity: 0.9;'>{t('total_registered')}</p>
@@ -707,7 +775,7 @@ if st.session_state.page == "student":
         """, unsafe_allow_html=True)
         
         st.markdown(f"""
-        <div class='stat-card animate-fadeIn'>
+        <div class='stat-card'>
             <h3 style='margin-bottom: 0.5rem; font-size: 2rem;'>✅</h3>
             <h2 style='margin: 0; font-size: 2.5rem;'>{stats['coming']}</h2>
             <p style='margin: 0; opacity: 0.9;'>{t('expected_attendance')}</p>
@@ -715,7 +783,7 @@ if st.session_state.page == "student":
         """, unsafe_allow_html=True)
         
         st.markdown(f"""
-        <div class='stat-card animate-fadeIn'>
+        <div class='stat-card'>
             <h3 style='margin-bottom: 0.5rem; font-size: 2rem;'>📈</h3>
             <h2 style='margin: 0; font-size: 2.5rem;'>{stats['percentage']:.1f}%</h2>
             <p style='margin: 0; opacity: 0.9;'>{t('attendance_rate')}</p>
@@ -727,9 +795,7 @@ elif st.session_state.page == "driver":
     st.subheader(t("driver_title"))
     
     if not st.session_state.driver_logged_in:
-        st.markdown("<div class='glass-card animate-fadeIn'>", unsafe_allow_html=True)
-        
-        st.markdown(f"<h3 style='text-align: center; color: #2c3e50; margin-bottom: 2rem;'>{t('driver_login')}</h3>", unsafe_allow_html=True)
+        st.markdown(f"<h3 style='text-align: center; color: white; margin-bottom: 2rem;'>{t('driver_login')}</h3>", unsafe_allow_html=True)
         
         col1, col2 = st.columns(2)
         with col1:
@@ -738,15 +804,13 @@ elif st.session_state.page == "driver":
             password = st.text_input(t("password"), type="password", placeholder=t("password_placeholder"))
         
         if st.button(t("login"), type="primary", use_container_width=True):
-            if password == bus_passwords.get(bus_number, ""):
+            if password == st.session_state.bus_passwords.get(bus_number, ""):
                 st.session_state.driver_logged_in = True
                 st.session_state.current_bus = bus_number
                 st.success(t("login_success"))
                 st.rerun()
             else:
                 st.error(t("login_error"))
-        
-        st.markdown("</div>", unsafe_allow_html=True)
         
     else:
         st.success(f"✅ {t('login_success')} - الباص رقم {st.session_state.current_bus}")
@@ -784,13 +848,12 @@ elif st.session_state.page == "driver":
             st.subheader(t("coming_students"))
             if not coming_students.empty:
                 for _, student in coming_students.iterrows():
-                    with st.container():
-                        st.markdown(f"""
-                        <div style='background: #d4edda; padding: 1rem; border-radius: 15px; border-right: 5px solid #28a745; margin: 0.5rem 0;'>
-                            <h4 style='color: #155724; margin: 0;'>✅ {student['name']}</h4>
-                            <p style='color: #155724; margin: 0.3rem 0;'>📚 {student['grade']} | ⏰ {student['time']}</p>
-                        </div>
-                        """, unsafe_allow_html=True)
+                    st.markdown(f"""
+                    <div style='background: rgba(212, 237, 218, 0.2); padding: 1rem; border-radius: 10px; border-right: 5px solid #28a745; margin: 0.5rem 0;'>
+                        <h4 style='color: white; margin: 0;'>✅ {student['name']}</h4>
+                        <p style='color: rgba(255,255,255,0.8); margin: 0.3rem 0;'>📚 {student['grade']} | ⏰ {student['time']}</p>
+                    </div>
+                    """, unsafe_allow_html=True)
             else:
                 st.info(t("no_students"))
             
@@ -803,22 +866,22 @@ elif st.session_state.page == "driver":
                 if not student_attendance.empty:
                     status = student_attendance.iloc[0]["status"]
                     if status == t("status_coming"):
-                        bg_color = "#d4edda"
+                        bg_color = "rgba(212, 237, 218, 0.2)"
                         border_color = "#28a745"
                         status_icon = "✅"
                     else:
-                        bg_color = "#f8d7da"
+                        bg_color = "rgba(248, 215, 218, 0.2)"
                         border_color = "#dc3545"
                         status_icon = "❌"
                 else:
-                    bg_color = "#fff3cd"
+                    bg_color = "rgba(255, 243, 205, 0.2)"
                     border_color = "#ffc107"
                     status_icon = "⏳"
                 
                 st.markdown(f"""
-                <div style='background: {bg_color}; padding: 1rem; border-radius: 15px; border-right: 5px solid {border_color}; margin: 0.5rem 0;'>
-                    <h4 style='color: #2c3e50; margin: 0;'>{status_icon} {student['name']}</h4>
-                    <p style='color: #2c3e50; margin: 0.3rem 0;'>📚 {student['grade']} | 📱 {student['parent_phone']}</p>
+                <div style='background: {bg_color}; padding: 1rem; border-radius: 10px; border-right: 5px solid {border_color}; margin: 0.5rem 0;'>
+                    <h4 style='color: white; margin: 0;'>{status_icon} {student['name']}</h4>
+                    <p style='color: rgba(255,255,255,0.8); margin: 0.3rem 0;'>📚 {student['grade']} | 📱 {student['parent_phone']}</p>
                 </div>
                 """, unsafe_allow_html=True)
 
@@ -862,95 +925,107 @@ elif st.session_state.page == "parents":
             
             with col2:
                 st.subheader(t("bus_info"))
-                st.info(f"""
-                **{t('bus')}:** {student['bus']}
-                **{t('morning_time')}:** 7:00 صباحاً
-                **{t('afternoon_time')}:** 2:00 ظهراً
-                **{t('parent_phone')}:** {student['parent_phone']}
-                """)
+                st.markdown(f"""
+                <div style='background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2);'>
+                    <p><strong>{t('bus')}:</strong> {student['bus']}</p>
+                    <p><strong>{t('morning_time')}:</strong> 7:00 صباحاً</p>
+                    <p><strong>{t('afternoon_time')}:</strong> 2:00 ظهراً</p>
+                    <p><strong>{t('parent_phone')}:</strong> {student['parent_phone']}</p>
+                </div>
+                """, unsafe_allow_html=True)
         else:
             st.error(f"❌ {t('not_found')}")
 
-# ===== صفحة الإعدادات =====
+# ===== صفحة الإدارة =====
 elif st.session_state.page == "admin":
-    st.subheader(t("settings_title"))
+    st.subheader(t("admin_title"))
     
-    tab1, tab2, tab3 = st.tabs([t("appearance"), t("security"), t("data")])
+    if not st.session_state.admin_logged_in:
+        st.markdown(f"<h3 style='text-align: center; color: white; margin-bottom: 2rem;'>{t('admin_login')}</h3>", unsafe_allow_html=True)
+        
+        admin_password = st.text_input(t("admin_password"), type="password", placeholder=t("password_placeholder"))
+        
+        if st.button(t("login"), type="primary", use_container_width=True):
+            if admin_password == st.session_state.admin_password:
+                st.session_state.admin_logged_in = True
+                st.success(t("login_success"))
+                st.rerun()
+            else:
+                st.error(t("login_error"))
     
-    with tab1:
-        st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
-        st.header(t("appearance"))
+    else:
+        st.success(f"✅ {t('login_success')}")
         
-        col1, col2 = st.columns(2)
+        if st.button(t("logout"), type="secondary"):
+            st.session_state.admin_logged_in = False
+            st.rerun()
         
-        with col1:
-            st.subheader(t("current_theme"))
-            current_theme = t("light_theme") if st.session_state.theme == "light" else t("dark_theme")
-            st.info(f"{t('current_theme')}: {current_theme}")
+        tab1, tab2, tab3 = st.tabs([t("system_stats"), t("change_bus_password"), t("change_admin_password")])
+        
+        with tab1:
+            st.header(t("system_stats"))
             
-            if st.button(t("toggle_theme"), use_container_width=True):
-                toggle_theme()
-        
-        with col2:
-            st.subheader(t("language_settings"))
-            current_lang = t("arabic") if st.session_state.lang == "ar" else t("english")
-            st.info(f"{t('current_language')}: {current_lang}")
+            col1, col2 = st.columns(2)
             
-            if st.button(t("toggle_language"), use_container_width=True):
-                toggle_language()
-        st.markdown("</div>", unsafe_allow_html=True)
-    
-    with tab2:
-        st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
-        st.header(t("security"))
-        
-        st.subheader(t("current_passwords"))
-        st.info("""
-        **كلمات مرور الباصات:**
-        - الباص 1: 1111
-        - الباص 2: 2222  
-        - الباص 3: 3333
-        """)
-        
-        st.subheader(t("change_password"))
-        bus_select = st.selectbox(t("select_bus_password"), ["1", "2", "3"])
-        new_pass = st.text_input(t("new_password"), type="password")
-        
-        if st.button(t("save_changes")):
-            if new_pass:
-                bus_passwords[bus_select] = new_pass
-                st.success(f"✅ {t('password_updated')} {bus_select}")
-        st.markdown("</div>", unsafe_allow_html=True)
-    
-    with tab3:
-        st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
-        st.header(t("data"))
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.subheader(t("system_stats"))
-            st.metric(t("students_count"), len(st.session_state.students_df))
-            st.metric(t("attendance_records"), len(st.session_state.attendance_df))
-        
-        with col2:
-            st.subheader(t("system_actions"))
-            if st.button(t("reset_data"), type="secondary", use_container_width=True):
-                initialize_data()
-                st.success(t("data_reset_success"))
+            with col1:
+                st.metric(t("students_count"), len(st.session_state.students_df))
+                st.metric(t("attendance_records"), len(st.session_state.attendance_df))
             
-            if st.button(t("backup"), use_container_width=True):
-                st.info(t("backup_success"))
-        st.markdown("</div>", unsafe_allow_html=True)
+            with col2:
+                st.subheader(t("system_actions"))
+                if st.button(t("reset_data"), type="secondary", use_container_width=True):
+                    initialize_data()
+                    save_data()
+                    st.success(t("data_reset_success"))
+                
+                if st.button(t("backup"), use_container_width=True):
+                    save_data()
+                    st.info(t("backup_success"))
+        
+        with tab2:
+            st.header(t("change_bus_password"))
+            
+            st.subheader(t("current_passwords"))
+            for bus, pwd in st.session_state.bus_passwords.items():
+                st.write(f"**الباص {bus}:** {pwd}")
+            
+            bus_select = st.selectbox(t("select_bus_password"), ["1", "2", "3"])
+            new_pass = st.text_input(t("new_password"), type="password")
+            
+            if st.button(t("save_changes")):
+                if new_pass:
+                    st.session_state.bus_passwords[bus_select] = new_pass
+                    save_data()
+                    st.success(f"✅ {t('password_updated')} {bus_select}")
+        
+        with tab3:
+            st.header(t("change_admin_password"))
+            
+            current_admin_pass = st.text_input("كلمة المرور الحالية", type="password")
+            new_admin_pass = st.text_input("كلمة المرور الجديدة", type="password")
+            confirm_admin_pass = st.text_input("تأكيد كلمة المرور الجديدة", type="password")
+            
+            if st.button("تغيير كلمة المرور", type="primary"):
+                if current_admin_pass == st.session_state.admin_password:
+                    if new_admin_pass == confirm_admin_pass:
+                        if new_admin_pass:
+                            st.session_state.admin_password = new_admin_pass
+                            save_data()
+                            st.success("✅ تم تغيير كلمة مرور الإدارة بنجاح")
+                        else:
+                            st.error("❌ كلمة المرور الجديدة لا يمكن أن تكون فارغة")
+                    else:
+                        st.error("❌ كلمات المرور غير متطابقة")
+                else:
+                    st.error("❌ كلمة المرور الحالية غير صحيحة")
 
 # ===== صفحة حول النظام =====
 elif st.session_state.page == "about":
     col1, col2 = st.columns([2, 1])
     
     with col1:
-        st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
         st.header(t("about_title"))
-        st.markdown(f"<p style='color: #666; line-height: 1.6; font-size: 1.1rem;'>{t('about_description')}</p>", unsafe_allow_html=True)
+        st.markdown(f"<p class='info-text'>{t('about_description')}</p>", unsafe_allow_html=True)
         
         st.subheader(t("features"))
         features = [
@@ -964,10 +1039,8 @@ elif st.session_state.page == "about":
         
         for feature in features:
             st.markdown(f"<div class='feature-card'>{feature}</div>", unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
     
     with col2:
-        st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
         st.subheader(t("development_team"))
         
         st.markdown("""
@@ -983,15 +1056,13 @@ elif st.session_state.page == "about":
             <p>مصمم الواجهة</p>
         </div>
         """, unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
     
-    # إصلاح السطر الذي كان يسبب الخطأ
     st.markdown(f"""
-    <div class='glass-card' style='text-align: center;'>
-        <h3>{t('version_info')}</h3>
-        <p><strong>{t('version')}:</strong> 1.1</p>
-        <p><strong>{t('release_date')}:</strong> أكتوبر 2025</p>
-        <p><strong>الحالة:</strong> ⭐ {t('status_stable')}</p>
+    <div style='background: rgba(255,255,255,0.1); padding: 2rem; border-radius: 15px; border: 1px solid rgba(255,255,255,0.2); text-align: center; margin-top: 2rem;'>
+        <h3 style='color: white;'>{t('version_info')}</h3>
+        <p style='color: rgba(255,255,255,0.9);'><strong>{t('version')}:</strong> 1.1</p>
+        <p style='color: rgba(255,255,255,0.9);'><strong>{t('release_date')}:</strong> أكتوبر 2025</p>
+        <p style='color: rgba(255,255,255,0.9);'><strong>الحالة:</strong> ⭐ {t('status_stable')}</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -1000,8 +1071,8 @@ st.markdown("---")
 st.markdown(f"""
 <div style='text-align: center; color: white; padding: 2rem 0;'>
     <p style='margin: 0.3rem 0; font-size: 1.1rem;'><strong>{t('footer')}</strong></p>
-    <p style='margin: 0.3rem 0;'>{t('subtitle')}</p>
-    <p style='margin: 0.3rem 0;'>{t('rights')}</p>
-    <p style='margin: 0.3rem 0; font-size: 0.9rem;'>{t('team')}</p>
+    <p style='margin: 0.3rem 0; opacity: 0.9;'>{t('subtitle')}</p>
+    <p style='margin: 0.3rem 0; opacity: 0.8;'>{t('rights')}</p>
+    <p style='margin: 0.3rem 0; font-size: 0.9rem; opacity: 0.7;'>{t('team')}</p>
 </div>
 """, unsafe_allow_html=True)
