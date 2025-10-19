@@ -1,4 +1,4 @@
-```python
+python
 import streamlit as st
 import pandas as pd
 import datetime
@@ -1540,3 +1540,4 @@ if st.session_state.get('data_loaded', False):
     st.sidebar.success("✅ تم تحميل البيانات بنجاح")
 else:
     st.session_state.data_loaded = True
+
