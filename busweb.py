@@ -485,84 +485,100 @@ def get_rating_label(rating):
     }
     return labels.get(rating, "")
 
-# ===== دالة لعرض بطاقة الطالب =====
+# ===== دالة محسنة لعرض بطاقة الطالب =====
 def display_student_card(student):
-    """عرض بطاقة طالب فردية"""
-    status_bg_colors = {
-        "قادم": "rgba(16, 185, 129, 0.2)",
-        "لن يحضر": "rgba(239, 68, 68, 0.2)",
-        "لم يسجل": "rgba(245, 158, 11, 0.2)"
-    }
-    
-    status_bg_color = status_bg_colors.get(student["attendance_status"], "rgba(107, 114, 128, 0.2)")
-    
-    st.markdown(f"""
-    <div style='
-        background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.08));
-        backdrop-filter: blur(12px);
-        padding: 1.5rem;
-        border-radius: 16px;
-        margin: 0.8rem 0;
-        border: 2px solid {student["status_color"]};
-        color: white;
-        transition: all 0.3s ease;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-    '>
-        <div style='text-align: center; margin-bottom: 1rem;'>
+    """عرض بطاقة طالب فردية بشكل صحيح"""
+    try:
+        # التأكد من وجود جميع البيانات المطلوبة
+        name = student.get("name", "غير معروف")
+        grade = student.get("grade", "غير معروف")
+        bus = student.get("bus", "غير معروف")
+        parent_phone = student.get("parent_phone", "غير معروف")
+        attendance_status = student.get("attendance_status", "لم يسجل")
+        status_icon = student.get("status_icon", "⏳")
+        status_color = student.get("status_color", "#f59e0b")
+        last_update = student.get("last_update", "-")
+        
+        # تحديد لون الخلفية بناءً على الحالة
+        status_bg_colors = {
+            "قادم": "rgba(16, 185, 129, 0.2)",
+            "لن يحضر": "rgba(239, 68, 68, 0.2)",
+            "لم يسجل": "rgba(245, 158, 11, 0.2)"
+        }
+        
+        status_bg_color = status_bg_colors.get(attendance_status, "rgba(107, 114, 128, 0.2)")
+        
+        # استخدام st.markdown مع unsafe_allow_html=True لعرض HTML بشكل صحيح
+        st.markdown(f"""
+        <div style='
+            background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.08));
+            backdrop-filter: blur(12px);
+            padding: 1.5rem;
+            border-radius: 16px;
+            margin: 0.8rem 0;
+            border: 2px solid {status_color};
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        '>
+            <div style='text-align: center; margin-bottom: 1rem;'>
+                <div style='
+                    background: {status_bg_color}; 
+                    width: 60px; 
+                    height: 60px; 
+                    border-radius: 50%; 
+                    display: flex; 
+                    align-items: center; 
+                    justify-content: center; 
+                    margin: 0 auto 0.8rem; 
+                    font-size: 1.5rem;
+                    border: 2px solid {status_color};
+                '>
+                    {status_icon}
+                </div>
+                <h4 style='margin: 0; color: white; font-size: 1.1rem;'>{name}</h4>
+            </div>
+            
             <div style='
-                background: {status_bg_color}; 
-                width: 60px; 
-                height: 60px; 
-                border-radius: 50%; 
-                display: flex; 
-                align-items: center; 
-                justify-content: center; 
-                margin: 0 auto 0.8rem; 
-                font-size: 1.5rem;
-                border: 2px solid {student["status_color"]};
+                background: rgba(255,255,255,0.1); 
+                padding: 0.8rem; 
+                border-radius: 10px; 
+                margin-bottom: 0.8rem;
+                border-left: 3px solid {status_color};
             '>
-                {student["status_icon"]}
+                <div style='display: flex; justify-content: space-between; margin-bottom: 0.3rem;'>
+                    <span style='opacity: 0.8;'>📚 الصف:</span>
+                    <strong>{grade}</strong>
+                </div>
+                <div style='display: flex; justify-content: space-between; margin-bottom: 0.3rem;'>
+                    <span style='opacity: 0.8;'>🚍 الباص:</span>
+                    <strong>{bus}</strong>
+                </div>
+                <div style='display: flex; justify-content: space-between; margin-bottom: 0.3rem;'>
+                    <span style='opacity: 0.8;'>📞 الهاتف:</span>
+                    <strong>{parent_phone}</strong>
+                </div>
             </div>
-            <h4 style='margin: 0; color: white; font-size: 1.1rem;'>{student["name"]}</h4>
+            
+            <div style='
+                background: {status_bg_color};
+                padding: 0.6rem;
+                border-radius: 8px;
+                text-align: center;
+                border: 1px solid {status_color};
+            '>
+                <div style='font-weight: bold; color: {status_color}; margin-bottom: 0.2rem;'>
+                    {attendance_status}
+                </div>
+                <div style='font-size: 0.8rem; opacity: 0.8;'>
+                    ⏰ {last_update}
+                </div>
+            </div>
         </div>
+        """, unsafe_allow_html=True)
         
-        <div style='
-            background: rgba(255,255,255,0.1); 
-            padding: 0.8rem; 
-            border-radius: 10px; 
-            margin-bottom: 0.8rem;
-            border-left: 3px solid {student["status_color"]};
-        '>
-            <div style='display: flex; justify-content: space-between; margin-bottom: 0.3rem;'>
-                <span style='opacity: 0.8;'>📚 الصف:</span>
-                <strong>{student["grade"]}</strong>
-            </div>
-            <div style='display: flex; justify-content: space-between; margin-bottom: 0.3rem;'>
-                <span style='opacity: 0.8;'>🚍 الباص:</span>
-                <strong>{student["bus"]}</strong>
-            </div>
-            <div style='display: flex; justify-content: space-between; margin-bottom: 0.3rem;'>
-                <span style='opacity: 0.8;'>📞 الهاتف:</span>
-                <strong>{student["parent_phone"]}</strong>
-            </div>
-        </div>
-        
-        <div style='
-            background: {status_bg_color};
-            padding: 0.6rem;
-            border-radius: 8px;
-            text-align: center;
-            border: 1px solid {student["status_color"]};
-        '>
-            <div style='font-weight: bold; color: {student["status_color"]}; margin-bottom: 0.2rem;'>
-                {student["attendance_status"]}
-            </div>
-            <div style='font-size: 0.8rem; opacity: 0.8;'>
-                ⏰ {student["last_update"]}
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    except Exception as e:
+        st.error(f"خطأ في عرض بيانات الطالب: {e}")
 
 # ===== تصميم متطور =====
 def apply_custom_styles():
@@ -1257,11 +1273,11 @@ elif st.session_state.page == "admin":
             if status_filter != "الكل":
                 students_with_attendance = [s for s in students_with_attendance if s["attendance_status"] == status_filter]
             
-            # عرض البيانات
+            # عرض البيانات بشكل صحيح
             st.subheader(f"📋 قائمة الطلاب ({len(students_with_attendance)} طالب)")
             
             if students_with_attendance:
-                # تقسيم الطلاب إلى بطاقات
+                # تقسيم الطلاب إلى أعمدة
                 cols_per_row = 3
                 students_count = len(students_with_attendance)
                 
@@ -1271,6 +1287,7 @@ elif st.session_state.page == "admin":
                         if i + j < students_count:
                             student = students_with_attendance[i + j]
                             with cols[j]:
+                                # استخدام الدالة المحسنة لعرض البطاقة
                                 display_student_card(student)
             else:
                 st.info("🚫 لا توجد بيانات تطابق معايير التصفية")
