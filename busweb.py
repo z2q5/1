@@ -106,6 +106,8 @@ if "ratings_df" not in st.session_state:
     st.session_state.ratings_df = pd.DataFrame(columns=["rating", "comment", "timestamp"])
 if "selected_rating" not in st.session_state:
     st.session_state.selected_rating = 0
+if "data_loaded" not in st.session_state:
+    st.session_state.data_loaded = False
 
 # تحميل البيانات المحفوظة
 load_data()
@@ -1218,38 +1220,38 @@ elif st.session_state.page == "admin":
                 filtered_students = filtered_students[filtered_students["grade"].str.contains(grade_filter)]
             
             # دمج بيانات الحضور
-students_with_attendance = []
-for _, student in filtered_students.iterrows():
-    # البحث عن حالة الحضور اليوم
-    today_status = today_attendance[
-        today_attendance["id"].astype(str) == str(student["id"])
-    ] if not today_attendance.empty else pd.DataFrame()
-    
-    if not today_status.empty:
-        status = today_status.iloc[0]["status"]
-        status_icon = "✅" if status == "قادم" else "❌"
-        status_color = "#10b981" if status == "قادم" else "#ef4444"
-        last_update = today_status.iloc[0]["time"]
-    else:
-        status = "لم يسجل"
-        status_icon = "⏳"
-        status_color = "#f59e0b"
-        last_update = "-"
-    
-    # إنشاء كامل بيانات الطالب
-    student_data = {
-        "id": student["id"],
-        "name": student["name"],
-        "grade": student["grade"],
-        "bus": student["bus"],
-        "parent_phone": student["parent_phone"],
-        "attendance_status": status,
-        "status_icon": status_icon,
-        "status_color": status_color,
-        "last_update": last_update
-    }
-    
-    students_with_attendance.append(student_data)
+            students_with_attendance = []
+            for _, student in filtered_students.iterrows():
+                # البحث عن حالة الحضور اليوم
+                today_status = today_attendance[
+                    today_attendance["id"].astype(str) == str(student["id"])
+                ] if not today_attendance.empty else pd.DataFrame()
+                
+                if not today_status.empty:
+                    status = today_status.iloc[0]["status"]
+                    status_icon = "✅" if status == "قادم" else "❌"
+                    status_color = "#10b981" if status == "قادم" else "#ef4444"
+                    last_update = today_status.iloc[0]["time"]
+                else:
+                    status = "لم يسجل"
+                    status_icon = "⏳"
+                    status_color = "#f59e0b"
+                    last_update = "-"
+                
+                # إنشاء كامل بيانات الطالب
+                student_data = {
+                    "id": student["id"],
+                    "name": student["name"],
+                    "grade": student["grade"],
+                    "bus": student["bus"],
+                    "parent_phone": student["parent_phone"],
+                    "attendance_status": status,
+                    "status_icon": status_icon,
+                    "status_color": status_color,
+                    "last_update": last_update
+                }
+                
+                students_with_attendance.append(student_data)
             
             # تطبيق فلتر الحالة
             if status_filter != "الكل":
@@ -1545,4 +1547,3 @@ if st.session_state.get('data_loaded', False):
     st.sidebar.success("✅ تم تحميل البيانات بنجاح")
 else:
     st.session_state.data_loaded = True
-
