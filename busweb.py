@@ -104,6 +104,8 @@ if "admin_logged_in" not in st.session_state:
     st.session_state.admin_logged_in = False
 if "ratings_df" not in st.session_state:
     st.session_state.ratings_df = pd.DataFrame(columns=["rating", "comment", "timestamp"])
+if "selected_rating" not in st.session_state:
+    st.session_state.selected_rating = 0
 
 # تحميل البيانات المحفوظة
 load_data()
@@ -246,7 +248,8 @@ translations = {
         "thank_you_rating": "شكراً لتقييمك!",
         "average_rating": "متوسط التقييم",
         "total_ratings": "إجمالي التقييمات",
-        "rating_success": "تم إرسال تقييمك بنجاح"
+        "rating_success": "تم إرسال تقييمك بنجاح",
+        "select_rating": "اختر عدد النجوم"
     },
     "en": {
         "title": "🚍 Smart Bus System",
@@ -361,7 +364,8 @@ translations = {
         "thank_you_rating": "Thank you for your rating!",
         "average_rating": "Average Rating",
         "total_ratings": "Total Ratings",
-        "rating_success": "Your rating has been submitted successfully"
+        "rating_success": "Your rating has been submitted successfully",
+        "select_rating": "Select number of stars"
     }
 }
 
@@ -497,6 +501,10 @@ def toggle_language():
     save_data()
     # إعادة تحميل الصفحة
     st.rerun()
+
+def select_rating(rating):
+    """تحديد التقييم"""
+    st.session_state.selected_rating = rating
 
 # ===== تصميم متطور بدون مربعات بيضاء =====
 def apply_custom_styles():
@@ -1187,46 +1195,44 @@ elif st.session_state.page == "about":
         </div>
         """, unsafe_allow_html=True)
     
-    # نموذج التقييم
+    # نظام التقييم بدون استخدام st.form
     st.markdown(f"<h3 style='text-align: center; color: white; margin: 2rem 0;'>{t('rate_app')}</h3>", unsafe_allow_html=True)
     
-    with st.form("rating_form"):
-        # نظام النجوم
-        st.markdown(f"<p style='color: white; text-align: center;'>{t('your_rating')}</p>", unsafe_allow_html=True)
+    # أزرار النجوم
+    st.markdown(f"<p style='color: white; text-align: center;'>{t('select_rating')}</p>", unsafe_allow_html=True)
+    
+    col1, col2, col3, col4, col5 = st.columns(5)
+    
+    with col1:
+        if st.button("⭐", key="star1", use_container_width=True):
+            select_rating(1)
+    with col2:
+        if st.button("⭐⭐", key="star2", use_container_width=True):
+            select_rating(2)
+    with col3:
+        if st.button("⭐⭐⭐", key="star3", use_container_width=True):
+            select_rating(3)
+    with col4:
+        if st.button("⭐⭐⭐⭐", key="star4", use_container_width=True):
+            select_rating(4)
+    with col5:
+        if st.button("⭐⭐⭐⭐⭐", key="star5", use_container_width=True):
+            select_rating(5)
+    
+    # عرض التقييم المحدد
+    if st.session_state.selected_rating > 0:
+        st.info(f"📝 {t('your_rating')}: {st.session_state.selected_rating} ⭐")
         
-        col1, col2, col3, col4, col5 = st.columns(5)
-        stars = [1, 2, 3, 4, 5]
-        selected_rating = 0
-        
-        with col1:
-            if st.button("⭐", key="star1", use_container_width=True):
-                selected_rating = 1
-        with col2:
-            if st.button("⭐⭐", key="star2", use_container_width=True):
-                selected_rating = 2
-        with col3:
-            if st.button("⭐⭐⭐", key="star3", use_container_width=True):
-                selected_rating = 3
-        with col4:
-            if st.button("⭐⭐⭐⭐", key="star4", use_container_width=True):
-                selected_rating = 4
-        with col5:
-            if st.button("⭐⭐⭐⭐⭐", key="star5", use_container_width=True):
-                selected_rating = 5
-        
-        if selected_rating > 0:
-            st.info(f"📝 {t('your_rating')}: {selected_rating} ⭐")
-        
+        # حقل التعليق
         comment = st.text_area(t("your_comment"), placeholder="اكتب تعليقك هنا...")
         
-        submitted = st.form_submit_button(t("submit_rating"))
-        
-        if submitted and selected_rating > 0:
-            add_rating(selected_rating, comment)
+        # زر إرسال التقييم
+        if st.button(t("submit_rating"), type="primary", use_container_width=True):
+            add_rating(st.session_state.selected_rating, comment)
             st.success(f"🎉 {t('rating_success')}")
+            st.session_state.selected_rating = 0  # إعادة تعيين التقييم
             st.balloons()
-        elif submitted:
-            st.error("❌ يرجى اختيار تقييم قبل الإرسال")
+            st.rerun()
     
     st.markdown(f"""
     <div style='background: rgba(255,255,255,0.1); padding: 2rem; border-radius: 15px; border: 1px solid rgba(255,255,255,0.2); text-align: center; margin-top: 2rem;'>
