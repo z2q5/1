@@ -1,4 +1,3 @@
-python
 import streamlit as st
 import pandas as pd
 import datetime
@@ -1463,7 +1462,7 @@ elif st.session_state.page == "about":
     with col2:
         if st.button("⭐⭐", key="star2", use_container_width=True):
             select_rating(2)
-                                  if st.session_state.selected_rating >= 2:
+        if st.session_state.selected_rating >= 2:
             st.markdown(f"<div class='star-label'>{get_rating_label(2)}</div>", unsafe_allow_html=True)
     
     with col3:
@@ -1482,7 +1481,7 @@ elif st.session_state.page == "about":
         if st.button("⭐⭐⭐⭐⭐", key="star5", use_container_width=True):
             select_rating(5)
         if st.session_state.selected_rating >= 5:
-            st.markdown(f"<div class='star_label'>{get_rating_label(5)}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='star-label'>{get_rating_label(5)}</div>", unsafe_allow_html=True)
     
     # عرض وصف التقييم المحدد
     if st.session_state.selected_rating > 0:
@@ -1540,5 +1539,3 @@ if st.session_state.get('data_loaded', False):
     st.sidebar.success("✅ تم تحميل البيانات بنجاح")
 else:
     st.session_state.data_loaded = True
-
-
