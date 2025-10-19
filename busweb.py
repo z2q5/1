@@ -862,7 +862,7 @@ if st.session_state.page == "student":
         student_id = st.text_input(
             t("student_id"),
             placeholder=t("student_id_placeholder"),
-            key="student_id_input"
+            key="student_id_input_main"
         )
         
         if student_id:
@@ -919,7 +919,7 @@ if st.session_state.page == "student":
                         
                         col_a, col_b = st.columns(2)
                         with col_a:
-                            if st.button("🔄 " + t("change_status"), use_container_width=True, type="secondary"):
+                            if st.button("🔄 " + t("change_status"), use_container_width=True, type="secondary", key="change_status_btn"):
                                 today = datetime.datetime.now().strftime("%Y-%m-%d")
                                 st.session_state.attendance_df = st.session_state.attendance_df[
                                     ~((st.session_state.attendance_df["id"].astype(str) == str(student_id).strip()) & 
@@ -934,7 +934,7 @@ if st.session_state.page == "student":
                         
                         col_a, col_b = st.columns(2)
                         with col_a:
-                            if st.button("✅ سأحضر اليوم", use_container_width=True, type="primary"):
+                            if st.button("✅ سأحضر اليوم", use_container_width=True, type="primary", key="coming_btn"):
                                 now = register_attendance(student, "قادم")
                                 st.balloons()
                                 st.success(f"""
@@ -947,7 +947,7 @@ if st.session_state.page == "student":
                                 """)
                                 
                         with col_b:
-                            if st.button("❌ لن أحضر اليوم", use_container_width=True, type="secondary"):
+                            if st.button("❌ لن أحضر اليوم", use_container_width=True, type="secondary", key="not_coming_btn"):
                                 now = register_attendance(student, "لن يأتي")
                                 st.success(f"""
                                 **{t('registered_success')}**
@@ -1002,11 +1002,11 @@ elif st.session_state.page == "driver":
         
         col1, col2 = st.columns(2)
         with col1:
-            bus_number = st.selectbox(t("select_bus"), ["1", "2", "3"])
+            bus_number = st.selectbox(t("select_bus"), ["1", "2", "3"], key="driver_bus_select")
         with col2:
-            password = st.text_input(t("password"), type="password", placeholder=t("password_placeholder"))
+            password = st.text_input(t("password"), type="password", placeholder=t("password_placeholder"), key="driver_password_input")
         
-        if st.button(t("login"), type="primary", use_container_width=True):
+        if st.button(t("login"), type="primary", use_container_width=True, key="driver_login_btn"):
             if password == st.session_state.bus_passwords.get(bus_number, ""):
                 st.session_state.driver_logged_in = True
                 st.session_state.current_bus = bus_number
@@ -1018,7 +1018,7 @@ elif st.session_state.page == "driver":
     else:
         st.success(f"✅ {t('login_success')} - الباص رقم {st.session_state.current_bus}")
         
-        if st.button(t("logout"), type="secondary"):
+        if st.button(t("logout"), type="secondary", key="driver_logout_btn"):
             st.session_state.driver_logged_in = False
             st.rerun()
         
@@ -1092,7 +1092,7 @@ elif st.session_state.page == "driver":
 elif st.session_state.page == "parents":
     st.subheader(t("parents_title"))
     
-    student_id = st.text_input(t("student_id"), placeholder=t("parents_id_placeholder"))
+    student_id = st.text_input(t("student_id"), placeholder=t("parents_id_placeholder"), key="parents_student_id")
     if student_id:
         student_info = st.session_state.students_df[
             st.session_state.students_df["id"].astype(str) == str(student_id).strip()
@@ -1146,9 +1146,9 @@ elif st.session_state.page == "admin":
     if not st.session_state.admin_logged_in:
         st.markdown(f"<h3 style='text-align: center; color: white; margin-bottom: 2rem;'>{t('admin_login')}</h3>", unsafe_allow_html=True)
         
-        admin_password = st.text_input(t("admin_password"), type="password", placeholder=t("password_placeholder"))
+        admin_password = st.text_input(t("admin_password"), type="password", placeholder=t("password_placeholder"), key="admin_login_password")
         
-        if st.button(t("login"), type="primary", use_container_width=True):
+        if st.button(t("login"), type="primary", use_container_width=True, key="admin_login_btn"):
             if admin_password == st.session_state.admin_password:
                 st.session_state.admin_logged_in = True
                 st.success(t("login_success"))
@@ -1159,7 +1159,7 @@ elif st.session_state.page == "admin":
     else:
         st.success(f"✅ {t('login_success')}")
         
-        if st.button(t("logout"), type="secondary"):
+        if st.button(t("logout"), type="secondary", key="admin_logout_btn"):
             st.session_state.admin_logged_in = False
             st.rerun()
         
@@ -1202,13 +1202,13 @@ elif st.session_state.page == "admin":
             col1, col2, col3 = st.columns(3)
             
             with col1:
-                bus_filter = st.selectbox("تصفية حسب الباص", ["الكل", "1", "2", "3"])
+                bus_filter = st.selectbox("تصفية حسب الباص", ["الكل", "1", "2", "3"], key="bus_filter_admin")
             
             with col2:
-                grade_filter = st.selectbox("تصفية حسب الصف", ["الكل", "6", "7", "8", "9", "10", "11"])
+                grade_filter = st.selectbox("تصفية حسب الصف", ["الكل", "6", "7", "8", "9", "10", "11"], key="grade_filter_admin")
             
             with col3:
-                status_filter = st.selectbox("تصفية حسب الحالة", ["الكل", "قادم", "لن يحضر", "لم يسجل"])
+                status_filter = st.selectbox("تصفية حسب الحالة", ["الكل", "قادم", "لن يحضر", "لم يسجل"], key="status_filter_admin")
             
             # تطبيق الفلتر
             filtered_students = st.session_state.students_df.copy()
@@ -1280,7 +1280,7 @@ elif st.session_state.page == "admin":
             col1, col2 = st.columns(2)
             
             with col1:
-                if st.button("📄 تصدير تقرير PDF", use_container_width=True):
+                if st.button("📄 تصدير تقرير PDF", use_container_width=True, key="export_pdf_btn"):
                     st.success("✅ سيتم إنشاء التقرير قريباً")
             
             with col2:
@@ -1290,7 +1290,8 @@ elif st.session_state.page == "admin":
                     data=csv_data.to_csv(index=False, encoding='utf-8-sig'),
                     file_name=f"students_report_{datetime.datetime.now().strftime('%Y%m%d')}.csv",
                     mime="text/csv",
-                    use_container_width=True
+                    use_container_width=True,
+                    key="export_csv_btn"
                 )
         
         with tab2:
@@ -1316,16 +1317,16 @@ elif st.session_state.page == "admin":
             
             with col2:
                 st.subheader(t("system_actions"))
-                if st.button(t("reset_data"), type="secondary", use_container_width=True):
+                if st.button(t("reset_data"), type="secondary", use_container_width=True, key="reset_data_btn"):
                     initialize_data()
                     save_data()
                     st.success(t("data_reset_success"))
                 
-                if st.button(t("backup"), use_container_width=True):
+                if st.button(t("backup"), use_container_width=True, key="backup_btn"):
                     save_data()
                     st.info(t("backup_success"))
                 
-                if st.button("🔄 تحديث البيانات", use_container_width=True):
+                if st.button("🔄 تحديث البيانات", use_container_width=True, key="refresh_data_btn"):
                     st.rerun()
         
         with tab3:
@@ -1335,10 +1336,10 @@ elif st.session_state.page == "admin":
             for bus, pwd in st.session_state.bus_passwords.items():
                 st.write(f"**الباص {bus}:** {pwd}")
             
-            bus_select = st.selectbox(t("select_bus_password"), ["1", "2", "3"])
-            new_pass = st.text_input(t("new_password"), type="password")
+            bus_select = st.selectbox(t("select_bus_password"), ["1", "2", "3"], key="bus_password_select")
+            new_pass = st.text_input(t("new_password"), type="password", key="new_bus_password")
             
-            if st.button(t("save_changes")):
+            if st.button(t("save_changes"), key="save_bus_password_btn"):
                 if new_pass:
                     st.session_state.bus_passwords[bus_select] = new_pass
                     save_data()
@@ -1347,11 +1348,11 @@ elif st.session_state.page == "admin":
         with tab4:
             st.header(t("change_admin_password"))
             
-            current_admin_pass = st.text_input("كلمة المرور الحالية", type="password")
-            new_admin_pass = st.text_input("كلمة المرور الجديدة", type="password")
-            confirm_admin_pass = st.text_input("تأكيد كلمة المرور الجديدة", type="password")
+            current_admin_pass = st.text_input("كلمة المرور الحالية", type="password", key="current_admin_pass_input")
+            new_admin_pass = st.text_input("كلمة المرور الجديدة", type="password", key="new_admin_pass_input")
+            confirm_admin_pass = st.text_input("تأكيد كلمة المرور الجديدة", type="password", key="confirm_admin_pass_input")
             
-            if st.button("تغيير كلمة المرور", type="primary"):
+            if st.button("تغيير كلمة المرور", type="primary", key="change_admin_password_btn"):
                 if current_admin_pass == st.session_state.admin_password:
                     if new_admin_pass == confirm_admin_pass:
                         if new_admin_pass:
@@ -1462,31 +1463,31 @@ elif st.session_state.page == "about":
     col1, col2, col3, col4, col5 = st.columns(5)
     
     with col1:
-        if st.button("⭐", key="star1", use_container_width=True):
+        if st.button("⭐", key="star1_btn", use_container_width=True):
             select_rating(1)
         if st.session_state.selected_rating >= 1:
             st.markdown(f"<div class='star-label'>{get_rating_label(1)}</div>", unsafe_allow_html=True)
     
     with col2:
-        if st.button("⭐⭐", key="star2", use_container_width=True):
+        if st.button("⭐⭐", key="star2_btn", use_container_width=True):
             select_rating(2)
         if st.session_state.selected_rating >= 2:
             st.markdown(f"<div class='star-label'>{get_rating_label(2)}</div>", unsafe_allow_html=True)
     
     with col3:
-        if st.button("⭐⭐⭐", key="star3", use_container_width=True):
+        if st.button("⭐⭐⭐", key="star3_btn", use_container_width=True):
             select_rating(3)
         if st.session_state.selected_rating >= 3:
             st.markdown(f"<div class='star-label'>{get_rating_label(3)}</div>", unsafe_allow_html=True)
     
     with col4:
-        if st.button("⭐⭐⭐⭐", key="star4", use_container_width=True):
+        if st.button("⭐⭐⭐⭐", key="star4_btn", use_container_width=True):
             select_rating(4)
         if st.session_state.selected_rating >= 4:
             st.markdown(f"<div class='star-label'>{get_rating_label(4)}</div>", unsafe_allow_html=True)
     
     with col5:
-        if st.button("⭐⭐⭐⭐⭐", key="star5", use_container_width=True):
+        if st.button("⭐⭐⭐⭐⭐", key="star5_btn", use_container_width=True):
             select_rating(5)
         if st.session_state.selected_rating >= 5:
             st.markdown(f"<div class='star-label'>{get_rating_label(5)}</div>", unsafe_allow_html=True)
@@ -1501,10 +1502,10 @@ elif st.session_state.page == "about":
         """, unsafe_allow_html=True)
         
         # حقل التعليق
-        comment = st.text_area(t("your_comment"), placeholder=t("your_comment"), height=100)
+        comment = st.text_area(t("your_comment"), placeholder=t("your_comment"), height=100, key="rating_comment")
         
         # زر إرسال التقييم
-        if st.button(t("submit_rating"), type="primary", use_container_width=True):
+        if st.button(t("submit_rating"), type="primary", use_container_width=True, key="submit_rating_btn"):
             if st.session_state.selected_rating > 0:
                 add_rating(st.session_state.selected_rating, comment)
                 st.session_state.selected_rating = 0
@@ -1538,7 +1539,7 @@ if st.session_state.notifications:
         for notification in list(reversed(st.session_state.notifications))[:5]:
             st.info(f"**{notification['time']}** - {notification['message']}")
         
-        if st.button("مسح الإشعارات", type="secondary"):
+        if st.button("مسح الإشعارات", type="secondary", key="clear_notifications_btn"):
             st.session_state.notifications = []
             st.rerun()
 
