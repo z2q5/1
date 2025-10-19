@@ -245,7 +245,25 @@ translations = {
         "very_good": "جيد جداً",
         "good": "جيد",
         "fair": "مقبول",
-        "poor": "ضعيف"
+        "poor": "ضعيف",
+        # الترجمات الجديدة
+        "add_student": "➕ إضافة طالب جديد",
+        "new_student_info": "معلومات الطالب الجديد",
+        "student_name": "اسم الطالب",
+        "student_name_placeholder": "أدخل اسم الطالب الكامل...",
+        "student_id": "رقم الوزارة",
+        "student_id_placeholder": "أدخل رقم الوزارة...",
+        "select_grade": "اختر الصف",
+        "select_bus": "اختر الباص",
+        "parent_phone_placeholder": "أدخل رقم هاتف ولي الأمر...",
+        "add_student_button": "➕ إضافة الطالب",
+        "student_added_success": "✅ تم إضافة الطالب بنجاح!",
+        "student_exists_error": "❌ رقم الوزارة موجود مسبقاً!",
+        "delete_student": "🗑️ حذف الطالب",
+        "delete_student_confirm": "هل أنت متأكد من حذف هذا الطالب؟",
+        "student_deleted_success": "✅ تم حذف الطالب بنجاح!",
+        "edit_student": "✏️ تعديل بيانات الطالب",
+        "student_updated_success": "✅ تم تحديث بيانات الطالب بنجاح!"
     },
     "en": {
         "title": "🚍 Smart Bus System",
@@ -355,7 +373,25 @@ translations = {
         "very_good": "Very Good",
         "good": "Good",
         "fair": "Fair",
-        "poor": "Poor"
+        "poor": "Poor",
+        # New translations
+        "add_student": "➕ Add New Student",
+        "new_student_info": "New Student Information",
+        "student_name": "Student Name",
+        "student_name_placeholder": "Enter full student name...",
+        "student_id": "Ministry Number",
+        "student_id_placeholder": "Enter ministry number...",
+        "select_grade": "Select Grade",
+        "select_bus": "Select Bus",
+        "parent_phone_placeholder": "Enter parent phone number...",
+        "add_student_button": "➕ Add Student",
+        "student_added_success": "✅ Student added successfully!",
+        "student_exists_error": "❌ Ministry number already exists!",
+        "delete_student": "🗑️ Delete Student",
+        "delete_student_confirm": "Are you sure you want to delete this student?",
+        "student_deleted_success": "✅ Student deleted successfully!",
+        "edit_student": "✏️ Edit Student Data",
+        "student_updated_success": "✅ Student data updated successfully!"
     }
 }
 
@@ -484,6 +520,80 @@ def get_rating_label(rating):
         5: t("excellent")
     }
     return labels.get(rating, "")
+
+# ===== وظائف إدارة الطلاب الجديدة =====
+def add_new_student(student_id, name, grade, bus, parent_phone):
+    """إضافة طالب جديد إلى النظام"""
+    try:
+        # التحقق من عدم وجود رقم وزارة مكرر
+        if str(student_id).strip() in st.session_state.students_df["id"].astype(str).values:
+            return False, "student_exists"
+        
+        # إنشاء بيانات الطالب الجديد
+        new_student = {
+            "id": str(student_id).strip(),
+            "name": name.strip(),
+            "grade": grade,
+            "bus": bus,
+            "parent_phone": parent_phone.strip()
+        }
+        
+        # إضافة الطالب إلى DataFrame
+        new_student_df = pd.DataFrame([new_student])
+        st.session_state.students_df = pd.concat([
+            st.session_state.students_df, new_student_df
+        ], ignore_index=True)
+        
+        # حفظ البيانات
+        save_data()
+        return True, "success"
+        
+    except Exception as e:
+        return False, str(e)
+
+def delete_student(student_id):
+    """حذف طالب من النظام"""
+    try:
+        # حذف الطالب من بيانات الطلاب
+        st.session_state.students_df = st.session_state.students_df[
+            st.session_state.students_df["id"].astype(str) != str(student_id).strip()
+        ]
+        
+        # حذف سجلات الحضور الخاصة بالطالب
+        st.session_state.attendance_df = st.session_state.attendance_df[
+            st.session_state.attendance_df["id"].astype(str) != str(student_id).strip()
+        ]
+        
+        # حفظ البيانات
+        save_data()
+        return True, "success"
+        
+    except Exception as e:
+        return False, str(e)
+
+def update_student(student_id, name, grade, bus, parent_phone):
+    """تحديث بيانات طالب موجود"""
+    try:
+        # البحث عن الطالب وتحديث بياناته
+        mask = st.session_state.students_df["id"].astype(str) == str(student_id).strip()
+        if mask.any():
+            st.session_state.students_df.loc[mask, "name"] = name.strip()
+            st.session_state.students_df.loc[mask, "grade"] = grade
+            st.session_state.students_df.loc[mask, "bus"] = bus
+            st.session_state.students_df.loc[mask, "parent_phone"] = parent_phone.strip()
+            
+            # تحديث اسم الطالب في سجلات الحضور أيضاً
+            attendance_mask = st.session_state.attendance_df["id"].astype(str) == str(student_id).strip()
+            if attendance_mask.any():
+                st.session_state.attendance_df.loc[attendance_mask, "name"] = name.strip()
+            
+            save_data()
+            return True, "success"
+        else:
+            return False, "student_not_found"
+            
+    except Exception as e:
+        return False, str(e)
 
 # ===== دالة بديلة لعرض بطاقة الطالب باستخدام Streamlit =====
 def display_student_card_simple(student):
@@ -908,8 +1018,9 @@ elif st.session_state.page == "admin":
             st.rerun()
         
         # تبويب عرض جميع الطلاب
-        tab1, tab2, tab3, tab4 = st.tabs([
+        tab1, tab2, tab3, tab4, tab5 = st.tabs([
             "👥 جميع الطلاب", 
+            t("add_student"),
             t("system_stats"), 
             t("change_bus_password"), 
             t("change_admin_password")
@@ -1012,6 +1123,85 @@ elif st.session_state.page == "admin":
                     use_container_width=True,
                     key="export_csv_btn"
                 )
+        
+        with tab2:
+            st.header("➕ إدارة الطلاب")
+            
+            # قسم إضافة طالب جديد
+            st.subheader(t("add_student"))
+            
+            with st.form("add_student_form"):
+                st.markdown(f"<h4 style='color: white;'>{t('new_student_info')}</h4>", unsafe_allow_html=True)
+                
+                col1, col2 = st.columns(2)
+                with col1:
+                    new_student_id = st.text_input(t("student_id"), placeholder=t("student_id_placeholder"), key="new_student_id")
+                    new_student_name = st.text_input(t("student_name"), placeholder=t("student_name_placeholder"), key="new_student_name")
+                with col2:
+                    new_student_grade = st.selectbox(t("select_grade"), ["6-A", "6-B", "7-A", "7-B", "8-A", "8-B", "8-C", "9-A", "9-B", "10-A", "10-B", "11-A", "11-B"], key="new_student_grade")
+                    new_student_bus = st.selectbox(t("select_bus"), ["1", "2", "3"], key="new_student_bus")
+                
+                new_parent_phone = st.text_input(t("parent_phone"), placeholder=t("parent_phone_placeholder"), key="new_parent_phone")
+                
+                submit_button = st.form_submit_button(t("add_student_button"), use_container_width=True)
+                
+                if submit_button:
+                    if not all([new_student_id, new_student_name, new_parent_phone]):
+                        st.error("❌ يرجى ملء جميع الحقول المطلوبة")
+                    else:
+                        success, message = add_new_student(
+                            new_student_id, 
+                            new_student_name, 
+                            new_student_grade, 
+                            new_student_bus, 
+                            new_parent_phone
+                        )
+                        
+                        if success:
+                            st.success(f"✅ {t('student_added_success')}")
+                            st.balloons()
+                        elif message == "student_exists":
+                            st.error(f"❌ {t('student_exists_error')}")
+                        else:
+                            st.error(f"❌ حدث خطأ: {message}")
+            
+            st.markdown("---")
+            
+            # قسم حذف الطلاب
+            st.subheader("🗑️ إدارة الطلاب الحاليين")
+            
+            if not st.session_state.students_df.empty:
+                # إنشاء قائمة بالطلاب للحذف
+                student_options = {f"{row['id']} - {row['name']}": row['id'] for _, row in st.session_state.students_df.iterrows()}
+                selected_student_display = st.selectbox("اختر الطالب للحذف", list(student_options.keys()), key="delete_student_select")
+                
+                if selected_student_display:
+                    selected_student_id = student_options[selected_student_display]
+                    
+                    # عرض معلومات الطالب المحدد
+                    student_info = st.session_state.students_df[
+                        st.session_state.students_df["id"].astype(str) == str(selected_student_id)
+                    ].iloc[0]
+                    
+                    col1, col2, col3 = st.columns(3)
+                    with col1:
+                        st.info(f"**الاسم:** {student_info['name']}")
+                    with col2:
+                        st.info(f"**الصف:** {student_info['grade']}")
+                    with col3:
+                        st.info(f"**الباص:** {student_info['bus']}")
+                    
+                    # زر الحذف مع تأكيد
+                    if st.button("🗑️ حذف الطالب", type="secondary", key="delete_student_btn"):
+                        if st.checkbox("✅ تأكيد الحذف", key="confirm_delete"):
+                            success, message = delete_student(selected_student_id)
+                            if success:
+                                st.success(f"✅ {t('student_deleted_success')}")
+                                st.rerun()
+                            else:
+                                st.error(f"❌ حدث خطأ: {message}")
+            else:
+                st.info("🚫 لا توجد طلاب في النظام")
 
 # ===== الفوتر =====
 st.markdown("---")
