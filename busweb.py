@@ -263,7 +263,33 @@ translations = {
         "delete_student_confirm": "هل أنت متأكد من حذف هذا الطالب؟",
         "student_deleted_success": "✅ تم حذف الطالب بنجاح!",
         "edit_student": "✏️ تعديل بيانات الطالب",
-        "student_updated_success": "✅ تم تحديث بيانات الطالب بنجاح!"
+        "student_updated_success": "✅ تم تحديث بيانات الطالب بنجاح!",
+        # ترجمات الصفحات الجديدة
+        "track_student": "🔍 متابعة الطالب",
+        "enter_student_id": "أدخل رقم وزارة الطالب",
+        "today_status": "حالة اليوم",
+        "registration_time": "وقت التسجيل",
+        "bus_schedule": "⏰ جدول الباص",
+        "morning_pickup": "وقت الصباح",
+        "evening_return": "وقت العودة",
+        "driver_contact": "📞 اتصال السائق",
+        "contact_info": "معلومات الاتصال",
+        "bus_location": "📍 موقع الباص",
+        "current_location": "الموقع الحالي",
+        "features_title": "المميزات الرئيسية",
+        "feature1": "تسجيل حضور ذكي",
+        "feature1_desc": "نظام تسجيل حضور آلي وسهل للطلاب",
+        "feature2": "متابعة مباشرة", 
+        "feature2_desc": "متابعة حية لتحركات الباصات والحضور",
+        "feature3": "تقييم الخدمة",
+        "feature3_desc": "نظام تقييم متطور لجودة الخدمة",
+        "feature4": "إشعارات فورية",
+        "feature4_desc": "إشعارات فورية لأولياء الأمور",
+        "technical_specs": "المواصفات الفنية",
+        "tech1": "واجهة مستخدم متعددة اللغات",
+        "tech2": "تصميم متجاوب مع جميع الأجهزة",
+        "tech3": "نظام حماية متكامل",
+        "tech4": "نسخ احتياطي تلقائي"
     },
     "en": {
         "title": "🚍 Smart Bus System",
@@ -391,7 +417,33 @@ translations = {
         "delete_student_confirm": "Are you sure you want to delete this student?",
         "student_deleted_success": "✅ Student deleted successfully!",
         "edit_student": "✏️ Edit Student Data",
-        "student_updated_success": "✅ Student data updated successfully!"
+        "student_updated_success": "✅ Student data updated successfully!",
+        # New page translations
+        "track_student": "🔍 Track Student",
+        "enter_student_id": "Enter student ministry number",
+        "today_status": "Today's Status",
+        "registration_time": "Registration Time",
+        "bus_schedule": "⏰ Bus Schedule",
+        "morning_pickup": "Morning Pickup",
+        "evening_return": "Evening Return",
+        "driver_contact": "📞 Driver Contact",
+        "contact_info": "Contact Information",
+        "bus_location": "📍 Bus Location",
+        "current_location": "Current Location",
+        "features_title": "Main Features",
+        "feature1": "Smart Attendance",
+        "feature1_desc": "Automatic and easy student attendance system",
+        "feature2": "Live Tracking", 
+        "feature2_desc": "Real-time tracking of buses and attendance",
+        "feature3": "Service Rating",
+        "feature3_desc": "Advanced service quality rating system",
+        "feature4": "Instant Notifications",
+        "feature4_desc": "Instant notifications for parents",
+        "technical_specs": "Technical Specifications",
+        "tech1": "Multi-language user interface",
+        "tech2": "Responsive design for all devices",
+        "tech3": "Integrated security system",
+        "tech4": "Automatic backup system"
     }
 }
 
@@ -706,6 +758,48 @@ def display_student_card_columns(student):
     except Exception as e:
         st.error(f"خطأ في عرض بيانات الطالب: {e}")
 
+# ===== وظائف جديدة للصفحات الأخرى =====
+def get_bus_students(bus_number):
+    """الحصول على قائمة طلاب الباص"""
+    return st.session_state.students_df[
+        st.session_state.students_df["bus"] == bus_number
+    ]
+
+def get_today_attendance_for_bus(bus_number):
+    """الحصول على حضور اليوم لطلاب الباص"""
+    today = datetime.datetime.now().strftime("%Y-%m-%d")
+    
+    if st.session_state.attendance_df.empty:
+        return pd.DataFrame()
+    
+    bus_students = get_bus_students(bus_number)
+    bus_student_ids = bus_students["id"].astype(str).tolist()
+    
+    today_attendance = st.session_state.attendance_df[
+        (st.session_state.attendance_df["date"] == today) & 
+        (st.session_state.attendance_df["id"].astype(str).isin(bus_student_ids))
+    ]
+    
+    return today_attendance
+
+def get_bus_schedule(bus_number):
+    """جدول الباص"""
+    schedules = {
+        "1": {"morning": "07:00 AM", "evening": "02:30 PM"},
+        "2": {"morning": "07:15 AM", "evening": "02:45 PM"}, 
+        "3": {"morning": "07:30 AM", "evening": "03:00 PM"}
+    }
+    return schedules.get(bus_number, {"morning": "07:00 AM", "evening": "02:30 PM"})
+
+def get_driver_contact(bus_number):
+    """معلومات السائق"""
+    drivers = {
+        "1": {"name": "محمد أحمد", "phone": "0501111111"},
+        "2": {"name": "علي حسن", "phone": "0502222222"},
+        "3": {"name": "خالد سعيد", "phone": "0503333333"}
+    }
+    return drivers.get(bus_number, {"name": "غير محدد", "phone": "غير محدد"})
+
 # ===== تصميم متطور =====
 def apply_custom_styles():
     if st.session_state.theme == "dark":
@@ -993,6 +1087,206 @@ if st.session_state.page == "student":
         st.metric(t("expected_attendance"), stats['coming'])
         st.metric(t("attendance_rate"), f"{stats['percentage']:.1f}%")
 
+# ===== صفحة السائق =====
+elif st.session_state.page == "driver":
+    st.markdown(f"<h2 class='section-title'>{t('driver_title')}</h2>", unsafe_allow_html=True)
+    
+    if not st.session_state.driver_logged_in:
+        st.markdown(f"<h3 style='text-align: center; color: white; margin-bottom: 2rem;'>{t('driver_login')}</h3>", unsafe_allow_html=True)
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            bus_number = st.selectbox(t("select_bus"), ["1", "2", "3"], key="driver_bus_select")
+        with col2:
+            password = st.text_input(t("password"), type="password", placeholder=t("password_placeholder"), key="driver_password")
+        
+        if st.button(t("login"), type="primary", use_container_width=True, key="driver_login_btn"):
+            if password == st.session_state.bus_passwords.get(bus_number, ""):
+                st.session_state.driver_logged_in = True
+                st.session_state.current_bus = bus_number
+                st.success(t("login_success"))
+                st.rerun()
+            else:
+                st.error(t("login_error"))
+    
+    else:
+        st.success(f"✅ تم تسجيل الدخول كسائق للباص {st.session_state.current_bus}")
+        
+        if st.button(t("logout"), type="secondary", key="driver_logout_btn"):
+            st.session_state.driver_logged_in = False
+            st.rerun()
+        
+        # إحصائيات الباص
+        bus_students = get_bus_students(st.session_state.current_bus)
+        today_attendance = get_today_attendance_for_bus(st.session_state.current_bus)
+        
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.metric(t("total_students"), len(bus_students))
+        with col2:
+            coming_today = len(today_attendance[today_attendance["status"] == "قادم"]) if not today_attendance.empty else 0
+            st.metric(t("confirmed_attendance"), coming_today)
+        with col3:
+            not_coming = len(today_attendance[today_attendance["status"] == "لن يحضر"]) if not today_attendance.empty else 0
+            st.metric("الغياب", not_coming)
+        with col4:
+            percentage = (coming_today / len(bus_students) * 100) if len(bus_students) > 0 else 0
+            st.metric(t("attendance_percentage"), f"{percentage:.1f}%")
+        
+        # قائمة الطلاب القادمين اليوم
+        st.subheader(f"🎒 {t('coming_students')}")
+        
+        if not today_attendance.empty:
+            coming_students = today_attendance[today_attendance["status"] == "قادم"]
+            
+            if not coming_students.empty:
+                for _, student in coming_students.iterrows():
+                    with st.container():
+                        col1, col2, col3 = st.columns([3, 2, 1])
+                        with col1:
+                            st.write(f"**{student['name']}**")
+                        with col2:
+                            st.write(f"📚 {student['grade']}")
+                        with col3:
+                            st.success("✅ قادم")
+                        st.caption(f"⏰ وقت التسجيل: {student['time']}")
+                        st.markdown("---")
+            else:
+                st.info(t("no_students"))
+        else:
+            st.info(t("no_students"))
+        
+        # جميع طلاب الباص
+        st.subheader(f"👥 {t('all_students')}")
+        
+        for _, student in bus_students.iterrows():
+            # التحقق من حالة الطالب اليوم
+            today_status = today_attendance[
+                today_attendance["id"].astype(str) == str(student["id"])
+            ] if not today_attendance.empty else pd.DataFrame()
+            
+            status = "قادم" if not today_status.empty and today_status.iloc[0]["status"] == "قادم" else "لن يحضر" if not today_status.empty else "لم يسجل"
+            status_icon = "✅" if status == "قادم" else "❌" if status == "لن يحضر" else "⏳"
+            
+            with st.container():
+                col1, col2, col3, col4 = st.columns([3, 2, 2, 1])
+                with col1:
+                    st.write(f"**{student['name']}**")
+                with col2:
+                    st.write(f"📚 {student['grade']}")
+                with col3:
+                    st.write(f"📞 {student['parent_phone']}")
+                with col4:
+                    if status == "قادم":
+                        st.success(f"{status_icon} {status}")
+                    elif status == "لن يحضر":
+                        st.error(f"{status_icon} {status}")
+                    else:
+                        st.warning(f"{status_icon} {status}")
+                st.markdown("---")
+
+# ===== صفحة أولياء الأمور =====
+elif st.session_state.page == "parents":
+    st.markdown(f"<h2 class='section-title'>{t('parents_title')}</h2>", unsafe_allow_html=True)
+    
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        st.subheader(t("track_student"))
+        student_id = st.text_input(t("enter_student_id"), placeholder=t("parents_id_placeholder"), key="parent_student_id")
+        
+        if student_id:
+            try:
+                student_info = st.session_state.students_df[
+                    st.session_state.students_df["id"].astype(str) == str(student_id).strip()
+                ]
+                
+                if not student_info.empty:
+                    student = student_info.iloc[0]
+                    
+                    st.success(f"🎓 تم العثور على الطالب: **{student['name']}**")
+                    
+                    # معلومات الطالب
+                    col_info1, col_info2 = st.columns(2)
+                    with col_info1:
+                        st.info(f"**📚 الصف:** {student['grade']}")
+                        st.info(f"**🚍 الباص:** {student['bus']}")
+                    with col_info2:
+                        st.info(f"**📞 هاتف ولي الأمر:** {student['parent_phone']}")
+                    
+                    # حالة اليوم
+                    st.subheader(t("today_status"))
+                    already_registered, current_status = has_student_registered_today(student_id)
+                    
+                    if already_registered:
+                        # الحصول على وقت التسجيل
+                        today = datetime.datetime.now().strftime("%Y-%m-%d")
+                        registration_data = st.session_state.attendance_df[
+                            (st.session_state.attendance_df["id"].astype(str) == str(student_id).strip()) & 
+                            (st.session_state.attendance_df["date"] == today)
+                        ]
+                        
+                        if not registration_data.empty:
+                            registration_time = registration_data.iloc[0]["time"]
+                            
+                            if current_status == "قادم":
+                                st.success(f"""
+                                **✅ حالة اليوم:** قادم إلى المدرسة
+                                **⏰ وقت التسجيل:** {registration_time}
+                                """)
+                            else:
+                                st.error(f"""
+                                **❌ حالة اليوم:** لن يحضر اليوم
+                                **⏰ وقت التسجيل:** {registration_time}
+                                """)
+                    else:
+                        st.warning("**⏳ حالة اليوم:** لم يتم تسجيل الحضور بعد")
+                
+                else:
+                    st.error(f"❌ {t('not_found')}")
+                    
+            except Exception as e:
+                st.error(f"❌ {t('error')}")
+    
+    with col2:
+        st.subheader(t("bus_info"))
+        
+        if student_id and not st.session_state.students_df[
+            st.session_state.students_df["id"].astype(str) == str(student_id).strip()
+        ].empty:
+            student = st.session_state.students_df[
+                st.session_state.students_df["id"].astype(str) == str(student_id).strip()
+            ].iloc[0]
+            
+            bus_number = student["bus"]
+            schedule = get_bus_schedule(bus_number)
+            driver = get_driver_contact(bus_number)
+            
+            # جدول الباص
+            st.subheader(t("bus_schedule"))
+            col_time1, col_time2 = st.columns(2)
+            with col_time1:
+                st.metric(t("morning_pickup"), schedule["morning"])
+            with col_time2:
+                st.metric(t("evening_return"), schedule["evening"])
+            
+            # معلومات السائق
+            st.subheader(t("driver_contact"))
+            st.info(f"""
+            **👤 اسم السائق:** {driver['name']}
+            **📞 رقم الهاتف:** {driver['phone']}
+            """)
+            
+            # موقع الباص (محاكاة)
+            st.subheader(t("bus_location"))
+            locations = {
+                "1": "شارع الخليج - أمام مركز الميرة",
+                "2": "شارع الشيخ زايد - قرب مجمع أبوظبي",
+                "3": "شارع المصفح - منطقة السادات"
+            }
+            current_loc = locations.get(bus_number, "في الطريق إلى المدرسة")
+            st.success(f"**📍 {t('current_location')}:** {current_loc}")
+
 # ===== صفحة الإدارة =====
 elif st.session_state.page == "admin":
     st.subheader(t("admin_title"))
@@ -1202,6 +1496,222 @@ elif st.session_state.page == "admin":
                                 st.error(f"❌ حدث خطأ: {message}")
             else:
                 st.info("🚫 لا توجد طلاب في النظام")
+
+        with tab3:
+            st.header("📊 إحصائيات النظام")
+            
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                total_students = len(st.session_state.students_df)
+                st.metric("إجمالي الطلاب", total_students)
+            with col2:
+                total_attendance_records = len(st.session_state.attendance_df)
+                st.metric("سجلات الحضور", total_attendance_records)
+            with col3:
+                total_ratings = len(st.session_state.ratings_df)
+                st.metric("التقييمات", total_ratings)
+            with col4:
+                avg_rating, _ = get_average_rating()
+                st.metric("متوسط التقييم", f"{avg_rating:.1f}/5")
+            
+            # إحصائيات الباصات
+            st.subheader("🚍 إحصائيات الباصات")
+            bus_stats = []
+            for bus in ["1", "2", "3"]:
+                bus_students = get_bus_students(bus)
+                today_attendance = get_today_attendance_for_bus(bus)
+                coming_today = len(today_attendance[today_attendance["status"] == "قادم"]) if not today_attendance.empty else 0
+                
+                bus_stats.append({
+                    "bus": bus,
+                    "total_students": len(bus_students),
+                    "coming_today": coming_today,
+                    "percentage": (coming_today / len(bus_students) * 100) if len(bus_students) > 0 else 0
+                })
+            
+            for stat in bus_stats:
+                col1, col2, col3, col4 = st.columns(4)
+                with col1:
+                    st.metric(f"الباص {stat['bus']} - إجمالي الطلاب", stat['total_students'])
+                with col2:
+                    st.metric(f"الباص {stat['bus']} - الحضور اليوم", stat['coming_today'])
+                with col3:
+                    st.metric(f"الباص {stat['bus']} - النسبة", f"{stat['percentage']:.1f}%")
+                with col4:
+                    driver = get_driver_contact(stat['bus'])
+                    st.info(f"السائق: {driver['name']}")
+
+        with tab4:
+            st.header("🔐 تغيير كلمات مرور الباصات")
+            
+            for bus in ["1", "2", "3"]:
+                with st.expander(f"الباص {bus}"):
+                    current_password = st.session_state.bus_passwords.get(bus, "")
+                    st.info(f"كلمة المرور الحالية: **{current_password}**")
+                    
+                    new_password = st.text_input(f"كلمة المرور الجديدة للباص {bus}", type="password", key=f"new_bus_password_{bus}")
+                    
+                    if st.button(f"حفظ للباص {bus}", key=f"save_bus_{bus}"):
+                        if new_password:
+                            st.session_state.bus_passwords[bus] = new_password
+                            save_data()
+                            st.success(f"✅ تم تحديث كلمة مرور الباص {bus}")
+                        else:
+                            st.error("❌ يرجى إدخال كلمة مرور جديدة")
+
+        with tab5:
+            st.header("🔐 تغيير كلمة مرور الإدارة")
+            
+            current_password = st.session_state.admin_password
+            st.info(f"كلمة المرور الحالية: **{current_password}**")
+            
+            new_admin_password = st.text_input("كلمة المرور الجديدة للإدارة", type="password", key="new_admin_password")
+            confirm_password = st.text_input("تأكيد كلمة المرور الجديدة", type="password", key="confirm_admin_password")
+            
+            if st.button("حفظ كلمة مرور الإدارة", type="primary"):
+                if new_admin_password and confirm_password:
+                    if new_admin_password == confirm_password:
+                        st.session_state.admin_password = new_admin_password
+                        save_data()
+                        st.success("✅ تم تحديث كلمة مرور الإدارة بنجاح")
+                    else:
+                        st.error("❌ كلمات المرور غير متطابقة")
+                else:
+                    st.error("❌ يرجى ملء جميع الحقول")
+
+# ===== صفحة حول النظام =====
+elif st.session_state.page == "about":
+    st.markdown(f"<h2 class='section-title'>{t('about_title')}</h2>", unsafe_allow_html=True)
+    
+    st.markdown(f"<p class='info-text'>{t('about_description')}</p>", unsafe_allow_html=True)
+    
+    # المميزات الرئيسية
+    st.subheader("🎯 المميزات الرئيسية")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("""
+        <div class='feature-card'>
+            <h3>🚍 نظام متكامل</h3>
+            <p>نظام متكامل لإدارة النقل المدرسي يشمل جميع الجوانب التشغيلية</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
+        <div class='feature-card'>
+            <h3>📱 واجهة سهلة</h3>
+            <p>واجهة مستخدم بديهية وسهلة الاستخدام لجميع الفئات</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
+        <div class='feature-card'>
+            <h3>🔒 أمان عالي</h3>
+            <p>نظام حماية متكامل لحماية بيانات الطلاب والمستخدمين</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div class='feature-card'>
+            <h3>📊 تقارير متقدمة</h3>
+            <p>نظام تقارير وإحصائيات متطور لمتابعة الأداء</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
+        <div class='feature-card'>
+            <h3>🌐 متعدد اللغات</h3>
+            <p>دعم كامل للغتين العربية والإنجليزية</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
+        <div class='feature-card'>
+            <h3>📈 قابلة للتطوير</h3>
+            <p>تصميم مرن يمكن تطويره وإضافة مميزات جديدة</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # معلومات الفريق
+    st.subheader("👥 فريق التطوير")
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("""
+        <div class='feature-card'>
+            <h3>🛠️ مطور النظام</h3>
+            <p><strong>إياد مصطفى</strong></p>
+            <p>مسؤول عن التطوير البرمجي والوظائف التقنية</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div class='feature-card'>
+            <h3>🎨 مصمم الواجهة</h3>
+            <p><strong>ايمن جلال</strong></p>
+            <p>مسؤول عن التصميم وتجربة المستخدم</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        st.markdown("""
+        <div class='feature-card'>
+            <h3>👨‍🏫 الإشراف</h3>
+            <p><strong>قسم النادي البيئي</strong></p>
+            <p>الإشراف العام ومتابعة الجودة</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # معلومات الإصدار
+    st.subheader("📋 معلومات الإصدار")
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.info("""
+        **الإصدار:** 1.1\n
+        **الحالة:** ⭐ الإصدار المستقر
+        """)
+    
+    with col2:
+        st.info("""
+        **تاريخ الإصدار:** 2025\n
+        **آخر تحديث:** يناير 2025
+        """)
+    
+    with col3:
+        st.info("""
+        **الترخيص:** خاص\n
+        **المدرسة:** المنيرة الخاصة
+        """)
+    
+    # نظام التقييم
+    st.subheader("⭐ نظام التقييم")
+    
+    avg_rating, total_ratings = get_average_rating()
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.metric("متوسط التقييم", f"{avg_rating:.1f}/5")
+    
+    with col2:
+        st.metric("إجمالي التقييمات", total_ratings)
+    
+    # نموذج التقييم
+    with st.form("rating_form"):
+        st.subheader("شاركنا رأيك")
+        
+        rating = st.slider("تقييمك للنظام", 1, 5, 5, key="about_rating")
+        comment = st.text_area("تعليقك (اختياري)", placeholder="اكتب تعليقك هنا...", key="about_comment")
+        
+        if st.form_submit_button("إرسال التقييم", use_container_width=True):
+            add_rating(rating, comment)
+            st.success("شكراً لك على تقييمك! 🌟")
 
 # ===== الفوتر =====
 st.markdown("---")
