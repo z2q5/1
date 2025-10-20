@@ -327,7 +327,7 @@ translations = {
     "en": {
         # Main Navigation
         "title": "🚍 Smart Bus System",
-        "subtitle": "Al Munira Private School - Abu Dhabi",
+        "subtitle": "Al Muneera Private School - Abu Dhabi",
         "description": "Integrated system for smart school transportation management",
         "student": "🎓 Student",
         "driver": "🚌 Driver", 
@@ -443,7 +443,7 @@ translations = {
         
         # About Page
         "about_title": "ℹ️ About System",
-        "about_description": "Integrated system for smart school transportation management at Al Munira Private School in Abu Dhabi.",
+        "about_description": "Integrated system for smart school transportation management at Al Muneera Private School in Abu Dhabi.",
         "features": "🎯 Main Features",
         "development_team": "👥 Development Team",
         "developer": "System Developer",
@@ -488,7 +488,7 @@ translations = {
         # Footer
         "footer": "🚍 Smart Bus System - Version 2.0",
         "rights": "© 2025 All Rights Reserved",
-        "team": "Developed by: Iyad Mustafa | Design: Ayman Jalal | Supervision: Environmental Club",
+        "team": "Developed by: Eyad Mustafa | Design: Ayman Galal | Supervision: Environmental Club",
         
         # Features
         "feature1": "Smart Attendance",
@@ -1443,4 +1443,5 @@ st.markdown(f"""
     <p style='font-size: 0.9rem; opacity: 0.7;'>{t('team')}</p>
 </div>
 """, unsafe_allow_html=True)
+
 
