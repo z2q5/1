@@ -9,7 +9,7 @@ from pathlib import Path
 
 # ===== إعداد الصفحة =====
 st.set_page_config(
-    page_title="Smart Bus System - Al Munira Private School", 
+    page_title="Smart Bus System - Al Muneera Private School", 
     layout="wide",
     page_icon="🚍",
     initial_sidebar_state="collapsed"
@@ -1443,3 +1443,4 @@ st.markdown(f"""
     <p style='font-size: 0.9rem; opacity: 0.7;'>{t('team')}</p>
 </div>
 """, unsafe_allow_html=True)
+
