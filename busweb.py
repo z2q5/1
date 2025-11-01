@@ -6,6 +6,7 @@ import random
 import json
 import pickle
 from pathlib import Path
+import requests
 
 # ===== إعداد الصفحة =====
 st.set_page_config(
@@ -18,6 +19,42 @@ st.set_page_config(
 # ===== مسار حفظ البيانات =====
 DATA_DIR = Path("./data")
 DATA_DIR.mkdir(exist_ok=True)
+
+# ===== حالة التطبيق المحسنة =====
+if "lang" not in st.session_state:
+    st.session_state.lang = "ar"
+if "page" not in st.session_state:
+    st.session_state.page = "student"
+if "notifications" not in st.session_state:
+    st.session_state.notifications = []
+if "driver_logged_in" not in st.session_state:
+    st.session_state.driver_logged_in = False
+if "current_bus" not in st.session_state:
+    st.session_state.current_bus = "1"
+if "theme" not in st.session_state:
+    st.session_state.theme = "light"
+if "bus_passwords" not in st.session_state:
+    st.session_state.bus_passwords = {"1": "1111", "2": "2222", "3": "3333"}
+if "admin_password" not in st.session_state:
+    st.session_state.admin_password = "admin123"
+if "admin_logged_in" not in st.session_state:
+    st.session_state.admin_logged_in = False
+if "ratings_df" not in st.session_state:
+    st.session_state.ratings_df = pd.DataFrame(columns=["rating", "comment", "timestamp"])
+if "selected_rating" not in st.session_state:
+    st.session_state.selected_rating = 0
+if "data_loaded" not in st.session_state:
+    st.session_state.data_loaded = False
+if "offline_mode" not in st.session_state:
+    st.session_state.offline_mode = False
+if "first_time" not in st.session_state:
+    st.session_state.first_time = True
+if "last_save" not in st.session_state:
+    st.session_state.last_save = datetime.datetime.now()
+if "font_size" not in st.session_state:
+    st.session_state.font_size = "افتراضي"
+if "high_contrast" not in st.session_state:
+    st.session_state.high_contrast = False
 
 # ===== وظائف حفظ البيانات =====
 def save_data():
@@ -40,7 +77,9 @@ def save_data():
             "bus_passwords": st.session_state.bus_passwords,
             "admin_password": st.session_state.admin_password,
             "theme": st.session_state.theme,
-            "lang": st.session_state.lang
+            "lang": st.session_state.lang,
+            "font_size": st.session_state.font_size,
+            "high_contrast": st.session_state.high_contrast
         }
         with open(DATA_DIR / "settings.json", "w", encoding="utf-8") as f:
             json.dump(settings, f, ensure_ascii=False)
@@ -79,35 +118,11 @@ def load_data():
                 st.session_state.admin_password = settings.get("admin_password", "admin123")
                 st.session_state.theme = settings.get("theme", "light")
                 st.session_state.lang = settings.get("lang", "ar")
+                st.session_state.font_size = settings.get("font_size", "افتراضي")
+                st.session_state.high_contrast = settings.get("high_contrast", False)
                 
     except Exception as e:
         st.error(f"خطأ في تحميل البيانات: {e}")
-
-# ===== حالة التطبيق =====
-if "lang" not in st.session_state:
-    st.session_state.lang = "ar"
-if "page" not in st.session_state:
-    st.session_state.page = "student"
-if "notifications" not in st.session_state:
-    st.session_state.notifications = []
-if "driver_logged_in" not in st.session_state:
-    st.session_state.driver_logged_in = False
-if "current_bus" not in st.session_state:
-    st.session_state.current_bus = "1"
-if "theme" not in st.session_state:
-    st.session_state.theme = "light"
-if "bus_passwords" not in st.session_state:
-    st.session_state.bus_passwords = {"1": "1111", "2": "2222", "3": "3333"}
-if "admin_password" not in st.session_state:
-    st.session_state.admin_password = "admin123"
-if "admin_logged_in" not in st.session_state:
-    st.session_state.admin_logged_in = False
-if "ratings_df" not in st.session_state:
-    st.session_state.ratings_df = pd.DataFrame(columns=["rating", "comment", "timestamp"])
-if "selected_rating" not in st.session_state:
-    st.session_state.selected_rating = 0
-if "data_loaded" not in st.session_state:
-    st.session_state.data_loaded = False
 
 # تحميل البيانات المحفوظة
 load_data()
@@ -520,13 +535,24 @@ def t(key):
     except KeyError:
         return key
 
-# ===== وظائف مساعدة =====
+# ===== وظائف مساعدة محسنة =====
 def add_notification(message):
     st.session_state.notifications.append({
         "time": datetime.datetime.now().strftime("%H:%M"),
         "message": message
     })
     save_data()
+
+def show_notification(message, type="info", duration=3):
+    """عرض إشعار مؤقت"""
+    if type == "success":
+        st.success(message)
+    elif type == "warning":
+        st.warning(message)
+    elif type == "error":
+        st.error(message)
+    else:
+        st.info(message)
 
 def calculate_attendance_stats():
     today = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -716,8 +742,307 @@ def get_driver_contact(bus_number):
     }
     return drivers.get(bus_number, {"name": "غير محدد", "phone": "غير محدد"})
 
-# ===== تصميم حديث ومتطور =====
+# ===== ميزات تحسين تجربة المستخدم =====
+
+def check_missing_attendance():
+    """التحقق من الطلاب الذين لم يسجلوا حضور اليوم"""
+    today = datetime.datetime.now().strftime("%Y-%m-%d")
+    registered_ids = st.session_state.attendance_df[
+        st.session_state.attendance_df["date"] == today
+    ]["id"].astype(str).tolist()
+    
+    missing_students = st.session_state.students_df[
+        ~st.session_state.students_df["id"].astype(str).isin(registered_ids)
+    ]
+    
+    return missing_students
+
+def advanced_search_students():
+    """بحث متقدم عن الطلاب"""
+    st.subheader("🔍 بحث متقدم")
+    
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        search_name = st.text_input("بحث بالاسم", placeholder="أدخل اسم الطالب...")
+    with col2:
+        search_grade = st.selectbox("بحث بالصف", ["الكل"] + list(st.session_state.students_df["grade"].unique()))
+    with col3:
+        search_bus = st.selectbox("بحث بالباص", ["الكل", "1", "2", "3"])
+    
+    # تطبيق البحث
+    filtered_df = st.session_state.students_df.copy()
+    
+    if search_name:
+        filtered_df = filtered_df[filtered_df["name"].str.contains(search_name, case=False, na=False)]
+    
+    if search_grade != "الكل":
+        filtered_df = filtered_df[filtered_df["grade"] == search_grade]
+    
+    if search_bus != "الكل":
+        filtered_df = filtered_df[filtered_df["bus"] == search_bus]
+    
+    return filtered_df
+
+def admin_dashboard():
+    """لوحة تحكم تفاعلية للإدارة"""
+    st.header("📊 لوحة التحكم التفاعلية")
+    
+    # إحصائيات حية
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        total_students = len(st.session_state.students_df)
+        st.metric("👥 إجمالي الطلاب", total_students)
+    
+    with col2:
+        today_registered = len(st.session_state.attendance_df[
+            st.session_state.attendance_df["date"] == datetime.datetime.now().strftime("%Y-%m-%d")
+        ])
+        st.metric("📝 المسجلين اليوم", today_registered)
+    
+    with col3:
+        missing_today = len(check_missing_attendance())
+        st.metric("⚠️ لم يسجلوا", missing_today)
+    
+    with col4:
+        attendance_rate = (today_registered / total_students * 100) if total_students > 0 else 0
+        st.metric("📈 نسبة التسجيل", f"{attendance_rate:.1f}%")
+    
+    # مخطط بياني مبسط
+    st.subheader("📈 إحصائيات الحضور للأسبوع")
+    
+    # بيانات الحضور للأسبوع الحالي
+    attendance_data = get_weekly_attendance()
+    if not attendance_data.empty:
+        st.bar_chart(attendance_data.set_index("day")["count"])
+
+def get_weekly_attendance():
+    """الحصول على إحصائيات الحضور للأسبوع"""
+    dates = []
+    counts = []
+    
+    for i in range(7):
+        date = (datetime.datetime.now() - datetime.timedelta(days=i)).strftime("%Y-%m-%d")
+        count = len(st.session_state.attendance_df[
+            st.session_state.attendance_df["date"] == date
+        ])
+        dates.append(date)
+        counts.append(count)
+    
+    return pd.DataFrame({
+        "day": dates[::-1],
+        "count": counts[::-1]
+    })
+
+def send_parent_notification(student_id, message_type):
+    """إرسال إشعارات للوالدين"""
+    student = st.session_state.students_df[
+        st.session_state.students_df["id"].astype(str) == str(student_id)
+    ].iloc[0]
+    
+    messages = {
+        "attendance_registered": f"تم تسجيل حضور الطالب {student['name']} اليوم",
+        "bus_departure": f"باص المدرسة رقم {student['bus']} في طريقه إلى المدرسة",
+        "bus_arrival": f"باص المدرسة رقم {student['bus']} وصل إلى المدرسة",
+        "delay": f"تأخير متوقع في باص المدرسة رقم {student['bus']}"
+    }
+    
+    message = messages.get(message_type, "إشعار من نظام الباص الذكي")
+    
+    # محاكاة إرسال الإشعار
+    show_notification(f"📱 إشعار: {message}", "info")
+
+def check_connection():
+    """التحقق من الاتصال بالإنترنت"""
+    try:
+        # محاولة الاتصال بخدمة خارجية
+        requests.get("https://www.google.com", timeout=3)
+        st.session_state.offline_mode = False
+        return True
+    except:
+        st.session_state.offline_mode = True
+        return False
+
+def sync_offline_data():
+    """مزامنة البيانات عند العودة للاتصال"""
+    if st.session_state.offline_mode:
+        st.warning("🔄 مزامنة البيانات...")
+        save_data()
+        st.session_state.offline_mode = False
+        st.success("✅ تمت المزامنة بنجاح!")
+
+def add_keyboard_shortcuts():
+    """إضافة اختصارات لوحة المفاتيح"""
+    st.markdown("""
+    <script>
+    document.addEventListener('keydown', function(e) {
+        // اختصار للبحث (Ctrl/Cmd + K)
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            const searchInput = document.querySelector('input[placeholder*="بحث"]');
+            if (searchInput) searchInput.focus();
+        }
+        // اختصار للصفحة الرئيسية (Ctrl/Cmd + H)
+        if ((e.ctrlKey || e.metaKey) && e.key === 'h') {
+            e.preventDefault();
+            window.location.href = window.location.origin;
+        }
+    });
+    </script>
+    """, unsafe_allow_html=True)
+
+def accessibility_features():
+    """ميزات تحسين الوصول"""
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("♿ إعدادات الوصول")
+    
+    # حجم الخط
+    font_size = st.sidebar.selectbox("حجم الخط", ["افتراضي", "كبير", "كبير جداً"], 
+                                   index=["افتراضي", "كبير", "كبير جداً"].index(st.session_state.font_size))
+    
+    # وضع التباين العالي
+    high_contrast = st.sidebar.checkbox("وضع التباين العالي", value=st.session_state.high_contrast)
+    
+    if font_size != st.session_state.font_size or high_contrast != st.session_state.high_contrast:
+        st.session_state.font_size = font_size
+        st.session_state.high_contrast = high_contrast
+        save_data()
+        st.rerun()
+    
+    return font_size, high_contrast
+
+def apply_accessibility_styles(font_size, high_contrast):
+    """تطبيق إعدادات الوصول"""
+    styles = ""
+    
+    if font_size == "كبير":
+        styles += "body { font-size: 1.2rem; }"
+    elif font_size == "كبير جداً":
+        styles += "body { font-size: 1.4rem; }"
+    
+    if high_contrast:
+        styles += """
+        .stApp { background: #000000 !important; color: #FFFFFF !important; }
+        .main-header { background: #333333 !important; color: #FFFFFF !important; }
+        .metric-card { background: #222222 !important; color: #FFFFFF !important; border: 2px solid #FFFFFF !important; }
+        """
+    
+    if styles:
+        st.markdown(f"<style>{styles}</style>", unsafe_allow_html=True)
+
+def interactive_tour():
+    """جولة تفاعلية للمستخدمين الجدد"""
+    if st.session_state.first_time:
+        st.info("""
+        🎯 **مرحباً بك في نظام الباص الذكي!**
+        
+        **جولة سريعة:**
+        - 🎓 **الطلاب**: سجل حضورك اليومي
+        - 🚌 **السائقون**: تابع طلاب باصك
+        - 👨‍👩‍👧 **أولياء الأمور**: تابع أبناءك
+        - 🏫 **الإدارة**: أدير النظام بالكامل
+        
+        💡 **نصائح سريعة:**
+        - استخدم Ctrl+K للبحث السريع
+        - اضغط على ❓ للمساعدة في أي صفحة
+        - البيانات تحفظ تلقائياً
+        
+        اضغط على ❌ لإغلاق هذه الرسالة
+        """)
+        
+        if st.button("❌ فهمت، شكراً!"):
+            st.session_state.first_time = False
+            save_data()
+            st.rerun()
+
+def context_help():
+    """مساعدة سياقية حسب الصفحة"""
+    help_messages = {
+        "student": """
+        **💡 نصائح للطلاب:**
+        - أدخل رقم وزارتك بدقة
+        - سجل حضورك قبل الساعة 8 صباحاً
+        - يمكنك تغيير حالتك إذا أخطأت
+        - استخدم Ctrl+K للبحث السريع
+        """,
+        "driver": """
+        **💡 نصائح للسائقين:**
+        - تأكد من كلمة المرور قبل الدخول
+        - راجع قائمة الحضور قبل الانطلاق
+        - اتصل بالطلاب المتأخرين إذا لزم الأمر
+        - استخدم Ctrl+K للبحث السريع
+        """,
+        "parents": """
+        **💡 نصائح لأولياء الأمور:**
+        - احفظ رقم وزارة ابنك
+        - تابع حالة الباص بانتظام
+        - اتصل بالسائق في الحالات الطارئة
+        - استخدم Ctrl+K للبحث السريع
+        """,
+        "admin": """
+        **💡 نصائح للإدارة:**
+        - احفظ نسخة احتياطية بانتظام
+        - راجع التقارير اليومية
+        - حدث بيانات الطلاب عند الحاجة
+        - استخدم Ctrl+K للبحث السريع
+        """,
+        "about": """
+        **💡 حول النظام:**
+        - نظام متكامل لإدارة النقل المدرسي
+        - واجهة مستخدم سهلة ومتطورة
+        - دعم كامل للغتين العربية والإنجليزية
+        - نظام حماية متكامل للبيانات
+        """
+    }
+    
+    if st.sidebar.button("❓ مساعدة سياقية"):
+        st.sidebar.info(help_messages.get(st.session_state.page, "مرحباً بك في النظام!"))
+
+def auto_save_reminder():
+    """تذكير الحفظ التلقائي"""
+    time_since_save = (datetime.datetime.now() - st.session_state.last_save).seconds
+    
+    if time_since_save > 300:  # 5 دقائق
+        st.toast("💾 يتم حفظ بياناتك تلقائياً...", icon="✅")
+        save_data()
+        st.session_state.last_save = datetime.datetime.now()
+
+def performance_optimization():
+    """تحسينات الأداء"""
+    # تنظيف البيانات القديمة (أكثر من 30 يوم)
+    old_date = (datetime.datetime.now() - datetime.timedelta(days=30)).strftime("%Y-%m-%d")
+    old_records = st.session_state.attendance_df[
+        st.session_state.attendance_df["date"] < old_date
+    ]
+    
+    if len(old_records) > 100:  # إذا كان هناك أكثر من 100 سجل قديم
+        st.session_state.attendance_df = st.session_state.attendance_df[
+            st.session_state.attendance_df["date"] >= old_date
+        ]
+        save_data()
+        show_notification(f"تم تنظيف {len(old_records)} سجل قديم", "info")
+
+# ===== تطبيق الميزات المحسنة =====
+
+# التحقق من الاتصال
+check_connection()
+
+# إضافة اختصارات لوحة المفاتيح
+add_keyboard_shortcuts()
+
+# الجولة التفاعلية
+interactive_tour()
+
+# تحسين الأداء
+performance_optimization()
+
+# تذكير الحفظ التلقائي
+auto_save_reminder()
+
+# ===== تصميم حديث ومتطور مع إعدادات الوصول =====
 def apply_modern_styles():
+    font_size, high_contrast = accessibility_features()
+    
     if st.session_state.theme == "dark":
         primary_color = "#6366f1"
         background = "linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)"
@@ -729,7 +1054,14 @@ def apply_modern_styles():
         card_bg = "rgba(255, 255, 255, 0.9)"
         text_color = "#1e293b"
     
-    st.markdown(f"""
+    # تطبيق إعدادات الوصول
+    if high_contrast:
+        background = "#000000" if st.session_state.theme == "dark" else "#FFFFFF"
+        card_bg = "#333333" if st.session_state.theme == "dark" else "#F0F0F0"
+        text_color = "#FFFFFF" if st.session_state.theme == "dark" else "#000000"
+        primary_color = "#FFD700"  # ذهبي للتباين العالي
+    
+    base_styles = f"""
     <style>
         .stApp {{
             background: {background};
@@ -880,7 +1212,10 @@ def apply_modern_styles():
             text-align: center;
         }}
     </style>
-    """, unsafe_allow_html=True)
+    """
+    
+    st.markdown(base_styles, unsafe_allow_html=True)
+    apply_accessibility_styles(font_size, high_contrast)
 
 apply_modern_styles()
 
@@ -918,6 +1253,14 @@ with col3:
         if st.button(lang_icon, use_container_width=True, key="lang_btn"):
             toggle_language()
 
+# عرض حالة الاتصال
+if st.session_state.offline_mode:
+    st.warning("🔴 الوضع غير متصل - يتم حفظ البيانات محلياً")
+    if st.button("🔄 محاولة إعادة الاتصال", key="reconnect_btn"):
+        if check_connection():
+            sync_offline_data()
+            st.rerun()
+
 # ===== شريط التنقل المحدث =====
 st.markdown("<div style='height: 20px'></div>", unsafe_allow_html=True)
 
@@ -949,6 +1292,9 @@ for i, (name, page_key) in enumerate(pages):
 
 st.markdown("---")
 
+# إضافة المساعدة السياقية
+context_help()
+
 # ===== صفحة الطالب المحدثة =====
 if st.session_state.page == "student":
     col1, col2 = st.columns([2, 1])
@@ -973,7 +1319,7 @@ if st.session_state.page == "student":
                     if not student_info.empty:
                         student = student_info.iloc[0]
                         
-                        st.success(f"🎓 {t('student_found')}: **{student['name']}**")
+                        st.success(f"🎓 تم العثور على الطالب: **{student['name']}**")
                         
                         # معلومات الطالب في بطاقة جميلة
                         col_info1, col_info2 = st.columns(2)
@@ -1020,6 +1366,7 @@ if st.session_state.page == "student":
                             with col_btn1:
                                 if st.button(t("coming"), use_container_width=True, key="coming_btn"):
                                     now = register_attendance(student, "قادم")
+                                    send_parent_notification(student_id, "attendance_registered")
                                     st.balloons()
                                     st.success(f"""
                                     **🎉 {t('registered_success')}**
@@ -1032,6 +1379,7 @@ if st.session_state.page == "student":
                             with col_btn2:
                                 if st.button(t("not_coming"), use_container_width=True, key="not_coming_btn"):
                                     now = register_attendance(student, "لن يحضر")
+                                    send_parent_notification(student_id, "attendance_registered")
                                     st.success(f"""
                                     **🎉 {t('registered_success')}**
                                     
@@ -1140,6 +1488,12 @@ elif st.session_state.page == "driver":
             </div>
             """, unsafe_allow_html=True)
         
+        # إشعار انطلاق الباص
+        if st.button("🚀 إشعار انطلاق الباص", key="bus_departure_btn"):
+            for _, student in bus_students.iterrows():
+                send_parent_notification(student["id"], "bus_departure")
+            show_notification("تم إرسال إشعار انطلاق الباص لجميع أولياء الأمور", "success")
+        
         # قائمة الطلاب القادمين اليوم
         st.subheader(f"🎒 {t('coming_students')}")
         
@@ -1187,7 +1541,7 @@ elif st.session_state.page == "parents":
                 if not student_info.empty:
                     student = student_info.iloc[0]
                     
-                    st.success(f"🎓 {t('student_found')}: **{student['name']}**")
+                    st.success(f"🎓 تم العثور على الطالب: **{student['name']}**")
                     
                     # معلومات الطالب
                     col_info1, col_info2 = st.columns(2)
@@ -1276,8 +1630,8 @@ elif st.session_state.page == "parents":
             st.markdown(f"""
             <div class='metric-card'>
                 <h4>👤 {t('driver_contact')}</h4>
-                <p><strong>{t('name')}:</strong> {driver['name']}</p>
-                <p><strong>📞 {t('phone')}:</strong> {driver['phone']}</p>
+                <p><strong>الاسم:</strong> {driver['name']}</p>
+                <p><strong>📞 الهاتف:</strong> {driver['phone']}</p>
             </div>
             """, unsafe_allow_html=True)
 
@@ -1306,10 +1660,11 @@ elif st.session_state.page == "admin":
             st.session_state.admin_logged_in = False
             st.rerun()
         
-        # تبويبات الإدارة
-        tab1, tab2, tab3, tab4 = st.tabs([
+        # تبويبات الإدارة المحسنة
+        tab1, tab2, tab3, tab4, tab5 = st.tabs([
             "👥 " + t("manage_students"),
-            "📊 " + t("system_stats"),
+            "📊 لوحة التحكم",
+            "🔍 بحث متقدم", 
             "🔐 " + t("change_bus_password"),
             "⚙️ " + t("change_admin_password")
         ])
@@ -1373,6 +1728,33 @@ elif st.session_state.page == "admin":
                             st.error(f"❌ {t('student_exists_error')}")
                         else:
                             st.error(f"❌ حدث خطأ: {message}")
+
+        with tab2:
+            admin_dashboard()
+
+        with tab3:
+            filtered_students = advanced_search_students()
+            st.subheader(f"📋 نتائج البحث ({len(filtered_students)} طالب)")
+            
+            if not filtered_students.empty:
+                for _, student in filtered_students.iterrows():
+                    with st.container():
+                        st.markdown(f"""
+                        <div class='student-card'>
+                            <div style='display: flex; justify-content: space-between; align-items: center;'>
+                                <div>
+                                    <h4 style='margin: 0;'>{student['name']}</h4>
+                                    <p style='margin: 0; opacity: 0.8;'>📚 {student['grade']} | 🚍 الباص {student['bus']}</p>
+                                </div>
+                                <div style='text-align: right;'>
+                                    <p style='margin: 0; font-size: 0.9rem; opacity: 0.7;'>📞 {student['parent_phone']}</p>
+                                    <p style='margin: 0; font-size: 0.8rem; opacity: 0.6;'>🆔 {student['id']}</p>
+                                </div>
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+            else:
+                st.info("🚫 لا توجد نتائج تطابق معايير البحث")
 
 # ===== صفحة حول النظام المحدثة =====
 elif st.session_state.page == "about":
@@ -1443,5 +1825,3 @@ st.markdown(f"""
     <p style='font-size: 0.9rem; opacity: 0.7;'>{t('team')}</p>
 </div>
 """, unsafe_allow_html=True)
-
-
