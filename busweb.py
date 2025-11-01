@@ -795,17 +795,19 @@ def admin_dashboard():
         st.metric("👥 إجمالي الطلاب", total_students)
     
     with col2:
-        today_registered = len(st.session_state.attendance_df[
-            st.session_state.attendance_df["date"] == datetime.datetime.now().strftime("%Y-%m-%d")
-        ])
-        st.metric("📝 المسجلين اليوم", today_registered)
+        today = datetime.datetime.now().strftime("%Y-%m-%d")
+        today_attendance = st.session_state.attendance_df[
+            st.session_state.attendance_df["date"] == today
+        ] if not st.session_state.attendance_df.empty else pd.DataFrame()
+        registered_today = len(today_attendance)
+        st.metric("📝 المسجلين اليوم", registered_today)
     
     with col3:
         missing_today = len(check_missing_attendance())
         st.metric("⚠️ لم يسجلوا", missing_today)
     
     with col4:
-        attendance_rate = (today_registered / total_students * 100) if total_students > 0 else 0
+        attendance_rate = (registered_today / total_students * 100) if total_students > 0 else 0
         st.metric("📈 نسبة التسجيل", f"{attendance_rate:.1f}%")
     
     # مخطط بياني مبسط
@@ -1768,6 +1770,104 @@ elif st.session_state.page == "admin":
                         """, unsafe_allow_html=True)
             else:
                 st.info("🚫 لا توجد نتائج تطابق معايير البحث")
+
+        with tab4:
+            st.header("🔐 " + t("change_bus_password"))
+            
+            st.info("💡 هنا يمكنك تغيير كلمات مرور الباصات للسائقين")
+            
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.subheader("كلمات المرور الحالية")
+                for bus_num, password in st.session_state.bus_passwords.items():
+                    st.markdown(f"""
+                    <div class='metric-card'>
+                        <h4>🚍 الباص {bus_num}</h4>
+                        <h3>{password}</h3>
+                    </div>
+                    """, unsafe_allow_html=True)
+            
+            with col2:
+                st.subheader("تغيير كلمة المرور")
+                
+                with st.form("change_bus_password_form"):
+                    selected_bus = st.selectbox(
+                        t("select_bus_password"),
+                        ["1", "2", "3"],
+                        key="change_bus_select"
+                    )
+                    
+                    new_bus_password = st.text_input(
+                        t("new_password"),
+                        type="password",
+                        placeholder="أدخل كلمة المرور الجديدة...",
+                        key="new_bus_password"
+                    )
+                    
+                    confirm_bus_password = st.text_input(
+                        "تأكيد كلمة المرور",
+                        type="password", 
+                        placeholder="أعد إدخال كلمة المرور...",
+                        key="confirm_bus_password"
+                    )
+                    
+                    change_bus_submit = st.form_submit_button(t("save_changes"), use_container_width=True)
+                    
+                    if change_bus_submit:
+                        if not new_bus_password:
+                            st.error("❌ يرجى إدخال كلمة المرور الجديدة")
+                        elif new_bus_password != confirm_bus_password:
+                            st.error("❌ كلمات المرور غير متطابقة")
+                        else:
+                            st.session_state.bus_passwords[selected_bus] = new_bus_password
+                            save_data()
+                            st.success(f"✅ تم تغيير كلمة مرور الباص {selected_bus} بنجاح")
+                            st.rerun()
+
+        with tab5:
+            st.header("⚙️ " + t("change_admin_password"))
+            
+            st.warning("⚠️ كن حذراً عند تغيير كلمة مرور الإدارة")
+            
+            with st.form("change_admin_password_form"):
+                current_admin_password = st.text_input(
+                    "كلمة المرور الحالية",
+                    type="password",
+                    placeholder="أدخل كلمة المرور الحالية...",
+                    key="current_admin_password"
+                )
+                
+                new_admin_password = st.text_input(
+                    t("new_password"),
+                    type="password",
+                    placeholder="أدخل كلمة المرور الجديدة...",
+                    key="new_admin_password"
+                )
+                
+                confirm_admin_password = st.text_input(
+                    "تأكيد كلمة المرور الجديدة",
+                    type="password",
+                    placeholder="أعد إدخال كلمة المرور الجديدة...",
+                    key="confirm_admin_password"
+                )
+                
+                change_admin_submit = st.form_submit_button(t("save_changes"), use_container_width=True)
+                
+                if change_admin_submit:
+                    if not current_admin_password:
+                        st.error("❌ يرجى إدخال كلمة المرور الحالية")
+                    elif current_admin_password != st.session_state.admin_password:
+                        st.error("❌ كلمة المرور الحالية غير صحيحة")
+                    elif not new_admin_password:
+                        st.error("❌ يرجى إدخال كلمة المرور الجديدة")
+                    elif new_admin_password != confirm_admin_password:
+                        st.error("❌ كلمات المرور غير متطابقة")
+                    else:
+                        st.session_state.admin_password = new_admin_password
+                        save_data()
+                        st.success("✅ تم تغيير كلمة مرور الإدارة بنجاح")
+                        st.rerun()
 
 # ===== صفحة حول النظام المحدثة =====
 elif st.session_state.page == "about":
