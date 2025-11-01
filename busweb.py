@@ -1009,18 +1009,31 @@ def auto_save_reminder():
 
 def performance_optimization():
     """تحسينات الأداء"""
-    # تنظيف البيانات القديمة (أكثر من 30 يوم)
-    old_date = (datetime.datetime.now() - datetime.timedelta(days=30)).strftime("%Y-%m-%d")
-    old_records = st.session_state.attendance_df[
-        st.session_state.attendance_df["date"] < old_date
-    ]
-    
-    if len(old_records) > 100:  # إذا كان هناك أكثر من 100 سجل قديم
-        st.session_state.attendance_df = st.session_state.attendance_df[
-            st.session_state.attendance_df["date"] >= old_date
-        ]
-        save_data()
-        show_notification(f"تم تنظيف {len(old_records)} سجل قديم", "info")
+    try:
+        # تنظيف البيانات القديمة (أكثر من 30 يوم)
+        if st.session_state.attendance_df.empty:
+            return
+            
+        old_date = (datetime.datetime.now() - datetime.timedelta(days=30)).strftime("%Y-%m-%d")
+        
+        # طريقة أكثر أماناً للتعامل مع التواريخ
+        def is_old_date(date_str):
+            try:
+                return str(date_str) < old_date
+            except:
+                return False
+        
+        old_records_mask = st.session_state.attendance_df["date"].apply(is_old_date)
+        old_records = st.session_state.attendance_df[old_records_mask]
+        
+        if len(old_records) > 100:
+            st.session_state.attendance_df = st.session_state.attendance_df[~old_records_mask]
+            save_data()
+            show_notification(f"تم تنظيف {len(old_records)} سجل قديم", "info")
+            
+    except Exception as e:
+        # تسجيل الخطأ دون إيقاف التطبيق
+        print(f"Warning: Performance optimization skipped due to error: {e}")
 
 # ===== تطبيق الميزات المحسنة =====
 
