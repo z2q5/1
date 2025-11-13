@@ -8,9 +8,6 @@ import pickle
 from pathlib import Path
 import requests
 import time
-import smtplib
-from email.mime.text import MimeText
-from email.mime.multipart import MimeMultipart
 
 # ===== إعداد الصفحة =====
 st.set_page_config(
@@ -69,6 +66,8 @@ if "trusted_devices" not in st.session_state:
     st.session_state.trusted_devices = []
 if "activity_log" not in st.session_state:
     st.session_state.activity_log = []
+if "support_tickets" not in st.session_state:
+    st.session_state.support_tickets = []
 
 # ===== وظائف حفظ البيانات =====
 def save_data():
@@ -96,7 +95,8 @@ def save_data():
             "high_contrast": st.session_state.high_contrast,
             "two_factor_enabled": st.session_state.two_factor_enabled,
             "trusted_devices": st.session_state.trusted_devices,
-            "activity_log": st.session_state.activity_log
+            "activity_log": st.session_state.activity_log,
+            "support_tickets": st.session_state.support_tickets
         }
         with open(DATA_DIR / "settings.json", "w", encoding="utf-8") as f:
             json.dump(settings, f, ensure_ascii=False)
@@ -140,6 +140,7 @@ def load_data():
                 st.session_state.two_factor_enabled = settings.get("two_factor_enabled", False)
                 st.session_state.trusted_devices = settings.get("trusted_devices", [])
                 st.session_state.activity_log = settings.get("activity_log", [])
+                st.session_state.support_tickets = settings.get("support_tickets", [])
                 
     except Exception as e:
         st.error(f"خطأ في تحميل البيانات: {e}")
@@ -361,7 +362,7 @@ translations = {
         "tech4": "نسخ احتياطي تلقائي",
         
         # الميزات الجديدة
-        "support_title": "🤖 الدعم والمساعدة",
+        "support_title": "🤖 مركز الدعم والمساعدة",
         "ai_chat": "💬 محادثة مع المساعد الذكي",
         "contact_developer": "📧 التواصل مع المطور",
         "developer_email": "البريد الإلكتروني: eyadmustafaali99@gmail.com",
@@ -380,7 +381,17 @@ translations = {
         "common_questions": "أسئلة شائعة",
         "technical_support": "دعم فني",
         "feature_help": "مساعدة في الميزات",
-        "contact_human": "التواصل مع مدير النظام"
+        "contact_human": "التواصل مع مدير النظام",
+        
+        # تذاكر الدعم
+        "create_ticket": "🎫 إنشاء تذكرة دعم",
+        "ticket_subject": "موضوع التذكرة",
+        "ticket_message": "وصف المشكلة",
+        "ticket_priority": "أولوية التذكرة",
+        "ticket_status": "حالة التذكرة",
+        "ticket_created": "تم إنشاء التذكرة بنجاح",
+        "my_tickets": "تذاكري",
+        "all_tickets": "جميع التذاكر"
     },
     "en": {
         # Main Navigation
@@ -571,7 +582,7 @@ translations = {
         "tech4": "Automatic backup system",
         
         # New Features
-        "support_title": "🤖 Support & Help",
+        "support_title": "🤖 Support & Help Center",
         "ai_chat": "💬 Chat with AI Assistant",
         "contact_developer": "📧 Contact Developer",
         "developer_email": "Email: eyadmustafaali99@gmail.com",
@@ -590,7 +601,17 @@ translations = {
         "common_questions": "Common Questions",
         "technical_support": "Technical Support",
         "feature_help": "Feature Help",
-        "contact_human": "Contact System Manager"
+        "contact_human": "Contact System Manager",
+        
+        # Support Tickets
+        "create_ticket": "🎫 Create Support Ticket",
+        "ticket_subject": "Ticket Subject",
+        "ticket_message": "Problem Description",
+        "ticket_priority": "Ticket Priority",
+        "ticket_status": "Ticket Status",
+        "ticket_created": "Ticket created successfully",
+        "my_tickets": "My Tickets",
+        "all_tickets": "All Tickets"
     }
 }
 
@@ -1186,31 +1207,22 @@ def contact_developer_form():
         
         if st.form_submit_button("إرسال الرسالة"):
             if name and email and message:
-                # محاكاة إرسال البريد
-                send_email_to_developer(name, email, subject, message)
+                # حفظ الرسالة محلياً
+                contact_data = {
+                    "name": name,
+                    "email": email,
+                    "subject": subject,
+                    "message": message,
+                    "timestamp": datetime.datetime.now().isoformat()
+                }
+                
+                # حفظ في ملف
+                with open(DATA_DIR / "contact_messages.json", "a", encoding="utf-8") as f:
+                    f.write(json.dumps(contact_data, ensure_ascii=False) + "\n")
+                
                 st.success("✅ تم إرسال رسالتك بنجاح! سأرد عليك خلال 24 ساعة.")
             else:
                 st.error("❌ يرجى ملء جميع الحقول المطلوبة")
-
-def send_email_to_developer(name, email, subject, message):
-    """محاكاة إرسال بريد للمطور"""
-    # في التطبيق الحقيقي، هنا سيتم إرسال بريد إلكتروني فعلي
-    print(f"رسالة جديدة من: {name} ({email})")
-    print(f"الموضوع: {subject}")
-    print(f"الرسالة: {message}")
-    
-    # حفظ الرسالة محلياً
-    contact_data = {
-        "name": name,
-        "email": email,
-        "subject": subject,
-        "message": message,
-        "timestamp": datetime.datetime.now().isoformat()
-    }
-    
-    # حفظ في ملف (في التطبيق الحقيقي سيرسل للبريد)
-    with open(DATA_DIR / "contact_messages.json", "a", encoding="utf-8") as f:
-        f.write(json.dumps(contact_data, ensure_ascii=False) + "\n")
 
 # ===== نظام المزامنة الذكية =====
 def smart_sync_system():
@@ -1438,6 +1450,73 @@ def show_loading_animation(message="جاري التحميل..."):
         </style>
     </div>
     """, unsafe_allow_html=True)
+
+# ===== نظام تذاكر الدعم =====
+def support_tickets_system():
+    """نظام تذاكر الدعم"""
+    st.header("🎫 نظام تذاكر الدعم")
+    
+    tab1, tab2 = st.tabs(["إنشاء تذكرة جديدة", "التذاكر الحالية"])
+    
+    with tab1:
+        st.subheader("إنشاء تذكرة دعم جديدة")
+        
+        with st.form("support_ticket_form"):
+            ticket_subject = st.text_input("موضوع التذكرة", placeholder="أدخل موضوع المشكلة...")
+            ticket_priority = st.selectbox("أولوية التذكرة", ["منخفضة", "متوسطة", "عالية", "حرجة"])
+            ticket_message = st.text_area("وصف المشكلة", height=150, placeholder="صف مشكلتك بالتفصيل...")
+            
+            if st.form_submit_button("إنشاء التذكرة"):
+                if ticket_subject and ticket_message:
+                    new_ticket = {
+                        "id": len(st.session_state.support_tickets) + 1,
+                        "subject": ticket_subject,
+                        "priority": ticket_priority,
+                        "message": ticket_message,
+                        "status": "مفتوحة",
+                        "created_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
+                        "user": "مستخدم"
+                    }
+                    st.session_state.support_tickets.append(new_ticket)
+                    save_data()
+                    st.success("✅ تم إنشاء التذكرة بنجاح! رقم التذكرة: #" + str(new_ticket["id"]))
+                else:
+                    st.error("❌ يرجى ملء جميع الحقول المطلوبة")
+    
+    with tab2:
+        st.subheader("التذاكر الحالية")
+        
+        if not st.session_state.support_tickets:
+            st.info("🚫 لا توجد تذاكر دعم حالياً")
+        else:
+            for ticket in st.session_state.support_tickets:
+                priority_colors = {
+                    "منخفضة": "#10b981",
+                    "متوسطة": "#f59e0b", 
+                    "عالية": "#ef4444",
+                    "حرجة": "#dc2626"
+                }
+                
+                with st.container():
+                    st.markdown(f"""
+                    <div style='border: 1px solid #ddd; padding: 1rem; border-radius: 10px; margin: 0.5rem 0;'>
+                        <div style='display: flex; justify-content: space-between; align-items: start;'>
+                            <div>
+                                <h4 style='margin: 0;'>#{ticket['id']} - {ticket['subject']}</h4>
+                                <p style='margin: 0.5rem 0; opacity: 0.8;'>{ticket['message']}</p>
+                            </div>
+                            <div style='text-align: right;'>
+                                <span style='background: {priority_colors.get(ticket['priority'], '#6b7280')}; color: white; padding: 0.25rem 0.5rem; border-radius: 20px; font-size: 0.8rem;'>
+                                    {ticket['priority']}
+                                </span>
+                                <p style='margin: 0.5rem 0; font-size: 0.8rem; opacity: 0.7;'>🕒 {ticket['created_at']}</p>
+                                <span style='background: #3b82f6; color: white; padding: 0.25rem 0.5rem; border-radius: 20px; font-size: 0.8rem;'>
+                                    {ticket['status']}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
 
 # ===== تطبيق الميزات المحسنة =====
 
@@ -2272,7 +2351,7 @@ elif st.session_state.page == "admin":
                         st.success("✅ تم تغيير كلمة مرور الإدارة بنجاح")
                         st.rerun()
 
-# ===== صفحة الدعم المحدثة =====
+# ===== صفحة الدعم الجديدة =====
 elif st.session_state.page == "support":
     st.markdown(f"<h2 class='section-title'>🤖 مركز الدعم والمساعدة</h2>", unsafe_allow_html=True)
     
@@ -2304,9 +2383,9 @@ elif st.session_state.page == "support":
         """, unsafe_allow_html=True)
     
     # المحتوى الرئيسي
-    tab1, tab2, tab3, tab4 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "المساعد الذكي", "التواصل مع المطور", 
-        "المزامنة والأمان", "اللمسات المميزة"
+        "نظام التذاكر", "المزامنة والأمان", "اللمسات المميزة"
     ])
     
     with tab1:
@@ -2322,13 +2401,16 @@ elif st.session_state.page == "support":
         contact_developer_form()
     
     with tab3:
+        support_tickets_system()
+    
+    with tab4:
         col1, col2 = st.columns(2)
         with col1:
             smart_sync_system()
         with col2:
             enhanced_security_system()
     
-    with tab4:
+    with tab5:
         premium_final_touches()
 
 # ===== صفحة حول النظام المحدثة =====
