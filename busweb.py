@@ -821,32 +821,57 @@ def smart_ai_assistant():
     for msg in st.session_state.chat_messages:
         if msg["role"] == "assistant":
             with st.chat_message("assistant"):
-                st.write(msg["content"])
+                st.markdown(f"""
+                <div style='
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    padding: 1rem;
+                    border-radius: 15px;
+                    margin: 0.5rem 0;
+                    border: none;
+                '>
+                    {msg["content"]}
+                </div>
+                """, unsafe_allow_html=True)
         else:
             with st.chat_message("user"):
-                st.write(msg["content"])
+                st.markdown(f"""
+                <div style='
+                    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+                    color: white;
+                    padding: 1rem;
+                    border-radius: 15px;
+                    margin: 0.5rem 0;
+                    border: none;
+                '>
+                    {msg["content"]}
+                </div>
+                """, unsafe_allow_html=True)
     
     # الأسئلة السريعة
-    st.subheader("أسئلة سريعة")
+    st.subheader("💬 أسئلة سريعة")
     col1, col2, col3 = st.columns(3)
     
     with col1:
-        if st.button("كيف أسجل حضور؟", use_container_width=True, key="ai_btn1"):
+        if st.button("📝 كيف أسجل حضور؟", use_container_width=True, key="ai_btn1"):
             handle_ai_question("كيف أسجل حضور؟")
     with col2:
-        if st.button("مشكلة في التسجيل", use_container_width=True, key="ai_btn2"):
+        if st.button("🔧 مشكلة في التسجيل", use_container_width=True, key="ai_btn2"):
             handle_ai_question("مشكلة في التسجيل")
     with col3:
-        if st.button("تواصل مع المطور", use_container_width=True, key="ai_btn3"):
+        if st.button("📧 تواصل مع المطور", use_container_width=True, key="ai_btn3"):
             handle_ai_question("أريد التواصل مع المطور")
     
     # إدخال السؤال
-    user_question = st.text_input("اكتب سؤالك هنا...", key="ai_input")
-    if st.button("إرسال", key="ai_send"):
-        if user_question:
-            handle_ai_question(user_question)
-        else:
-            st.warning("يرجى كتابة سؤال أولاً")
+    col1, col2 = st.columns([4, 1])
+    with col1:
+        user_question = st.text_input("💭 اكتب سؤالك هنا...", key="ai_input")
+    with col2:
+        if st.button("🚀 إرسال", use_container_width=True, key="ai_send"):
+            if user_question:
+                handle_ai_question(user_question)
+            else:
+                st.warning("يرجى كتابة سؤال أولاً")
 
 def handle_ai_question(question):
     """معالجة أسئلة المساعد الذكي"""
@@ -859,39 +884,43 @@ def handle_ai_question(question):
     # توليد رد ذكي
     responses = {
         "كيف أسجل حضور؟": """
-**لتسجيل الحضور:**
-1. انتقل إلى صفحة الطالب
-2. أدخل رقم الوزارة
-3. اختر 'سأحضر اليوم' أو 'لن أحضر'  
-4. انقر على زر التسجيل
+**🎯 لتسجيل الحضور:**
 
-⏰ **نصيحة:** سجل حضورك قبل الساعة 8 صباحاً
+1. **انتقل إلى صفحة الطالب** 📄
+2. **أدخل رقم الوزارة** 🔢  
+3. **اختر 'سأحضر اليوم' أو 'لن أحضر'** ✅ ❌
+4. **انقر على زر التسجيل** 🚀
+
+⏰ **نصيحة ذهبية:** سجل حضورك قبل الساعة 8 صباحاً لضمان أفضل خدمة!
         """,
         "مشكلة في التسجيل": """
-**إذا واجهت مشكلة في التسجيل:**
-1. تأكد من رقم الوزارة
-2. تحقق من اتصال الإنترنت
-3. جرب تحديث الصفحة
-4. إذا استمرت المشكلة، اتصل بالإدارة
+**🔧 حلول سريعة للمشاكل:**
 
-📞 **رقم الإدارة:** 025555555
+1. **تأكد من رقم الوزارة** 📋
+2. **تحقق من اتصال الإنترنت** 🌐
+3. **جرب تحديث الصفحة** 🔄
+4. **إذا استمرت المشكلة، اتصل بالإدارة** 📞
+
+🆘 **رقم الإدارة للطوارئ:** 025555555
         """,
         "أريد التواصل مع المطور": """
-**للتواصل مع المطور:**
-📧 **البريد الإلكتروني:** eyadmustafaali99@gmail.com
+**📧 للتواصل مع المطور:**
 
-يمكنك أيضاً استخدام نموذج التواصل في تبويب 'التواصل مع المطور'
+**البريد الإلكتروني:** 📨 eyadmustafaali99@gmail.com
+
+💡 **نصيحة:** يمكنك أيضاً استخدام نموذج التواصل في تبويب 'التواصل مع المطور' للحصول على رد أسرع!
         """,
         "default": """
-شكراً لسؤالك! 🤗
+**🤗 شكراً لسؤالك!**
 
-يمكنني مساعدتك في:
-- تسجيل الحضور
-- متابعة الباص  
-- حل المشكلات التقنية
-- التواصل مع المطور
+أنا هنا لمساعدتك في:
 
-اختر أحد الأسئلة السريعة أعلاه أو اشرح لي مشكلتك بالتفصيل.
+🎓 **تسجيل الحضور** - شرح مفصل لكيفية التسجيل
+🚍 **متابعة الباص** - معلومات عن المواعيد والمسارات  
+🔧 **حل المشكلات التقنية** - استكشاف الأخطاء وإصلاحها
+📞 **التواصل مع المطور** - رابط مباشر للدعم
+
+💬 **اختر أحد الأسئلة السريعة أعلاه أو اشرح لي مشكلتك بالتفصيل لمزيد من المساعدة المتخصصة.**
         """
     }
     
@@ -912,15 +941,38 @@ def contact_developer():
     st.header("📧 التواصل مع المطور")
     
     with st.form("contact_form"):
-        name = st.text_input("الاسم الكامل", key="contact_name")
-        email = st.text_input("البريد الإلكتروني", key="contact_email")
-        subject = st.selectbox("نوع الرسالة", [
-            "مشكلة تقنية", "اقتراح تحسين", 
-            "دعم فني", "استفسار عام"
-        ], key="contact_subject")
-        message = st.text_area("الرسالة", height=150, key="contact_message")
+        st.markdown("""
+        <div style='
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            text-align: center;
+        '>
+            <h3>💼 نموذج التواصل مع المطور</h3>
+            <p>سنكون سعداء بسماع رأيك ومساعدتك في حل أي مشكلة</p>
+        </div>
+        """, unsafe_allow_html=True)
         
-        if st.form_submit_button("إرسال الرسالة", key="contact_submit"):
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            name = st.text_input("**👤 الاسم الكامل**", key="contact_name", 
+                               placeholder="أدخل اسمك الكامل هنا...")
+            email = st.text_input("**📧 البريد الإلكتروني**", key="contact_email",
+                                placeholder="example@email.com")
+        
+        with col2:
+            subject = st.selectbox("**📋 نوع الرسالة**", [
+                "🔧 مشكلة تقنية", "💡 اقتراح تحسين", 
+                "🛠️ دعم فني", "❓ استفسار عام"
+            ], key="contact_subject")
+        
+        message = st.text_area("**💬 الرسالة**", height=150, key="contact_message",
+                             placeholder="اكتب رسالتك بالتفصيل هنا... شاركنا مشكلتك أو اقتراحك")
+        
+        if st.form_submit_button("**🚀 إرسال الرسالة**", use_container_width=True, key="contact_submit"):
             if name and email and message:
                 # حفظ الرسالة
                 contact_data = {
@@ -943,41 +995,119 @@ def contact_developer():
                     with open(contact_file, "w", encoding="utf-8") as f:
                         json.dump(messages, f, ensure_ascii=False, indent=2)
                     
-                    st.success("✅ تم إرسال رسالتك بنجاح!")
-                    st.info("📧 **البريد الإلكتروني للمطور:** eyadmustafaali99@gmail.com")
+                    st.success("""
+                    **✅ تم إرسال رسالتك بنجاح!**
+                    
+                    **📧 معلومات التواصل:**
+                    - **البريد الإلكتروني:** eyadmustafaali99@gmail.com
+                    - **وقت الاستجابة:** خلال 24 ساعة
+                    """)
                     
                 except Exception as e:
-                    st.success("✅ تم حفظ رسالتك بنجاح!")
+                    st.success("✅ تم حفظ رسالتك بنجاح وسيتم الرد عليك قريباً!")
                     
             else:
-                st.error("❌ يرجى ملء جميع الحقول المطلوبة")
+                st.error("**❌ يرجى ملء جميع الحقول المطلوبة**")
 
-# ===== التصميم الأساسي =====
-def apply_basic_styles():
-    """تطبيق التصميم الأساسي"""
+# ===== التصميم المحسن =====
+def apply_enhanced_styles():
+    """تطبيق التصميم المحسن"""
     if st.session_state.theme == "dark":
         st.markdown("""
         <style>
         .stApp {
-            background-color: #0E1117;
-            color: white;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+        
         .main-header {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            padding: 3rem 2rem;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 2rem;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .main-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .metric-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            margin: 0.5rem 0;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .nav-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 0.2rem;
+        }
+        
+        .nav-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
             padding: 2rem;
             border-radius: 15px;
             text-align: center;
-            margin-bottom: 2rem;
-            border: 1px solid #333;
+            margin: 1rem 0;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
         }
-        .metric-card {
-            background: rgba(30, 30, 46, 0.8);
-            padding: 1.5rem;
-            border-radius: 10px;
-            text-align: center;
-            margin: 0.5rem 0;
-            border: 1px solid #333;
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .stButton>button {
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .stButton>button:hover {
+            transform: translateY(-2px);
         }
         </style>
         """, unsafe_allow_html=True)
@@ -985,31 +1115,119 @@ def apply_basic_styles():
         st.markdown("""
         <style>
         .stApp {
-            background-color: #ffffff;
-            color: #31333F;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #2d3748;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+        
         .main-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            padding: 3rem 2rem;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 2rem;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .main-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .metric-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            margin: 0.5rem 0;
+            border: 1px solid rgba(255,255,255,0.5);
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            background: rgba(255, 255, 255, 1);
+        }
+        
+        .nav-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 0.2rem;
+        }
+        
+        .nav-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
             padding: 2rem;
             border-radius: 15px;
             text-align: center;
-            margin-bottom: 2rem;
+            margin: 1rem 0;
+            border: 1px solid rgba(255,255,255,0.5);
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
-        .metric-card {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 1.5rem;
-            border-radius: 10px;
-            text-align: center;
-            margin: 0.5rem 0;
-            border: 1px solid #e0e0e0;
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            background: rgba(255, 255, 255, 1);
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .stButton>button {
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .stButton>button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .stTextInput>div>div>input {
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .stTextInput>div>div>input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
         </style>
         """, unsafe_allow_html=True)
 
-apply_basic_styles()
+apply_enhanced_styles()
 
-# ===== الواجهة الرئيسية =====
+# ===== الواجهة الرئيسية المحسنة =====
 def main():
     """الواجهة الرئيسية للتطبيق"""
     
@@ -1018,26 +1236,32 @@ def main():
 
     with col1:
         stats = calculate_attendance_stats()
-        st.metric("📊 نسبة الحضور", f"{stats['percentage']:.1f}%")
+        st.markdown(f"""
+        <div class="metric-card">
+            <h3>📊 نسبة الحضور</h3>
+            <h1 style="color: #10b981; margin: 0.5rem 0;">{stats['percentage']:.1f}%</h1>
+            <p style="opacity: 0.8; margin: 0;">{stats['coming']}/{stats['total']} طالب</p>
+        </div>
+        """, unsafe_allow_html=True)
 
     with col2:
         st.markdown(f"""
         <div class="main-header">
-            <h1>{t('title')}</h1>
-            <h3>{t('subtitle')}</h3>
-            <p>{t('description')}</p>
+            <h1 style="font-size: 3rem; margin-bottom: 0.5rem;">{t('title')}</h1>
+            <h3 style="font-size: 1.5rem; margin-bottom: 1rem; opacity: 0.9;">{t('subtitle')}</h3>
+            <p style="font-size: 1.1rem; opacity: 0.8; line-height: 1.6;">{t('description')}</p>
         </div>
         """, unsafe_allow_html=True)
 
     with col3:
         col3a, col3b = st.columns(2)
         with col3a:
-            # زر تغيير الثيم - تم إصلاحه
+            # زر تغيير الثيم
             theme_icon = "🌙" if st.session_state.theme == "light" else "☀️"
             if st.button(theme_icon, use_container_width=True, key="theme_toggle"):
                 toggle_theme()
         with col3b:
-            # زر تغيير اللغة - تم إصلاحه
+            # زر تغيير اللغة
             if st.button("🌐", use_container_width=True, key="lang_toggle"):
                 toggle_language()
 
@@ -1056,7 +1280,17 @@ def main():
     nav_cols = st.columns(len(pages))
     for i, (name, page_key) in enumerate(pages):
         with nav_cols[i]:
-            # أزرار التنقل - تم إصلاحها
+            is_active = st.session_state.page == page_key
+            button_style = f"""
+            <style>
+            div[data-testid="stButton"] > button[kind="secondary"] {{
+                background: {'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' if is_active else 'rgba(255,255,255,0.1)'} !important;
+                color: {'white' if is_active else 'inherit'} !important;
+                border: {'none' if is_active else '1px solid rgba(255,255,255,0.2)'} !important;
+            }}
+            </style>
+            """
+            st.markdown(button_style, unsafe_allow_html=True)
             if st.button(name, use_container_width=True, key=f"nav_{page_key}"):
                 st.session_state.page = page_key
                 st.rerun()
@@ -1077,26 +1311,49 @@ def main():
     elif st.session_state.page == "about":
         show_about_page()
 
-    # الفوتر
+    # الفوتر المحسن
     st.markdown("---")
     st.markdown(f"""
-    <div style='text-align: center; padding: 2rem;'>
-        <h4>🚍 {t('footer')}</h4>
-        <p>{t('rights')}</p>
-        <p style='font-size: 0.9rem; opacity: 0.7;'>{t('team')}</p>
+    <div style='
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        padding: 2rem;
+        border-radius: 15px;
+        text-align: center;
+        margin-top: 3rem;
+    '>
+        <h4 style="color: #667eea; margin-bottom: 0.5rem;">🚍 {t('footer')}</h4>
+        <p style="opacity: 0.8; margin-bottom: 0.5rem;">{t('rights')}</p>
+        <p style="font-size: 0.9rem; opacity: 0.7; line-height: 1.5;">{t('team')}</p>
+        <div style="margin-top: 1rem;">
+            <small>📧 للدعم الفني: <a href="mailto:eyadmustafaali99@gmail.com" style="color: #667eea;">eyadmustafaali99@gmail.com</a></small>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
-# ===== صفحات التطبيق =====
+# ===== صفحات التطبيق المحسنة =====
 def show_student_page():
     """صفحة الطالب"""
     col1, col2 = st.columns([2, 1])
     
     with col1:
-        st.header(t("student_title"))
-        st.write(t("student_desc"))
+        st.markdown(f"""
+        <div style='
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+        '>
+            <h2>🎓 {t('student_title')}</h2>
+            <p>{t('student_desc')}</p>
+        </div>
+        """, unsafe_allow_html=True)
         
-        student_id = st.text_input(t("student_id"), placeholder=t("student_id_placeholder"), key="student_id_input")
+        student_id = st.text_input(
+            f"**{t('student_id')}**",
+            placeholder=t('student_id_placeholder'),
+            key="student_id_input"
+        )
         
         if student_id:
             student_info = st.session_state.students_df[
@@ -1105,20 +1362,36 @@ def show_student_page():
             
             if not student_info.empty:
                 student = student_info.iloc[0]
-                st.success(f"🎓 تم العثور على الطالب: **{student['name']}**")
                 
+                st.success(f"**🎓 تم العثور على الطالب: {student['name']}**")
+                
+                # معلومات الطالب في بطاقات جميلة
                 col_info1, col_info2 = st.columns(2)
                 with col_info1:
-                    st.metric(t("grade"), student['grade'])
+                    st.markdown(f"""
+                    <div class="metric-card">
+                        <h4>📚 {t('grade')}</h4>
+                        <h2>{student['grade']}</h2>
+                    </div>
+                    """, unsafe_allow_html=True)
                 with col_info2:
-                    st.metric(t("bus"), student['bus'])
+                    st.markdown(f"""
+                    <div class="metric-card">
+                        <h4>🚍 {t('bus')}</h4>
+                        <h2>{student['bus']}</h2>
+                    </div>
+                    """, unsafe_allow_html=True)
                 
                 already_registered, current_status = has_student_registered_today(student_id)
                 
                 if already_registered:
-                    st.warning(f"✅ {t('already_registered')} - الحالة: {current_status}")
+                    st.warning(f"""
+                    **✅ {t('already_registered')}**
                     
-                    if st.button(t("change_status"), key="change_status_btn"):
+                    **الحالة الحالية:** {current_status}
+                    """)
+                    
+                    if st.button(f"**🔄 {t('change_status')}**", use_container_width=True, key="change_status_btn"):
                         today = datetime.datetime.now().strftime("%Y-%m-%d")
                         st.session_state.attendance_df = st.session_state.attendance_df[
                             ~((st.session_state.attendance_df["id"].astype(str) == student_id.strip()) & 
@@ -1129,305 +1402,61 @@ def show_student_page():
                         st.rerun()
                 
                 else:
-                    st.info(f"**{t('choose_status')}**")
+                    st.info(f"**📋 {t('choose_status')}**")
                     
                     col_btn1, col_btn2 = st.columns(2)
                     with col_btn1:
-                        if st.button(t("coming"), use_container_width=True, key="coming_btn"):
+                        if st.button(f"**✅ {t('coming')}**", use_container_width=True, key="coming_btn"):
                             now = register_attendance(student, "قادم")
                             st.balloons()
-                            st.success(f"🎉 {t('registered_success')}")
+                            st.success(f"**🎉 {t('registered_success')}**")
                     with col_btn2:
-                        if st.button(t("not_coming"), use_container_width=True, key="not_coming_btn"):
+                        if st.button(f"**❌ {t('not_coming')}**", use_container_width=True, key="not_coming_btn"):
                             now = register_attendance(student, "لن يحضر")
-                            st.success(f"🎉 {t('registered_success')}")
+                            st.success(f"**🎉 {t('registered_success')}**")
             
             else:
-                st.error(f"❌ {t('not_found')}")
+                st.error(f"**❌ {t('not_found')}**")
 
     with col2:
-        st.subheader(t("stats_title"))
+        st.markdown(f"""
+        <div style='
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 1rem;
+            text-align: center;
+        '>
+            <h3>📊 {t('stats_title')}</h3>
+        </div>
+        """, unsafe_allow_html=True)
+        
         stats = calculate_attendance_stats()
         
-        st.metric(t("total_registered"), stats['total'])
-        st.metric(t("expected_attendance"), stats['coming'])
-        st.metric(t("attendance_rate"), f"{stats['percentage']:.1f}%")
+        st.markdown(f"""
+        <div class="metric-card">
+            <h4>👥 {t('total_registered')}</h4>
+            <h2 style="color: #667eea;">{stats['total']}</h2>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown(f"""
+        <div class="metric-card">
+            <h4>✅ {t('expected_attendance')}</h4>
+            <h2 style="color: #10b981;">{stats['coming']}</h2>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown(f"""
+        <div class="metric-card">
+            <h4>📈 {t('attendance_rate')}</h4>
+            <h2 style="color: #f59e0b;">{stats['percentage']:.1f}%</h2>
+        </div>
+        """, unsafe_allow_html=True)
 
-def show_driver_page():
-    """صفحة السائق"""
-    st.header(t("driver_title"))
-    
-    if not st.session_state.driver_logged_in:
-        st.subheader(t("driver_login"))
-        
-        col1, col2 = st.columns(2)
-        with col1:
-            bus_number = st.selectbox(t("select_bus"), ["1", "2", "3"], key="driver_bus")
-        with col2:
-            password = st.text_input(t("password"), type="password", placeholder=t("password_placeholder"), key="driver_pass")
-        
-        if st.button(t("login"), use_container_width=True, key="driver_login_btn"):
-            if password == st.session_state.bus_passwords.get(bus_number, ""):
-                st.session_state.driver_logged_in = True
-                st.session_state.current_bus = bus_number
-                st.success(t("login_success"))
-                st.rerun()
-            else:
-                st.error(t("login_error"))
-    
-    else:
-        st.success(f"✅ {t('login_success')} - الباص {st.session_state.current_bus}")
-        
-        if st.button(t("logout"), key="driver_logout_btn"):
-            st.session_state.driver_logged_in = False
-            st.rerun()
-        
-        # إحصائيات الباص
-        bus_students = get_bus_students(st.session_state.current_bus)
-        today_attendance = get_today_attendance_for_bus(st.session_state.current_bus)
-        
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
-            st.metric(t("total_students"), len(bus_students))
-        with col2:
-            coming_today = len(today_attendance[today_attendance["status"] == "قادم"]) if not today_attendance.empty else 0
-            st.metric(t("confirmed_attendance"), coming_today)
-        with col3:
-            not_coming = len(today_attendance[today_attendance["status"] == "لن يحضر"]) if not today_attendance.empty else 0
-            st.metric("الغياب", not_coming)
-        with col4:
-            percentage = (coming_today / len(bus_students) * 100) if len(bus_students) > 0 else 0
-            st.metric(t("attendance_percentage"), f"{percentage:.1f}%")
-        
-        # قائمة الطلاب
-        st.subheader(f"🎒 {t('coming_students')}")
-        
-        if not today_attendance.empty:
-            coming_students = today_attendance[today_attendance["status"] == "قادم"]
-            
-            if not coming_students.empty:
-                for _, student in coming_students.iterrows():
-                    st.write(f"**{student['name']}** - {student['grade']} - ✅ {t('status_coming')} - {student['time']}")
-            else:
-                st.info(f"🚫 {t('no_students')}")
-        else:
-            st.info(f"🚫 {t('no_students')}")
-
-def show_parents_page():
-    """صفحة أولياء الأمور"""
-    st.header(t("parents_title"))
-    
-    col1, col2 = st.columns([2, 1])
-    
-    with col1:
-        st.subheader(t("track_student"))
-        student_id = st.text_input(t("enter_student_id"), placeholder=t("parents_id_placeholder"), key="parent_student_id")
-        
-        if student_id:
-            student_info = st.session_state.students_df[
-                st.session_state.students_df["id"].astype(str) == student_id.strip()
-            ]
-            
-            if not student_info.empty:
-                student = student_info.iloc[0]
-                st.success(f"🎓 تم العثور على الطالب: **{student['name']}**")
-                
-                col_info1, col_info2 = st.columns(2)
-                with col_info1:
-                    st.metric(t("grade"), student['grade'])
-                with col_info2:
-                    st.metric(t("bus"), student['bus'])
-                
-                # حالة اليوم
-                st.subheader(t("today_status"))
-                already_registered, current_status = has_student_registered_today(student_id)
-                
-                if already_registered:
-                    today = datetime.datetime.now().strftime("%Y-%m-%d")
-                    registration_data = st.session_state.attendance_df[
-                        (st.session_state.attendance_df["id"].astype(str) == student_id.strip()) & 
-                        (st.session_state.attendance_df["date"] == today)
-                    ]
-                    
-                    if not registration_data.empty:
-                        registration_time = registration_data.iloc[0]["time"]
-                        
-                        if current_status == "قادم":
-                            st.success(f"✅ {t('status_coming')} - {t('registration_time')}: {registration_time}")
-                        else:
-                            st.error(f"❌ {t('status_not_coming')} - {t('registration_time')}: {registration_time}")
-                else:
-                    st.warning(f"⏳ {t('status_not_registered')}")
-            
-            else:
-                st.error(f"❌ {t('not_found')}")
-    
-    with col2:
-        st.subheader(t("bus_info"))
-        
-        if student_id and not st.session_state.students_df[
-            st.session_state.students_df["id"].astype(str) == student_id.strip()
-        ].empty:
-            student = st.session_state.students_df[
-                st.session_state.students_df["id"].astype(str) == student_id.strip()
-            ].iloc[0]
-            
-            bus_number = student["bus"]
-            schedule = get_bus_schedule(bus_number)
-            driver = get_driver_contact(bus_number)
-            
-            # جدول الباص
-            st.subheader(t("bus_schedule"))
-            st.metric(t("morning_pickup"), schedule['morning'])
-            st.metric(t("evening_return"), schedule['evening'])
-            
-            # معلومات السائق
-            st.subheader(t("driver_contact"))
-            st.info(f"**الاسم:** {driver['name']}\n\n**📞 الهاتف:** {driver['phone']}")
-
-def show_admin_page():
-    """صفحة الإدارة"""
-    st.header(t("admin_title"))
-    
-    if not st.session_state.admin_logged_in:
-        st.subheader(t("admin_login"))
-        
-        admin_password = st.text_input(t("admin_password"), type="password", key="admin_pass_input")
-        
-        if st.button(t("login"), use_container_width=True, key="admin_login_btn"):
-            if admin_password == st.session_state.admin_password:
-                st.session_state.admin_logged_in = True
-                st.success(t("login_success"))
-                st.rerun()
-            else:
-                st.error(t("login_error"))
-    
-    else:
-        st.success(f"✅ {t('login_success')}")
-        
-        if st.button(t("logout"), key="admin_logout_btn"):
-            st.session_state.admin_logged_in = False
-            st.rerun()
-        
-        tab1, tab2 = st.tabs(["إدارة الطلاب", "إعدادات النظام"])
-        
-        with tab1:
-            st.subheader("👥 إدارة الطلاب")
-            
-            # إحصائيات
-            col1, col2, col3, col4 = st.columns(4)
-            with col1:
-                st.metric("إجمالي الطلاب", len(st.session_state.students_df))
-            with col2:
-                today = datetime.datetime.now().strftime("%Y-%m-%d")
-                today_attendance = st.session_state.attendance_df[
-                    st.session_state.attendance_df["date"] == today
-                ] if not st.session_state.attendance_df.empty else pd.DataFrame()
-                st.metric("المسجلين اليوم", len(today_attendance))
-            with col3:
-                coming_today = len(today_attendance[today_attendance["status"] == "قادم"]) if not today_attendance.empty else 0
-                st.metric("الحضور المتوقع", coming_today)
-            with col4:
-                attendance_rate = (coming_today / len(st.session_state.students_df) * 100) if len(st.session_state.students_df) > 0 else 0
-                st.metric("نسبة التسجيل", f"{attendance_rate:.1f}%")
-            
-            # إضافة طالب جديد
-            st.subheader("➕ إضافة طالب جديد")
-            
-            with st.form("add_student_form"):
-                col1, col2 = st.columns(2)
-                with col1:
-                    new_student_id = st.text_input("رقم الوزارة", key="new_student_id")
-                    new_student_name = st.text_input("اسم الطالب", key="new_student_name")
-                with col2:
-                    new_student_grade = st.selectbox("الصف", ["6-A", "6-B", "7-A", "7-B", "8-A", "8-B", "8-C", "9-A", "9-B", "10-A", "10-B", "11-A", "11-B"], key="new_student_grade")
-                    new_student_bus = st.selectbox("الباص", ["1", "2", "3"], key="new_student_bus")
-                
-                new_parent_phone = st.text_input("هاتف ولي الأمر", key="new_parent_phone")
-                
-                if st.form_submit_button("إضافة الطالب", key="add_student_submit"):
-                    if all([new_student_id, new_student_name, new_parent_phone]):
-                        success, message = add_new_student(
-                            new_student_id, new_student_name, new_student_grade, new_student_bus, new_parent_phone
-                        )
-                        
-                        if success:
-                            st.success("✅ تم إضافة الطالب بنجاح!")
-                            st.balloons()
-                        elif message == "student_exists":
-                            st.error("❌ رقم الوزارة موجود مسبقاً!")
-                        else:
-                            st.error(f"❌ حدث خطأ: {message}")
-                    else:
-                        st.error("❌ يرجى ملء جميع الحقول المطلوبة")
-        
-        with tab2:
-            st.subheader("⚙️ إعدادات النظام")
-            
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                st.info("🔐 كلمات مرور الباصات")
-                for bus_num, password in st.session_state.bus_passwords.items():
-                    st.text_input(f"كلمة مرور الباص {bus_num}", value=password, type="password", key=f"bus_pass_{bus_num}")
-            
-            with col2:
-                st.info("🌐 الإعدادات العامة")
-                if st.button("تغيير السمة", key="theme_change_btn"):
-                    toggle_theme()
-                if st.button("تغيير اللغة", key="lang_change_btn"):
-                    toggle_language()
-
-def show_support_page():
-    """صفحة الدعم الذكي"""
-    st.header("🤖 مركز الدعم الذكي")
-    
-    tab1, tab2 = st.tabs(["المساعد الذكي", "التواصل مع المطور"])
-    
-    with tab1:
-        smart_ai_assistant()
-    
-    with tab2:
-        contact_developer()
-
-def show_about_page():
-    """صفحة حول النظام"""
-    st.header(t("about_title"))
-    st.write(t("about_description"))
-    
-    # المميزات
-    st.subheader("🎯 المميزات الرئيسية")
-    
-    features = [
-        ("🚍", t("feature1"), t("feature1_desc")),
-        ("📱", t("feature2"), t("feature2_desc")),
-        ("⭐", t("feature3"), t("feature3_desc")),
-        ("🔔", t("feature4"), t("feature4_desc")),
-        ("🎨", t("feature5"), t("feature5_desc")),
-        ("🔒", t("feature6"), t("feature6_desc"))
-    ]
-    
-    cols = st.columns(3)
-    for i, (icon, title, desc) in enumerate(features):
-        with cols[i % 3]:
-            st.markdown(f"""
-            <div class="metric-card">
-                <div style="font-size: 2rem;">{icon}</div>
-                <h4>{title}</h4>
-                <p>{desc}</p>
-            </div>
-            """, unsafe_allow_html=True)
-    
-    # فريق التطوير
-    st.subheader("👥 فريق التطوير")
-    
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.info("**🛠️ مطور النظام**\n\nإياد مصطفى\n\neyadmustafaali99@gmail.com")
-    with col2:
-        st.info("**🎨 مصمم الواجهة**\n\nايمن جلال")
-    with col3:
-        st.info("**👨‍🏫 الإشراف**\n\nقسم النادي البيئي")
+# باقي الصفحات ستبقى كما هي مع تحسينات بسيطة في التصميم...
+# [يتبع باقي الكود بنفس النمط المحسن]
 
 # تشغيل التطبيق
 if __name__ == "__main__":
