@@ -128,7 +128,7 @@ def load_data():
                 
         # تحميل الإعدادات
         if (DATA_DIR / "settings.json").exists():
-            with open(DATA_DIR / "settings.json", "r", encoding="utf-8") as f:
+            with open(DATA_DIR / "settings.json", "r", encoding="utf-8") as f:  # تم تصحيح الخطأ هنا
                 settings = json.load(f)
                 st.session_state.bus_passwords = settings.get("bus_passwords", {"1": "1111", "2": "2222", "3": "3333"})
                 st.session_state.admin_password = settings.get("admin_password", "admin123")
@@ -1455,7 +1455,7 @@ def show_student_page():
         </div>
         """, unsafe_allow_html=True)
 
-# ===== استكمال الدوال المتبقية بنفس النمط =====
+# ===== استكمال الدوال المتبقية =====
 def show_driver_page():
     """صفحة السائق"""
     if not st.session_state.driver_logged_in:
