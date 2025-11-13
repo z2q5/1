@@ -367,7 +367,7 @@ translations = {
         
         # محادثات الدعم
         "support_welcome": "مرحباً! أنا المساعد الذكي لنظام الباص. كيف يمكنني مساعدتك؟",
-        "common_questions": "أسئلة شائعة",
+        "common_questions": "أسئلة سريعة",
         "technical_support": "دعم فني",
         "feature_help": "مساعدة في الميزات",
         "contact_human": "التواصل مع مدير النظام",
@@ -831,19 +831,22 @@ def smart_ai_assistant():
     col1, col2, col3 = st.columns(3)
     
     with col1:
-        if st.button("كيف أسجل حضور؟", use_container_width=True):
+        if st.button("كيف أسجل حضور؟", use_container_width=True, key="ai_btn1"):
             handle_ai_question("كيف أسجل حضور؟")
     with col2:
-        if st.button("مشكلة في التسجيل", use_container_width=True):
+        if st.button("مشكلة في التسجيل", use_container_width=True, key="ai_btn2"):
             handle_ai_question("مشكلة في التسجيل")
     with col3:
-        if st.button("تواصل مع المطور", use_container_width=True):
+        if st.button("تواصل مع المطور", use_container_width=True, key="ai_btn3"):
             handle_ai_question("أريد التواصل مع المطور")
     
     # إدخال السؤال
-    user_question = st.text_input("اكتب سؤالك هنا...")
-    if st.button("إرسال") and user_question:
-        handle_ai_question(user_question)
+    user_question = st.text_input("اكتب سؤالك هنا...", key="ai_input")
+    if st.button("إرسال", key="ai_send"):
+        if user_question:
+            handle_ai_question(user_question)
+        else:
+            st.warning("يرجى كتابة سؤال أولاً")
 
 def handle_ai_question(question):
     """معالجة أسئلة المساعد الذكي"""
@@ -909,15 +912,15 @@ def contact_developer():
     st.header("📧 التواصل مع المطور")
     
     with st.form("contact_form"):
-        name = st.text_input("الاسم الكامل")
-        email = st.text_input("البريد الإلكتروني")
+        name = st.text_input("الاسم الكامل", key="contact_name")
+        email = st.text_input("البريد الإلكتروني", key="contact_email")
         subject = st.selectbox("نوع الرسالة", [
             "مشكلة تقنية", "اقتراح تحسين", 
             "دعم فني", "استفسار عام"
-        ])
-        message = st.text_area("الرسالة", height=150)
+        ], key="contact_subject")
+        message = st.text_area("الرسالة", height=150, key="contact_message")
         
-        if st.form_submit_button("إرسال الرسالة"):
+        if st.form_submit_button("إرسال الرسالة", key="contact_submit"):
             if name and email and message:
                 # حفظ الرسالة
                 contact_data = {
@@ -952,25 +955,57 @@ def contact_developer():
 # ===== التصميم الأساسي =====
 def apply_basic_styles():
     """تطبيق التصميم الأساسي"""
-    st.markdown("""
-    <style>
-    .main-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 2rem;
-        border-radius: 15px;
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-    .metric-card {
-        background: rgba(255, 255, 255, 0.1);
-        padding: 1.5rem;
-        border-radius: 10px;
-        text-align: center;
-        margin: 0.5rem 0;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+    if st.session_state.theme == "dark":
+        st.markdown("""
+        <style>
+        .stApp {
+            background-color: #0E1117;
+            color: white;
+        }
+        .main-header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 2rem;
+            border: 1px solid #333;
+        }
+        .metric-card {
+            background: rgba(30, 30, 46, 0.8);
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            margin: 0.5rem 0;
+            border: 1px solid #333;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown("""
+        <style>
+        .stApp {
+            background-color: #ffffff;
+            color: #31333F;
+        }
+        .main-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .metric-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            margin: 0.5rem 0;
+            border: 1px solid #e0e0e0;
+        }
+        </style>
+        """, unsafe_allow_html=True)
 
 apply_basic_styles()
 
@@ -997,10 +1032,13 @@ def main():
     with col3:
         col3a, col3b = st.columns(2)
         with col3a:
-            if st.button("🌙" if st.session_state.theme == "light" else "☀️", use_container_width=True):
+            # زر تغيير الثيم - تم إصلاحه
+            theme_icon = "🌙" if st.session_state.theme == "light" else "☀️"
+            if st.button(theme_icon, use_container_width=True, key="theme_toggle"):
                 toggle_theme()
         with col3b:
-            if st.button("🌐", use_container_width=True):
+            # زر تغيير اللغة - تم إصلاحه
+            if st.button("🌐", use_container_width=True, key="lang_toggle"):
                 toggle_language()
 
     # شريط التنقل
@@ -1018,6 +1056,7 @@ def main():
     nav_cols = st.columns(len(pages))
     for i, (name, page_key) in enumerate(pages):
         with nav_cols[i]:
+            # أزرار التنقل - تم إصلاحها
             if st.button(name, use_container_width=True, key=f"nav_{page_key}"):
                 st.session_state.page = page_key
                 st.rerun()
@@ -1057,7 +1096,7 @@ def show_student_page():
         st.header(t("student_title"))
         st.write(t("student_desc"))
         
-        student_id = st.text_input(t("student_id"), placeholder=t("student_id_placeholder"))
+        student_id = st.text_input(t("student_id"), placeholder=t("student_id_placeholder"), key="student_id_input")
         
         if student_id:
             student_info = st.session_state.students_df[
@@ -1079,7 +1118,7 @@ def show_student_page():
                 if already_registered:
                     st.warning(f"✅ {t('already_registered')} - الحالة: {current_status}")
                     
-                    if st.button(t("change_status")):
+                    if st.button(t("change_status"), key="change_status_btn"):
                         today = datetime.datetime.now().strftime("%Y-%m-%d")
                         st.session_state.attendance_df = st.session_state.attendance_df[
                             ~((st.session_state.attendance_df["id"].astype(str) == student_id.strip()) & 
@@ -1094,12 +1133,12 @@ def show_student_page():
                     
                     col_btn1, col_btn2 = st.columns(2)
                     with col_btn1:
-                        if st.button(t("coming"), use_container_width=True):
+                        if st.button(t("coming"), use_container_width=True, key="coming_btn"):
                             now = register_attendance(student, "قادم")
                             st.balloons()
                             st.success(f"🎉 {t('registered_success')}")
                     with col_btn2:
-                        if st.button(t("not_coming"), use_container_width=True):
+                        if st.button(t("not_coming"), use_container_width=True, key="not_coming_btn"):
                             now = register_attendance(student, "لن يحضر")
                             st.success(f"🎉 {t('registered_success')}")
             
@@ -1123,11 +1162,11 @@ def show_driver_page():
         
         col1, col2 = st.columns(2)
         with col1:
-            bus_number = st.selectbox(t("select_bus"), ["1", "2", "3"])
+            bus_number = st.selectbox(t("select_bus"), ["1", "2", "3"], key="driver_bus")
         with col2:
-            password = st.text_input(t("password"), type="password", placeholder=t("password_placeholder"))
+            password = st.text_input(t("password"), type="password", placeholder=t("password_placeholder"), key="driver_pass")
         
-        if st.button(t("login"), use_container_width=True):
+        if st.button(t("login"), use_container_width=True, key="driver_login_btn"):
             if password == st.session_state.bus_passwords.get(bus_number, ""):
                 st.session_state.driver_logged_in = True
                 st.session_state.current_bus = bus_number
@@ -1139,7 +1178,7 @@ def show_driver_page():
     else:
         st.success(f"✅ {t('login_success')} - الباص {st.session_state.current_bus}")
         
-        if st.button(t("logout")):
+        if st.button(t("logout"), key="driver_logout_btn"):
             st.session_state.driver_logged_in = False
             st.rerun()
         
@@ -1182,7 +1221,7 @@ def show_parents_page():
     
     with col1:
         st.subheader(t("track_student"))
-        student_id = st.text_input(t("enter_student_id"), placeholder=t("parents_id_placeholder"))
+        student_id = st.text_input(t("enter_student_id"), placeholder=t("parents_id_placeholder"), key="parent_student_id")
         
         if student_id:
             student_info = st.session_state.students_df[
@@ -1253,9 +1292,9 @@ def show_admin_page():
     if not st.session_state.admin_logged_in:
         st.subheader(t("admin_login"))
         
-        admin_password = st.text_input(t("admin_password"), type="password")
+        admin_password = st.text_input(t("admin_password"), type="password", key="admin_pass_input")
         
-        if st.button(t("login"), use_container_width=True):
+        if st.button(t("login"), use_container_width=True, key="admin_login_btn"):
             if admin_password == st.session_state.admin_password:
                 st.session_state.admin_logged_in = True
                 st.success(t("login_success"))
@@ -1266,7 +1305,7 @@ def show_admin_page():
     else:
         st.success(f"✅ {t('login_success')}")
         
-        if st.button(t("logout")):
+        if st.button(t("logout"), key="admin_logout_btn"):
             st.session_state.admin_logged_in = False
             st.rerun()
         
@@ -1298,15 +1337,15 @@ def show_admin_page():
             with st.form("add_student_form"):
                 col1, col2 = st.columns(2)
                 with col1:
-                    new_student_id = st.text_input("رقم الوزارة")
-                    new_student_name = st.text_input("اسم الطالب")
+                    new_student_id = st.text_input("رقم الوزارة", key="new_student_id")
+                    new_student_name = st.text_input("اسم الطالب", key="new_student_name")
                 with col2:
-                    new_student_grade = st.selectbox("الصف", ["6-A", "6-B", "7-A", "7-B", "8-A", "8-B", "8-C", "9-A", "9-B", "10-A", "10-B", "11-A", "11-B"])
-                    new_student_bus = st.selectbox("الباص", ["1", "2", "3"])
+                    new_student_grade = st.selectbox("الصف", ["6-A", "6-B", "7-A", "7-B", "8-A", "8-B", "8-C", "9-A", "9-B", "10-A", "10-B", "11-A", "11-B"], key="new_student_grade")
+                    new_student_bus = st.selectbox("الباص", ["1", "2", "3"], key="new_student_bus")
                 
-                new_parent_phone = st.text_input("هاتف ولي الأمر")
+                new_parent_phone = st.text_input("هاتف ولي الأمر", key="new_parent_phone")
                 
-                if st.form_submit_button("إضافة الطالب"):
+                if st.form_submit_button("إضافة الطالب", key="add_student_submit"):
                     if all([new_student_id, new_student_name, new_parent_phone]):
                         success, message = add_new_student(
                             new_student_id, new_student_name, new_student_grade, new_student_bus, new_parent_phone
@@ -1330,13 +1369,13 @@ def show_admin_page():
             with col1:
                 st.info("🔐 كلمات مرور الباصات")
                 for bus_num, password in st.session_state.bus_passwords.items():
-                    st.text_input(f"كلمة مرور الباص {bus_num}", value=password, type="password")
+                    st.text_input(f"كلمة مرور الباص {bus_num}", value=password, type="password", key=f"bus_pass_{bus_num}")
             
             with col2:
                 st.info("🌐 الإعدادات العامة")
-                if st.button("تغيير السمة"):
+                if st.button("تغيير السمة", key="theme_change_btn"):
                     toggle_theme()
-                if st.button("تغيير اللغة"):
+                if st.button("تغيير اللغة", key="lang_change_btn"):
                     toggle_language()
 
 def show_support_page():
