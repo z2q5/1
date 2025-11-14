@@ -58,14 +58,6 @@ if "chat_messages" not in st.session_state:
     st.session_state.chat_messages = []
 if "sync_pending" not in st.session_state:
     st.session_state.sync_pending = False
-if "two_factor_enabled" not in st.session_state:
-    st.session_state.two_factor_enabled = False
-if "trusted_devices" not in st.session_state:
-    st.session_state.trusted_devices = []
-if "activity_log" not in st.session_state:
-    st.session_state.activity_log = []
-if "support_tickets" not in st.session_state:
-    st.session_state.support_tickets = []
 
 # ===== وظائف حفظ البيانات =====
 def save_data():
@@ -94,10 +86,6 @@ def save_data():
             "lang": st.session_state.lang,
             "font_size": st.session_state.font_size,
             "high_contrast": st.session_state.high_contrast,
-            "two_factor_enabled": st.session_state.two_factor_enabled,
-            "trusted_devices": st.session_state.trusted_devices,
-            "activity_log": st.session_state.activity_log,
-            "support_tickets": st.session_state.support_tickets
         }
         with open(DATA_DIR / "settings.json", "w", encoding="utf-8") as f:
             json.dump(settings, f, ensure_ascii=False)
@@ -128,7 +116,7 @@ def load_data():
                 
         # تحميل الإعدادات
         if (DATA_DIR / "settings.json").exists():
-            with open(DATA_DIR / "settings.json", "r", encoding="utf-8") as f:  # تم تصحيح الخطأ هنا
+            with open(DATA_DIR / "settings.json", "r", encoding="utf-8") as f:
                 settings = json.load(f)
                 st.session_state.bus_passwords = settings.get("bus_passwords", {"1": "1111", "2": "2222", "3": "3333"})
                 st.session_state.admin_password = settings.get("admin_password", "admin123")
@@ -136,10 +124,6 @@ def load_data():
                 st.session_state.lang = settings.get("lang", "ar")
                 st.session_state.font_size = settings.get("font_size", "افتراضي")
                 st.session_state.high_contrast = settings.get("high_contrast", False)
-                st.session_state.two_factor_enabled = settings.get("two_factor_enabled", False)
-                st.session_state.trusted_devices = settings.get("trusted_devices", [])
-                st.session_state.activity_log = settings.get("activity_log", [])
-                st.session_state.support_tickets = settings.get("support_tickets", [])
                 
     except Exception as e:
         st.error(f"خطأ في تحميل البيانات: {e}")
@@ -185,7 +169,6 @@ translations = {
         "parents": "👨‍👩‍👧 أولياء الأمور",
         "admin": "🏫 الإدارة",
         "about": "ℹ️ حول النظام",
-        "support": "🤖 الدعم الذكي",
         
         # صفحة الطالب
         "student_title": "🎓 تسجيل حضور الطالب",
@@ -304,6 +287,9 @@ translations = {
         "version": "الإصدار",
         "release_date": "تاريخ الإصدار",
         "status_stable": "⭐ الإصدار المستقر",
+        "contact_developer": "📧 التواصل مع المطور",
+        "developer_email": "البريد الإلكتروني: eyadmustafaali99@gmail.com",
+        "contact_form": "📝 نموذج التواصل",
         
         # رسائل النظام
         "not_found": "لم يتم العثور على الطالب",
@@ -356,31 +342,20 @@ translations = {
         "feature6": "أمان وحماية",
         "feature6_desc": "نظام حماية متكامل للبيانات",
         
-        # الميزات الجديدة
-        "support_title": "🤖 مركز الدعم الذكي",
-        "ai_chat": "💬 محادثة مع المساعد الذكي",
-        "contact_developer": "📧 التواصل مع المطور",
-        "developer_email": "البريد الإلكتروني: eyadmustafaali99@gmail.com",
-        "smart_sync": "🔄 مزامنة ذكية",
-        "offline_work": "💾 عمل دون اتصال",
-        "auto_backup": "📥 نسخ احتياطي تلقائي",
+        # التواصل مع المطور
+        "contact_title": "📧 التواصل مع المطور",
+        "contact_name": "👤 الاسم الكامل",
+        "contact_email": "📧 البريد الإلكتروني",
+        "contact_subject": "📋 نوع الرسالة",
+        "contact_message": "💬 الرسالة",
+        "contact_success": "✅ تم إرسال رسالتك بنجاح!",
         
-        # محادثات الدعم
-        "support_welcome": "مرحباً! أنا المساعد الذكي لنظام الباص. كيف يمكنني مساعدتك؟",
-        "common_questions": "أسئلة سريعة",
-        "technical_support": "دعم فني",
-        "feature_help": "مساعدة في الميزات",
-        "contact_human": "التواصل مع مدير النظام",
-        
-        # تذاكر الدعم
-        "create_ticket": "🎫 إنشاء تذكرة دعم",
-        "ticket_subject": "موضوع التذكرة",
-        "ticket_message": "وصف المشكلة",
-        "ticket_priority": "أولوية التذكرة",
-        "ticket_status": "حالة التذكرة",
-        "ticket_created": "تم إنشاء التذكرة بنجاح",
-        "my_tickets": "تذاكري",
-        "all_tickets": "جميع التذاكر"
+        # المساعد الذكي
+        "ai_assistant": "🤖 المساعد الذكي",
+        "ai_welcome": "مرحباً! أنا المساعد الذكي لنظام الباص. كيف يمكنني مساعدتك؟",
+        "ai_questions": "💬 أسئلة سريعة",
+        "ai_placeholder": "💭 اكتب سؤالك هنا...",
+        "ai_send": "🚀 إرسال"
     },
     "en": {
         # Main Navigation
@@ -392,7 +367,6 @@ translations = {
         "parents": "👨‍👩‍👧 Parents",
         "admin": "🏫 Admin",
         "about": "ℹ️ About",
-        "support": "🤖 Smart Support",
         
         # Student Page
         "student_title": "🎓 Student Attendance Registration",
@@ -511,6 +485,9 @@ translations = {
         "version": "Version",
         "release_date": "Release Date",
         "status_stable": "⭐ Stable Release",
+        "contact_developer": "📧 Contact Developer",
+        "developer_email": "Email: eyadmustafaali99@gmail.com",
+        "contact_form": "📝 Contact Form",
         
         # System Messages
         "not_found": "Student not found",
@@ -563,31 +540,20 @@ translations = {
         "feature6": "Security & Protection",
         "feature6_desc": "Integrated data protection system",
         
-        # New Features
-        "support_title": "🤖 Smart Support Center",
-        "ai_chat": "💬 Chat with AI Assistant",
-        "contact_developer": "📧 Contact Developer",
-        "developer_email": "Email: eyadmustafaali99@gmail.com",
-        "smart_sync": "🔄 Smart Sync",
-        "offline_work": "💾 Offline Work",
-        "auto_backup": "📥 Auto Backup",
+        # Contact Developer
+        "contact_title": "📧 Contact Developer",
+        "contact_name": "👤 Full Name",
+        "contact_email": "📧 Email Address",
+        "contact_subject": "📋 Message Type",
+        "contact_message": "💬 Message",
+        "contact_success": "✅ Your message has been sent successfully!",
         
-        # Support conversations
-        "support_welcome": "Hello! I'm the Smart Bus System AI assistant. How can I help you?",
-        "common_questions": "Common Questions",
-        "technical_support": "Technical Support",
-        "feature_help": "Feature Help",
-        "contact_human": "Contact System Manager",
-        
-        # Support Tickets
-        "create_ticket": "🎫 Create Support Ticket",
-        "ticket_subject": "Ticket Subject",
-        "ticket_message": "Problem Description",
-        "ticket_priority": "Ticket Priority",
-        "ticket_status": "Ticket Status",
-        "ticket_created": "Ticket created successfully",
-        "my_tickets": "My Tickets",
-        "all_tickets": "All Tickets"
+        # AI Assistant
+        "ai_assistant": "🤖 AI Assistant",
+        "ai_welcome": "Hello! I'm the Smart Bus System AI assistant. How can I help you?",
+        "ai_questions": "💬 Common Questions",
+        "ai_placeholder": "💭 Type your question here...",
+        "ai_send": "🚀 Send"
     }
 }
 
@@ -605,17 +571,6 @@ def add_notification(message):
         "message": message
     })
     save_data()
-
-def show_notification(message, type="info", duration=3):
-    """عرض إشعار مؤقت"""
-    if type == "success":
-        st.success(message)
-    elif type == "warning":
-        st.warning(message)
-    elif type == "error":
-        st.error(message)
-    else:
-        st.info(message)
 
 def calculate_attendance_stats():
     today = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -814,7 +769,7 @@ def smart_ai_assistant():
     if not st.session_state.chat_messages:
         st.session_state.chat_messages = [{
             "role": "assistant", 
-            "content": t("support_welcome")
+            "content": t("ai_welcome")
         }]
     
     # عرض المحادثة
@@ -908,7 +863,7 @@ def handle_ai_question(question):
 
 **البريد الإلكتروني:** 📨 eyadmustafaali99@gmail.com
 
-💡 **نصيحة:** يمكنك أيضاً استخدام نموذج التواصل في تبويب 'التواصل مع المطور' للحصول على رد أسرع!
+💡 **نصيحة:** يمكنك أيضاً استخدام نموذج التواصل في تبويب 'حول النظام' للحصول على رد أسرع!
         """,
         "default": """
 **🤗 شكراً لسؤالك!**
@@ -1109,6 +1064,24 @@ def apply_enhanced_styles():
         .stButton>button:hover {
             transform: translateY(-2px);
         }
+        
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 8px;
+        }
+        
+        .stTabs [data-baseweb="tab"] {
+            height: 50px;
+            white-space: pre-wrap;
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 10px 10px 0px 0px;
+            gap: 1px;
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+        
+        .stTabs [aria-selected="true"] {
+            background-color: rgba(102, 126, 234, 0.2);
+        }
         </style>
         """, unsafe_allow_html=True)
     else:
@@ -1222,6 +1195,26 @@ def apply_enhanced_styles():
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
+        
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 8px;
+        }
+        
+        .stTabs [data-baseweb="tab"] {
+            height: 50px;
+            white-space: pre-wrap;
+            background-color: #f8f9fa;
+            border-radius: 10px 10px 0px 0px;
+            gap: 1px;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .stTabs [aria-selected="true"] {
+            background-color: #667eea;
+            color: white;
+        }
         </style>
         """, unsafe_allow_html=True)
 
@@ -1273,7 +1266,6 @@ def main():
         (t("driver"), "driver"), 
         (t("parents"), "parents"),
         (t("admin"), "admin"),
-        (t("support"), "support"),
         (t("about"), "about")
     ]
 
@@ -1306,8 +1298,6 @@ def main():
         show_parents_page()
     elif st.session_state.page == "admin":
         show_admin_page()
-    elif st.session_state.page == "support":
-        show_support_page()
     elif st.session_state.page == "about":
         show_about_page()
 
@@ -1455,7 +1445,6 @@ def show_student_page():
         </div>
         """, unsafe_allow_html=True)
 
-# ===== استكمال الدوال المتبقية =====
 def show_driver_page():
     """صفحة السائق"""
     if not st.session_state.driver_logged_in:
@@ -1876,33 +1865,6 @@ def show_admin_page():
             if st.button("🔄 تحديث كلمات المرور", use_container_width=True):
                 st.info("استخدم النموذج أدناه لتغيير كلمات المرور")
 
-def show_support_page():
-    """صفحة الدعم"""
-    st.markdown(f"""
-    <div style='
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 2rem;
-        border-radius: 15px;
-        margin-bottom: 2rem;
-    '>
-        <h2>🤖 {t('support_title')}</h2>
-        <p>مركز المساعدة والدعم الفني - نحن هنا لمساعدتك</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # تبويبات الدعم
-    tab1, tab2, tab3 = st.tabs(["💬 المساعد الذكي", "📧 التواصل مع المطور", "⭐ نظام التقييم"])
-    
-    with tab1:
-        smart_ai_assistant()
-    
-    with tab2:
-        contact_developer()
-    
-    with tab3:
-        show_rating_system()
-
 def show_about_page():
     """صفحة حول النظام"""
     st.markdown(f"""
@@ -1918,9 +1880,10 @@ def show_about_page():
     </div>
     """, unsafe_allow_html=True)
     
-    col1, col2 = st.columns([2, 1])
+    # تبويبات الصفحة
+    tab1, tab2, tab3 = st.tabs(["🎯 المميزات", "👥 فريق التطوير", "📧 التواصل"])
     
-    with col1:
+    with tab1:
         # مميزات النظام
         st.subheader("🎯 المميزات الرئيسية")
         
@@ -1933,101 +1896,84 @@ def show_about_page():
             ("🔒", t("feature6"), t("feature6_desc"))
         ]
         
-        for icon, title, desc in features:
-            with st.container():
+        cols = st.columns(2)
+        for i, (icon, title, desc) in enumerate(features):
+            with cols[i % 2]:
                 st.markdown(f"""
                 <div class="feature-card">
                     <div style="display: flex; align-items: start; gap: 1rem;">
-                        <div style="font-size: 2rem;">{icon}</div>
+                        <div style="font-size: 2.5rem;">{icon}</div>
                         <div>
-                            <h4 style="margin: 0 0 0.5rem 0;">{title}</h4>
-                            <p style="margin: 0; opacity: 0.8;">{desc}</p>
+                            <h4 style="margin: 0 0 0.5rem 0; color: #667eea;">{title}</h4>
+                            <p style="margin: 0; opacity: 0.8; line-height: 1.5;">{desc}</p>
                         </div>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
     
-    with col2:
-        # معلومات الفريق
-        st.subheader("👥 فريق التطوير")
+    with tab2:
+        col1, col2 = st.columns([1, 1])
         
-        team_members = [
-            ("🛠️", t("developer"), "إياد مصطفى"),
-            ("🎨", t("designer"), "ايمن جلال"),
-            ("👨‍🏫", "المشرف", "قسم النادي البيئي")
-        ]
+        with col1:
+            # معلومات الفريق
+            st.subheader("👥 فريق التطوير")
+            
+            team_members = [
+                ("🛠️", t("developer"), "إياد مصطفى"),
+                ("🎨", t("designer"), "ايمن جلال"),
+                ("👨‍🏫", "المشرف", "قسم النادي البيئي")
+            ]
+            
+            for icon, role, name in team_members:
+                st.markdown(f"""
+                <div class="metric-card">
+                    <div style="text-align: center;">
+                        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">{icon}</div>
+                        <h4 style="margin: 0; color: #667eea;">{role}</h4>
+                        <p style="margin: 0.5rem 0 0 0; font-weight: bold; font-size: 1.1rem;">{name}</p>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
         
-        for icon, role, name in team_members:
+        with col2:
+            # معلومات الإصدار ونظام التقييم
+            st.subheader("📋 معلومات النظام")
+            
+            # معلومات الإصدار
             st.markdown(f"""
             <div class="metric-card">
-                <div style="text-align: center;">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">{icon}</div>
-                    <h4 style="margin: 0; color: #667eea;">{role}</h4>
-                    <p style="margin: 0.5rem 0 0 0; font-weight: bold;">{name}</p>
-                </div>
+                <h4>📋 {t('version_info')}</h4>
+                <p><strong>{t('version')}:</strong> 2.0</p>
+                <p><strong>{t('release_date')}:</strong> 2025</p>
+                <p><strong>{t('status_stable')}</strong></p>
             </div>
             """, unsafe_allow_html=True)
-        
-        # معلومات الإصدار
-        st.markdown(f"""
-        <div class="metric-card">
-            <h4>📋 {t('version_info')}</h4>
-            <p><strong>{t('version')}:</strong> 2.0</p>
-            <p><strong>{t('release_date')}:</strong> 2025</p>
-            <p><strong>{t('status_stable')}</strong></p>
-        </div>
-        """, unsafe_allow_html=True)
-
-def show_rating_system():
-    """نظام التقييم"""
-    st.subheader("⭐ نظام التقييم المتطور")
+            
+            # نظام التقييم
+            show_rating_system_tab()
     
-    col1, col2 = st.columns([1, 1])
+    with tab3:
+        # المساعد الذكي والتواصل مع المطور
+        col1, col2 = st.columns([1, 1])
+        
+        with col1:
+            st.subheader("🤖 المساعد الذكي")
+            smart_ai_assistant()
+        
+        with col2:
+            st.subheader("📧 التواصل مع المطور")
+            contact_developer()
+
+def show_rating_system_tab():
+    """نظام التقييم في تبويب منفصل"""
+    st.subheader("⭐ نظام التقييم")
+    
+    # إحصائيات التقييمات
+    avg_rating, total_ratings = get_average_rating()
+    
+    col1, col2 = st.columns(2)
     
     with col1:
-        st.markdown(f"""
-        <div style='
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-            padding: 1.5rem;
-            border-radius: 15px;
-            margin-bottom: 1rem;
-            text-align: center;
-        '>
-            <h3>💬 {t('rate_app')}</h3>
-            <p>شاركنا تجربتك مع النظام</p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # اختيار التقييم
-        rating = st.slider(
-            f"**{t('your_rating')}**",
-            1, 5, 5,
-            key="rating_slider"
-        )
-        
-        # عرض النجوم
-        stars = "⭐" * rating + "☆" * (5 - rating)
-        st.markdown(f"**{t('select_rating')}:** {stars}")
-        
-        # التعليق
-        comment = st.text_area(
-            f"**{t('your_comment')}**",
-            placeholder="اكتب تعليقك هنا... (اختياري)",
-            height=100,
-            key="rating_comment"
-        )
-        
-        if st.button(f"**🚀 {t('submit_rating')}**", use_container_width=True, key="submit_rating"):
-            add_rating(rating, comment)
-            st.success(t("rating_success"))
-            st.balloons()
-            st.rerun()
-    
-    with col2:
-        # إحصائيات التقييمات
-        avg_rating, total_ratings = get_average_rating()
-        
         st.markdown(f"""
         <div class="metric-card">
             <h4>📊 {t('average_rating')}</h4>
@@ -2037,35 +1983,65 @@ def show_rating_system():
             </div>
         </div>
         """, unsafe_allow_html=True)
-        
+    
+    with col2:
         st.markdown(f"""
         <div class="metric-card">
             <h4>📈 {t('total_ratings')}</h4>
             <h2 style="color: #667eea; text-align: center;">{total_ratings}</h2>
         </div>
         """, unsafe_allow_html=True)
-        
-        # عرض آخر التقييمات
-        if not st.session_state.ratings_df.empty:
-            st.markdown("**📝 آخر التقييمات:**")
-            latest_ratings = st.session_state.ratings_df.tail(3)
-            for _, rating in latest_ratings.iterrows():
-                stars = "⭐" * rating["rating"] + "☆" * (5 - rating["rating"])
-                st.markdown(f"""
-                <div style='
-                    background: rgba(255,255,255,0.1);
-                    padding: 0.75rem;
-                    border-radius: 10px;
-                    margin: 0.5rem 0;
-                    border-left: 4px solid #f59e0b;
-                '>
-                    <div style="display: flex; justify-content: between; align-items: center;">
-                        <span>{stars}</span>
-                        <small style="opacity: 0.7;">{rating['timestamp'].split()[0]}</small>
-                    </div>
-                    {f"<p style='margin: 0.5rem 0 0 0; opacity: 0.8;'>{rating['comment']}</p>" if pd.notna(rating['comment']) and rating['comment'].strip() else ""}
+    
+    # نموذج التقييم
+    st.markdown("---")
+    st.subheader("💬 شاركنا رأيك")
+    
+    rating = st.slider(
+        f"**{t('your_rating')}**",
+        1, 5, 5,
+        key="rating_slider_about"
+    )
+    
+    # عرض النجوم
+    stars = "⭐" * rating + "☆" * (5 - rating)
+    st.markdown(f"**{t('select_rating')}:** {stars}")
+    
+    # التعليق
+    comment = st.text_area(
+        f"**{t('your_comment')}**",
+        placeholder="اكتب تعليقك هنا... (اختياري)",
+        height=100,
+        key="rating_comment_about"
+    )
+    
+    if st.button(f"**🚀 {t('submit_rating')}**", use_container_width=True, key="submit_rating_about"):
+        add_rating(rating, comment)
+        st.success(t("rating_success"))
+        st.balloons()
+        st.rerun()
+    
+    # عرض آخر التقييمات
+    if not st.session_state.ratings_df.empty:
+        st.markdown("---")
+        st.subheader("📝 آخر التقييمات")
+        latest_ratings = st.session_state.ratings_df.tail(3)
+        for _, rating in latest_ratings.iterrows():
+            stars = "⭐" * rating["rating"] + "☆" * (5 - rating["rating"])
+            st.markdown(f"""
+            <div style='
+                background: rgba(255,255,255,0.1);
+                padding: 1rem;
+                border-radius: 10px;
+                margin: 0.5rem 0;
+                border-left: 4px solid #f59e0b;
+            '>
+                <div style="display: flex; justify-content: between; align-items: center;">
+                    <span style="font-size: 1.1rem;">{stars}</span>
+                    <small style="opacity: 0.7;">{rating['timestamp'].split()[0]}</small>
                 </div>
-                """, unsafe_allow_html=True)
+                {f"<p style='margin: 0.5rem 0 0 0; opacity: 0.8; font-style: italic;'>{rating['comment']}</p>" if pd.notna(rating['comment']) and rating['comment'].strip() else ""}
+            </div>
+            """, unsafe_allow_html=True)
 
 # تشغيل التطبيق
 if __name__ == "__main__":
