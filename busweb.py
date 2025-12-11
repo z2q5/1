@@ -210,20 +210,20 @@ def get_all_resources():
         # ========== ملفات PDF للتحميل ==========
         {
             "id": 1,
-            "title": "الاقتصاد الأخضر: فرص استثمارية واعدة - التقرير الكامل",
-            "description": "تقرير مفصل عن مفهوم الاقتصاد الأخضر وأساليب التحول نحوه، مع أمثلة من خطط القوى الدولية والتجربة المصرية الناجحة في هذا المجال. يحتوي التقرير على تحليل شامل للفرص الاستثمارية في القطاع الأخضر.",
+            "title": "إصدار الاقتصاد الأخضر: فرص استثمارية واعدة",
+            "description": "تقرير شامل عن الاقتصاد الأخضر وأساليب التحول نحوه، مع تحليل لخطط الدول الكبرى والتجربة المصرية الناجحة. يحتوي على معلومات عن الطاقة المتجددة والبناء الأخضر والسياحة البيئية.",
             "author": "المركز المصري للفكر والدراسات الاستراتيجية",
             "category": "تقرير بحثي",
             "type": "PDF",
             "year": 2023,
             "source": "المركز المصري للفكر والدراسات الاستراتيجية",
-            "file_url": "https://example.com/الاقتصاد-الأخضر-تقرير.pdf",  # رابط حقيقي للتحميل
-            "download_url": "https://example.com/download/الاقتصاد-الأخضر-تقرير.pdf",
+            "file_url": "اصدار-الاقتصاد-الاخضر.pdf",
+            "download_url": "اصدار-الاقتصاد-الاخضر.pdf",
             "icon": "📊",
             "resource_type": "ملف",
-            "pages": 156,
-            "file_size": "8.4 MB",
-            "downloads": 1247
+            "pages": 55,
+            "file_size": "4.2 MB",
+            "downloads": 1560
         },
         {
             "id": 2,
@@ -478,67 +478,172 @@ def create_books_directory():
 def display_resource_content(resource):
     st.markdown(f"## 📄 {resource['title']}")
     
-    # عرض التفاصيل حسب نوع المادة
-    col1, col2 = st.columns([1, 2])
-    
-    with col1:
-        # أيقونة كبيرة
-        st.markdown(f'<div style="font-size: 5rem; text-align: center; color: #2196F3; margin: 20px 0;">{resource.get("icon", "📄")}</div>', unsafe_allow_html=True)
+    # عرض تفاصيل خاصة بكتاب الاقتصاد الأخضر
+    if resource['id'] == 1:
+        col1, col2 = st.columns([1, 2])
         
-        # زر التحميل أو الفتح
-        if resource.get('file_url') or resource.get('download_url'):
-            col_btn1, col_btn2 = st.columns(2)
-            with col_btn1:
-                if resource.get('file_url'):
-                    st.markdown(f'<a href="{resource["file_url"]}" target="_blank" class="resource-button">🔍 معاينة الملف</a>', unsafe_allow_html=True)
-            with col_btn2:
-                if resource.get('download_url'):
-                    st.markdown(f'<a href="{resource["download_url"]}" download class="book-button">⬇️ تحميل الملف</a>', unsafe_allow_html=True)
-        elif resource.get('url'):
-            st.markdown(f'<a href="{resource["url"]}" target="_blank" class="resource-button">🔗 فتح الرابط</a>', unsafe_allow_html=True)
-    
-    with col2:
-        st.markdown(f"**المؤلف/المصدر:** {resource.get('author', resource.get('source', 'غير محدد'))}")
-        st.markdown(f"**السنة:** {resource.get('year', 'غير محدد')}")
-        st.markdown(f"**التصنيف:** {resource.get('category', 'غير مصنف')}")
-        st.markdown(f"**النوع:** {resource.get('type', 'غير محدد')}")
-        
-        if resource.get('pages'):
-            st.markdown(f"**عدد الصفحات:** {resource['pages']}")
-        
-        if resource.get('file_size'):
-            st.markdown(f"**حجم الملف:** {resource['file_size']}")
-        
-        if resource.get('duration'):
-            st.markdown(f"**المدة:** {resource['duration']}")
-        
-        if resource.get('downloads'):
-            st.markdown(f"**عدد التحميلات:** {resource['downloads']:,}")
-        
-        if resource.get('views'):
-            st.markdown(f"**عدد المشاهدات:** {resource['views']:,}")
-        
-        st.divider()
-        
-        st.subheader("الوصف الكامل")
-        st.write(resource['description'])
-        
-        # محتويات إضافية للكتب
-        if 'كتاب' in resource['category']:
-            st.subheader("محتويات الكتاب")
+        with col1:
+            # عرض غلاف الكتاب
+            st.markdown("### 📖 غلاف الكتاب")
+            st.image("https://images.unsplash.com/photo-1544716278-e513176f20b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80", 
+                     caption="الاقتصاد الأخضر: فرص استثمارية واعدة")
+            
+            # روابط خاصة للكتاب
+            st.markdown("### 📥 تحميل الكتاب")
+            
+            # زر تحميل الكتاب
+            if os.path.exists(resource['file_url']):
+                with open(resource['file_url'], "rb") as file:
+                    file_data = file.read()
+                    b64 = base64.b64encode(file_data).decode()
+                    href = f'<a href="data:application/pdf;base64,{b64}" download="{resource["file_url"]}" class="book-button">📥 تحميل الكتاب كامل</a>'
+                    st.markdown(href, unsafe_allow_html=True)
+            
+            # فصول الكتاب
+            st.markdown("### 📑 فصول الكتاب")
             chapters = [
-                "مقدمة: أهمية الموضوع وأهداف الدراسة",
-                "الفصل الأول: الإطار النظري والمفاهيمي",
-                "الفصل الثاني: الدراسات السابقة والمراجع",
-                "الفصل الثالث: المنهجية وأدوات البحث",
-                "الفصل الرابع: التحليل والنتائج",
-                "الفصل الخامس: المناقشة والتوصيات",
-                "الخاتمة: الدروس المستفادة والتطبيقات",
-                "المراجع والملاحق"
+                "ماهية الاقتصاد الأخضر",
+                "تطور مفهوم الاقتصاد الأخضر", 
+                "أساليب التحول نحو الاقتصاد الأخضر",
+                "خطط القوى الدولية نحو الاقتصاد الأخضر",
+                "بورصة الكربون",
+                "خطة أوروبا للوصول إلى حياد الكربون",
+                "الصفقة الخضراء للمفوضية الأوروبية",
+                "استراتيجية الصفر البريطانية",
+                "التحول نحو الهيدروجين الأخضر",
+                "التجربة المصرية صوب الاقتصاد الأخضر",
+                "استراتيجية مصر للاقتصاد الأخضر",
+                "السندات الخضراء وبورصة الكربون المصرية",
+                "المشاريع المصرية في مجال الاقتصاد الأخضر",
+                "فوائد الاقتصاد الأخضر لمصر"
             ]
             
             for i, chapter in enumerate(chapters, 1):
-                st.write(f"{i}. {chapter}")
+                st.write(f"**الفصل {i}:** {chapter}")
+        
+        with col2:
+            # معلومات الكتاب
+            st.markdown("### 📋 معلومات الكتاب")
+            st.markdown(f"**المؤلف:** {resource['author']}")
+            st.markdown(f"**السنة:** {resource['year']}")
+            st.markdown(f"**عدد الصفحات:** {resource['pages']}")
+            st.markdown(f"**حجم الملف:** {resource['file_size']}")
+            st.markdown(f"**التصنيف:** {resource['category']}")
+            st.markdown(f"**تم التحميل:** {resource['downloads']:,} مرة")
+            
+            st.divider()
+            
+            # وصف الكتاب
+            st.markdown("### 📝 ملخص الكتاب")
+            st.write(resource['description'])
+            
+            st.markdown("""
+            #### 📊 محتويات الكتاب الرئيسية:
+            
+            **الجزء الأول: المفاهيم والأسس**
+            - تعريف الاقتصاد الأخضر وتطوره التاريخي
+            - أساليب التحول نحو الاقتصاد الأخضر
+            - البناء الأخضر والاقتصاد الدائري
+            - الاستهلاك المستدام والطاقة المتجددة
+            
+            **الجزء الثاني: التجارب الدولية**
+            - خطط الدول الكبرى (الاتحاد الأوروبي، المملكة المتحدة، الولايات المتحدة)
+            - أسواق الكربون العالمية
+            - استراتيجيات الحياد الكربوني
+            - التحول نحو الهيدروجين الأخضر
+            
+            **الجزء الثالث: التجربة المصرية**
+            - استراتيجية مصر للاقتصاد الأخضر 2030
+            - المشاريع القومية الخضراء في مصر
+            - السندات الخضراء وبورصة الكربون المصرية
+            - قطاع الطاقة المتجددة في مصر
+            - إدارة المياه والنقل الكهربائي
+            - الفوائد الاقتصادية والبيئية لمصر
+            
+            **الجزء الرابع: المستقبل والفرص**
+            - فرص الاستثمار في الاقتصاد الأخضر
+            - التحديات والحلول
+            - الرؤية المستقبلية للاقتصاد المستدام
+            """)
+            
+            # صور إضافية من الكتاب
+            st.markdown("### 🖼️ صور توضيحية من الكتاب")
+            col_img1, col_img2 = st.columns(2)
+            with col_img1:
+                st.image("https://images.unsplash.com/photo-1621451537084-482c73073a0f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+                        caption="الطاقة المتجددة")
+            with col_img2:
+                st.image("https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+                        caption="المباني الخضراء")
+            
+            col_img3, col_img4 = st.columns(2)
+            with col_img3:
+                st.image("https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+                        caption="الاقتصاد الدائري")
+            with col_img4:
+                st.image("https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+                        caption="الهيدروجين الأخضر")
+    else:
+        # عرض التفاصيل للمواد الأخرى
+        col1, col2 = st.columns([1, 2])
+        
+        with col1:
+            st.markdown(f'<div style="font-size: 5rem; text-align: center; color: #2196F3; margin: 20px 0;">{resource.get("icon", "📄")}</div>', unsafe_allow_html=True)
+            
+            # زر التحميل أو الفتح
+            if resource.get('file_url') or resource.get('download_url'):
+                col_btn1, col_btn2 = st.columns(2)
+                with col_btn1:
+                    if resource.get('file_url'):
+                        st.markdown(f'<a href="{resource["file_url"]}" target="_blank" class="resource-button">🔍 معاينة الملف</a>', unsafe_allow_html=True)
+                with col_btn2:
+                    if resource.get('download_url'):
+                        st.markdown(f'<a href="{resource["download_url"]}" download class="book-button">⬇️ تحميل الملف</a>', unsafe_allow_html=True)
+            elif resource.get('url'):
+                st.markdown(f'<a href="{resource["url"]}" target="_blank" class="resource-button">🔗 فتح الرابط</a>', unsafe_allow_html=True)
+        
+        with col2:
+            st.markdown(f"**المؤلف/المصدر:** {resource.get('author', resource.get('source', 'غير محدد'))}")
+            st.markdown(f"**السنة:** {resource.get('year', 'غير محدد')}")
+            st.markdown(f"**التصنيف:** {resource.get('category', 'غير مصنف')}")
+            st.markdown(f"**النوع:** {resource.get('type', 'غير محدد')}")
+            
+            if resource.get('pages'):
+                st.markdown(f"**عدد الصفحات:** {resource['pages']}")
+            
+            if resource.get('file_size'):
+                st.markdown(f"**حجم الملف:** {resource['file_size']}")
+            
+            if resource.get('duration'):
+                st.markdown(f"**المدة:** {resource['duration']}")
+            
+            if resource.get('downloads'):
+                st.markdown(f"**عدد التحميلات:** {resource['downloads']:,}")
+            
+            if resource.get('views'):
+                st.markdown(f"**عدد المشاهدات:** {resource['views']:,}")
+            
+            st.divider()
+            
+            st.subheader("الوصف الكامل")
+            st.write(resource['description'])
+            
+            # محتويات إضافية للكتب
+            if 'كتاب' in resource['category']:
+                st.subheader("محتويات الكتاب")
+                chapters = [
+                    "مقدمة: أهمية الموضوع وأهداف الدراسة",
+                    "الفصل الأول: الإطار النظري والمفاهيمي",
+                    "الفصل الثاني: الدراسات السابقة والمراجع",
+                    "الفصل الثالث: المنهجية وأدوات البحث",
+                    "الفصل الرابع: التحليل والنتائج",
+                    "الفصل الخامس: المناقشة والتوصيات",
+                    "الخاتمة: الدروس المستفادة والتطبيقات",
+                    "المراجع والملاحق"
+                ]
+                
+                for i, chapter in enumerate(chapters, 1):
+                    st.write(f"{i}. {chapter}")
     
     # زر العودة
     if st.button("← العودة إلى المكتبة"):
@@ -572,7 +677,13 @@ def main():
     
     # الشريط الجانبي
     with st.sidebar:
-        st.image("https://cdn-icons-png.flaticon.com/512/2231/2231696.png", width=100)
+        st.markdown("""
+        <div style="text-align: center;">
+            <img src="https://images.unsplash.com/photo-1544716278-e513176f20b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" width="150" style="border-radius: 15px; border: 3px solid #4CAF50;">
+            <h3>🌿 المكتبة البيئية</h3>
+            <p>مكتبة رقمية شاملة للكتب والموارد البيئية</p>
+        </div>
+        """, unsafe_allow_html=True)
         
         st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
         st.subheader("🔍 بحث في المكتبة")
@@ -638,6 +749,20 @@ def main():
         
         st.markdown('</div>', unsafe_allow_html=True)
         
+        # كتاب مميز
+        st.markdown("""
+        <div class="sidebar-section">
+        <h4>⭐ الكتاب المميز</h4>
+        <div style="text-align: center;">
+            <img src="https://images.unsplash.com/photo-1621451537084-482c73073a0f?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80" 
+                 style="border-radius: 10px; margin-bottom: 10px;">
+            <p><strong>إصدار الاقتصاد الأخضر</strong></p>
+            <p>فرص استثمارية واعدة</p>
+            <p style="color: #4CAF50; font-size: 0.9rem;">⬇️ 1,560 تحميل</p>
+        </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
         # معلومات إضافية
         st.markdown("""
         <div class="sidebar-section">
@@ -656,6 +781,42 @@ def main():
     
     # المحتوى الرئيسي
     st.markdown("### 📚 جميع المواد المتاحة (يمكن فتحها أو تحميلها)")
+    
+    # عرض كتاب مميز في الأعلى
+    st.markdown("### ⭐ الكتاب المميز لهذا الأسبوع")
+    col_featured1, col_featured2, col_featured3 = st.columns([1, 2, 1])
+    
+    with col_featured2:
+        st.markdown("""
+        <div style="background: linear-gradient(135deg, #E8F5E9, #C8E6C9); 
+                    border-radius: 20px; 
+                    padding: 20px; 
+                    text-align: center;
+                    border: 3px solid #4CAF50;
+                    margin-bottom: 30px;">
+            <h3 style="color: #2E7D32;">📘 إصدار الاقتصاد الأخضر</h3>
+            <p style="color: #555; font-size: 1.1rem;"><strong>فرص استثمارية واعدة</strong></p>
+            <p>تقرير شامل عن الاقتصاد الأخضر وأساليب التحول نحوه</p>
+            <div style="display: flex; justify-content: center; gap: 20px; margin: 20px 0;">
+                <div style="background-color: white; padding: 10px 20px; border-radius: 15px;">
+                    <p style="color: #2196F3; margin: 0;">📄 55 صفحة</p>
+                </div>
+                <div style="background-color: white; padding: 10px 20px; border-radius: 15px;">
+                    <p style="color: #4CAF50; margin: 0;">⬇️ 1,560 تحميل</p>
+                </div>
+            </div>
+            <a href="#resource_1" style="background: linear-gradient(90deg, #4CAF50, #2E7D32); 
+                                         color: white; 
+                                         padding: 12px 30px; 
+                                         border-radius: 25px; 
+                                         text-decoration: none;
+                                         display: inline-block;
+                                         font-weight: bold;
+                                         margin-top: 10px;">
+                📖 عرض الكتاب
+            </a>
+        </div>
+        """, unsafe_allow_html=True)
     
     # فلترة المواد حسب البحث والتصنيف
     resources_data = get_all_resources()
