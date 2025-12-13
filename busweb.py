@@ -314,14 +314,14 @@ def get_all_resources():
         },
         {
             "id": 101,
-            "title": "رؤية الإمارات 2021 - الاقتصاد الأخضر",
-            "description": "الرؤية الشاملة لدولة الإمارات العربية المتحدة للتحول نحو الاقتصاد الأخضر والتنمية المستدامة بحلول عام 2021.",
+            "title": "الأجندة الوطنية الخضراء- 2030",
+            "description": "الرؤية الشاملة لدولة الإمارات العربية المتحدة للتحول نحو الاقتصاد الأخضر والتنمية المستدامة بحلول عام 2030.",
             "author": "حكومة دولة الإمارات العربية المتحدة",
             "category": "رؤية وطنية",
             "type": "موقع إلكتروني",
-            "year": 2021,
+            "year": 2030,
             "source": "حكومة الإمارات",
-            "url": "https://u.ae/ar/about-the-uae/strategies-initiatives-and-awards/federal-governments-strategies-and-plans/UAE-green-growth-strategy",
+            "url": "https://u.ae/ar/about-the-uae/strategies-initiatives-and-awards/strategies-plans-and-visions/environment-and-energy/the-uaes-green-agenda-2030",
             "icon": "🇦🇪",
             "resource_type": "رابط",
             "views": 3450
@@ -335,7 +335,7 @@ def get_all_resources():
             "type": "موقع إلكتروني",
             "year": 2023,
             "source": "مصدر",
-            "url": "https://masdar.ae/ar",
+            "url": "https://masdarcity.ae/ar/about",
             "icon": "🏙️",
             "resource_type": "رابط",
             "views": 2876
@@ -349,7 +349,7 @@ def get_all_resources():
             "type": "موقع إلكتروني",
             "year": 2017,
             "source": "وزارة الطاقة الإماراتية",
-            "url": "https://www.moei.gov.ae/ar/our-responsibilities/energy/energy-strategy-2050",
+            "url": "https://u.ae/ar/about-the-uae/strategies-initiatives-and-awards/strategies-plans-and-visions/environment-and-energy/uae-energy-strategy-2050#:~:text=%D8%AA%D9%87%D8%AF%D9%81%20%D8%A7%D8%B3%D8%AA%D8%B1%D8%A7%D8%AA%D9%8A%D8%AC%D9%8A%D8%A9%20%D8%A7%D9%84%D8%A5%D9%85%D8%A7%D8%B1%D8%A7%D8%AA%20%D9%84%D9%84%D8%B7%D8%A7%D9%82%D8%A9%20%2D%202050,%D8%A7%D9%84%D8%AF%D9%88%D9%84%D8%A9%20%D8%A8%D8%B3%D8%A8%D8%A8%20%D8%A7%D9%84%D9%86%D9%85%D9%88%20%D8%A7%D9%84%D8%A7%D9%82%D8%AA%D8%B5%D8%A7%D8%AF%D9%8A%20%D8%A7%D9%84%D9%85%D8%AA%D8%B3%D8%A7%D8%B1%D8%B9.",
             "icon": "⚡",
             "resource_type": "رابط",
             "views": 1923
@@ -363,7 +363,7 @@ def get_all_resources():
             "type": "موقع إلكتروني",
             "year": 2019,
             "source": "EWEC",
-            "url": "https://www.ewec.ae/ar/noor-abu-dhabi",
+            "url": "https://noorabudhabi.ae/ar/our-plant/",
             "icon": "🌞",
             "resource_type": "رابط",
             "views": 2105
@@ -377,7 +377,7 @@ def get_all_resources():
             "type": "موقع إلكتروني",
             "year": 2023,
             "source": "وزارة التغير المناخي",
-            "url": "https://www.moccae.gov.ae/ar/our-responsibilities/climate-change/uae-net-zero-2050.aspx",
+            "url": "https://u.ae/ar/about-the-uae/strategies-initiatives-and-awards/strategies-plans-and-visions/environment-and-energy/the-uae-net-zero-2050-strategy",
             "icon": "🌍",
             "resource_type": "رابط",
             "views": 1876
@@ -391,7 +391,7 @@ def get_all_resources():
             "type": "موقع إلكتروني",
             "year": 2024,
             "source": "وزارة الطاقة الإماراتية",
-            "url": "https://www.moei.gov.ae/ar/our-responsibilities/energy/hydrogen",
+            "url": "https://u.ae/ar/about-the-uae/strategies-initiatives-and-awards/strategies-plans-and-visions/environment-and-energy/national-hydrogen-strategy",
             "icon": "⚗️",
             "resource_type": "رابط",
             "views": 1543
@@ -404,8 +404,8 @@ def get_all_resources():
             "category": "سياحة بيئية",
             "type": "موقع إلكتروني",
             "year": 2023,
-            "source": "وزارة الاقتصاد",
-            "url": "https://www.economy.gov.ae/ar/sectors/tourism/sustainable-tourism",
+            "source": "وكالة وام",
+            "url": "https://www.wam.ae/ar/article/hszrhd0u-%D8%A7%D9%84%D8%B3%D9%8A%D8%A7%D8%AD%D8%A9-%D8%A7%D9%84%D9%85%D8%B3%D8%AA%D8%AF%D8%A7%D9%85%D8%A9-%D8%A7%D9%84%D8%A5%D9%85%D8%A7%D8%B1%D8%A7%D8%AA-%D8%AA%D9%86%D9%88%D9%8A%D8%B9-%D8%A7%D9%82%D8%AA%D8%B5%D8%A7%D8%AF%D9%8A-%D9%88%D8%AE%D9%81%D8%B6",
             "icon": "🏨",
             "resource_type": "رابط",
             "views": 1095
@@ -419,7 +419,7 @@ def get_all_resources():
             "type": "موقع إلكتروني",
             "year": 2022,
             "source": "وزارة التغير المناخي",
-            "url": "https://www.moccae.gov.ae/ar/our-initiatives/green-uae.aspx",
+            "url": "https://u.ae/ar/about-the-uae/economy/green-economy-for-sustainable-development",
             "icon": "🌿",
             "resource_type": "رابط",
             "views": 2310
@@ -433,7 +433,7 @@ def get_all_resources():
             "type": "موقع إلكتروني",
             "year": 2023,
             "source": "بلدية دبي",
-            "url": "https://www.dm.gov.ae/ar/waste-management",
+            "url": "https://u.ae/ar-ae/information-and-services/environment-and-energy/waste-management",
             "icon": "♻️",
             "resource_type": "رابط",
             "views": 1678
@@ -447,7 +447,7 @@ def get_all_resources():
             "type": "موقع إلكتروني",
             "year": 2023,
             "source": "وزارة الطاقة الإماراتية",
-            "url": "https://www.moei.gov.ae/ar/our-responsibilities/transport/sustainable-transport",
+            "url": "https://www.mediaoffice.abudhabi/ar/transport/integrated-transport-centre-abu-dhabi-mobility-advances-sustainable-mobility-with-strategic-investment-in-electric-vehicle-charging-infrastructure/",
             "icon": "🚗",
             "resource_type": "رابط",
             "views": 1987
@@ -461,7 +461,7 @@ def get_all_resources():
             "type": "موقع إلكتروني",
             "year": 2023,
             "source": "وزارة التغير المناخي",
-            "url": "https://www.moccae.gov.ae/ar/our-responsibilities/agriculture/sustainable-agriculture.aspx",
+            "url": "https://u.ae/ar/information-and-services/environment-and-energy/agriculture",
             "icon": "🌱",
             "resource_type": "رابط",
             "views": 1456
@@ -475,7 +475,7 @@ def get_all_resources():
             "type": "موقع إلكتروني",
             "year": 2023,
             "source": "هيئة البيئة أبوظبي",
-            "url": "https://www.ead.gov.ae/ar/sustainable-buildings",
+            "url": "https://www.dmt.gov.ae/adm/Media-Centre/News/08Jan2025",
             "icon": "🏗️",
             "resource_type": "رابط",
             "views": 1567
@@ -489,7 +489,7 @@ def get_all_resources():
             "type": "موقع إلكتروني",
             "year": 2023,
             "source": "وزارة التغير المناخي",
-            "url": "https://www.moccae.gov.ae/ar/publications/sustainability-reports.aspx",
+            "url": "https://www.dubaiinvestments.com/Media/0d5k3agm/di-sustainability-report-2023-ar.pdf",
             "icon": "📈",
             "resource_type": "رابط",
             "views": 2109
@@ -503,7 +503,7 @@ def get_all_resources():
             "type": "موقع إلكتروني",
             "year": 2023,
             "source": "وزارة الاقتصاد",
-            "url": "https://www.economy.gov.ae/ar/sectors/circular-economy",
+            "url": "https://u.ae/ar/about-the-uae/economy/circular-economy",
             "icon": "🔄",
             "resource_type": "رابط",
             "views": 1789
@@ -517,7 +517,7 @@ def get_all_resources():
             "type": "موقع إلكتروني",
             "year": 2023,
             "source": "وزارة التغير المناخي",
-            "url": "https://www.moccae.gov.ae/ar/our-responsibilities/biodiversity/protected-areas.aspx",
+            "url": "https://ar.wikipedia.org/wiki/%D9%82%D8%A7%D8%A6%D9%85%D8%A9_%D8%A7%D9%84%D9%85%D9%86%D8%A7%D8%B7%D9%82_%D8%A7%D9%84%D9%85%D8%AD%D9%85%D9%8A%D8%A9_%D9%81%D9%8A_%D8%AF%D9%88%D9%84%D8%A9_%D8%A7%D9%84%D8%A5%D9%85%D8%A7%D8%B1%D8%A7%D8%AA_%D8%A7%D9%84%D8%B9%D8%B1%D8%A8%D9%8A%D8%A9_%D8%A7%D9%84%D9%85%D8%AA%D8%AD%D8%AF%D8%A9",
             "icon": "🦜",
             "resource_type": "رابط",
             "views": 1234
