@@ -5,28 +5,6 @@ import base64
 
 # إعدادات الصفحة
 st.set_page_config(
-    # ===== الشعار واسم المدرسة في أعلى الصفحة =====
-top_left, top_center, top_right = st.columns([1, 2, 1])
-
-with top_center:
-    st.image("images.jpeg", width=180)
-    st.markdown(
-        """
-        <h3 style="
-            text-align:center;
-            color:#1B5E20;
-            margin-top:10px;
-            font-weight:700;
-        ">
-            مدرسة المنيرة الخاصة
-        </h3>
-        """,
-        unsafe_allow_html=True
-    )
-
-st.divider()
-# ===========================================
-
     page_title="المكتبة البيئية الرقمية",
     page_icon="📚",
     layout="wide",
