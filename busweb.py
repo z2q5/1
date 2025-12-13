@@ -304,8 +304,8 @@ def get_all_resources():
             "type": "PDF",
             "year": 2023,
             "source": "المركز المصري للفكر والدراسات الاستراتيجية",
-            "file_url": "اصدار-الاقتصاد-الاخضر.pdf",
-            "download_url": "اصدار-الاقتصاد-الاخضر.pdf",
+            "file_url": "https://ecss.com.eg/wp-content/uploads/2021/11/%D8%A7%D8%B5%D8%AF%D8%A7%D8%B1-%D8%A7%D9%84%D8%A7%D9%82%D8%AA%D8%B5%D8%A7%D8%AF-%D8%A7%D9%84%D8%A7%D8%AE%D8%B6%D8%B1.pdf",
+            "download_url": "https://ecss.com.eg/wp-content/uploads/2021/11/%D8%A7%D8%B5%D8%AF%D8%A7%D8%B1-%D8%A7%D9%84%D8%A7%D9%82%D8%AA%D8%B5%D8%A7%D8%AF-%D8%A7%D9%84%D8%A7%D8%AE%D8%B6%D8%B1.pdf",
             "icon": "📊",
             "resource_type": "ملف",
             "pages": 55,
