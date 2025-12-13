@@ -11,6 +11,12 @@ st.markdown(
     "<h4 style='text-align:center; color:#2E7D32; margin-top:10px;'>مدرسة المنيرة الخاصة</h4>",
     unsafe_allow_html=True
 )
+# شعار المدرسة
+st.image("/mnt/data/images.jpeg", width=180)
+st.markdown(
+    "<h4 style='text-align:center; color:#2E7D32; margin-top:10px;'>مدرسة المنيرة الخاصة</h4>",
+    unsafe_allow_html=True
+)
 
     page_title="المكتبة البيئية الرقمية",
     page_icon="📚",
