@@ -1,10 +1,7 @@
 import streamlit as st
 import pandas as pd
 import os
-from PIL import Image
 import base64
-import json
-import webbrowser
 
 # إعدادات الصفحة
 st.set_page_config(
@@ -295,11 +292,10 @@ st.markdown("""
 # جميع المواد الحقيقية المتاحة
 def get_all_resources():
     return [
-        {   
-        },
+        # ملاحظة: تمت إزالة العنصر الفارغ وإضافة جميع المواد بدءًا من ID 101
         {
             "id": 101,
-            "title": "الأجندة الوطنية الخضراء- 2030",
+            "title": "الأجندة الوطنية الخضراء - 2030",
             "description": "الرؤية الشاملة لدولة الإمارات العربية المتحدة للتحول نحو الاقتصاد الأخضر والتنمية المستدامة بحلول عام 2030.",
             "author": "حكومة دولة الإمارات العربية المتحدة",
             "category": "رؤية وطنية",
@@ -390,7 +386,7 @@ def get_all_resources():
             "type": "موقع إلكتروني",
             "year": 2023,
             "source": "وكالة وام",
-            "url": "https://www.wam.ae/ar/article/hszrhd0u-%D8%A7%D9%84%D8%B3%D9%8A%D8%A7%D8%AD%D8%A9-%D8%A7%D9%84%D9%85%D8%B3%D8%AA%D8%AF%D8%A7%D9%85%D8%A9-%D8%A7%D9%84%D8%A5%D9%85%D8%A7%D8%B1%D8%A7%D8%AA-%D8%AA%D9%86%D9%88%D9%8A%D8%B9-%D8%A7%D9%82%D8%AA%D8%B5%D8%A7%D8%AF%D9%8A-%D9%88%D8%AE%D9%81%D8%B6",
+            "url": "https://www.wam.ae/ar/article/hszrhd0u-%D8%A7%D9%84%D8%B3%D9%8A%D8%A7%D8%AD%D8%A9-%D8%A7%D9%84%D9%85%D8%B3%D8%AA%D8%AF%D8%A9%D9%85%D8%A9-%D8%A7%D9%84%D8%A5%D9%85%D8%A7%D8%B1%D8%A7%D8%AA-%D8%AA%D9%86%D9%88%D9%8A%D8%B9-%D8%A7%D9%82%D8%AA%D8%B5%D8%A7%D8%AF%D9%8A-%D9%88%D8%AE%D9%81%D8%B6",
             "icon": "🏨",
             "resource_type": "رابط",
             "views": 1095
@@ -513,113 +509,52 @@ def get_all_resources():
 def display_resource_content(resource):
     st.markdown(f"## {resource.get('icon', '📄')} {resource['title']}")
     
-    if resource['id'] == 1:
-        col1, col2 = st.columns([1, 2])
+    # عرض تفاصيل المادة
+    col1, col2 = st.columns([1, 2])
+    
+    with col1:
+        st.markdown(f'<div style="font-size: 4rem; text-align: center; color: #2196F3; margin: 20px 0;">{resource.get("icon", "🌐")}</div>', unsafe_allow_html=True)
         
-        with col1:
-            # تصميم غلاف الكتاب بدون صور
-            st.markdown("""
-            <div style="background: linear-gradient(135deg, #1B5E20, #2E7D32);
-                        border-radius: 15px;
-                        padding: 30px 20px;
-                        text-align: center;
-                        color: white;
-                        margin-bottom: 20px;
-                        box-shadow: 0 10px 20px rgba(27, 94, 32, 0.2);">
-                <div style="font-size: 3rem; margin-bottom: 15px;">📘</div>
-                <h3 style="margin: 0; font-size: 1.5rem;">الاقتصاد الأخضر</h3>
-                <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 1.1rem;">فرص استثمارية واعدة</p>
-            </div>
-            """, unsafe_allow_html=True)
-            
-            # زر تحميل الكتاب
-            st.markdown("### 📥 تحميل الكتاب")
-            if os.path.exists(resource['file_url']):
-                with open(resource['file_url'], "rb") as file:
-                    file_data = file.read()
-                    b64 = base64.b64encode(file_data).decode()
-                    href = f'<a href="data:application/pdf;base64,{b64}" download="{resource["file_url"]}" class="download-button">📥 تحميل الكتاب (PDF)</a>'
-                    st.markdown(href, unsafe_allow_html=True)
-            else:
-                st.warning("ملف الكتاب غير متاح للتحميل حالياً")
-            
-            # معلومات سريعة
-            st.markdown("""
-            <div style="background: #E8F5E9; 
-                        border-radius: 12px; 
-                        padding: 15px; 
-                        margin-top: 20px;">
-                <h4 style="color: #2E7D32; margin-top: 0;">📋 معلومات سريعة</h4>
-                <p><strong>الصفحات:</strong> 55 صفحة</p>
-                <p><strong>الحجم:</strong> 4.2 MB</p>
-                <p><strong>التحميلات:</strong> 1,560</p>
-                <p><strong>التصنيف:</strong> تقرير بحثي</p>
-            </div>
-            """, unsafe_allow_html=True)
+        if resource.get('url'):
+            st.markdown(f'<a href="{resource["url"]}" target="_blank" class="action-button">🔗 فتح الرابط</a>', unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("### 📋 معلومات المادة")
         
-        with col2:
-            # معلومات الكتاب
-            st.markdown("### 📋 معلومات الكتاب")
-            
-            info_cols = st.columns(2)
-            with info_cols[0]:
-                st.markdown(f"**المؤلف:** {resource['author']}")
-                st.markdown(f"**السنة:** {resource['year']}")
-                st.markdown(f"**التصنيف:** {resource['category']}")
-            
-            with info_cols[1]:
-                st.markdown(f"**عدد الصفحات:** {resource['pages']}")
-                st.markdown(f"**حجم الملف:** {resource['file_size']}")
-                st.markdown(f"**التحميلات:** {resource['downloads']:,}")
-            
-            st.divider()
-            
-            # وصف الكتاب
-            st.markdown("### 📝 عن الكتاب")
-            st.write(resource['description'])
-            
-            # فصول الكتاب
-            st.markdown("### 📑 الفصول الرئيسية")
-            chapters = [
-                "ماهية الاقتصاد الأخضر",
-                "تطور مفهوم الاقتصاد الأخضر", 
-                "أساليب التحول نحو الاقتصاد الأخضر",
-                "خطط القوى الدولية نحو الاقتصاد الأخضر",
-                "بورصة الكربون العالمية",
-                "الصفقة الخضراء الأوروبية",
-                "استراتيجية الصفر البريطانية",
-                "التحول نحو الهيدروجين الأخضر"
-            ]
-            
-            for i, chapter in enumerate(chapters, 1):
-                st.markdown(f"**{i}.** {chapter}")
-    else:
-        col1, col2 = st.columns([1, 2])
+        info_cols = st.columns(2)
+        with info_cols[0]:
+            st.markdown(f"**المصدر:** {resource.get('author', resource.get('source', 'غير محدد'))}")
+            st.markdown(f"**السنة:** {resource.get('year', 'غير محدد')}")
+            st.markdown(f"**التصنيف:** {resource.get('category', 'غير مصنف')}")
         
-        with col1:
-            st.markdown(f'<div style="font-size: 4rem; text-align: center; color: #2196F3; margin: 20px 0;">{resource.get("icon", "🌐")}</div>', unsafe_allow_html=True)
-            
-            if resource.get('url'):
-                st.markdown(f'<a href="{resource["url"]}" target="_blank" class="action-button">🔗 فتح الرابط</a>', unsafe_allow_html=True)
+        with info_cols[1]:
+            st.markdown(f"**النوع:** {resource.get('type', 'غير محدد')}")
+            if resource.get('views'):
+                st.markdown(f"**المشاهدات:** {resource['views']:,}")
         
-        with col2:
-            st.markdown("### 📋 معلومات المادة")
+        st.divider()
+        
+        st.markdown("### 📝 الوصف")
+        st.write(resource['description'])
+        
+        # معلومات إضافية حسب التصنيف
+        if "الإمارات" in str(resource.get('author', '')):
+            st.markdown("### 📋 معلومات إضافية")
             
-            info_cols = st.columns(2)
-            with info_cols[0]:
-                st.markdown(f"**المصدر:** {resource.get('author', resource.get('source', 'غير محدد'))}")
-                st.markdown(f"**السنة:** {resource.get('year', 'غير محدد')}")
-                st.markdown(f"**التصنيف:** {resource.get('category', 'غير مصنف')}")
-            
-            with info_cols[1]:
-                st.markdown(f"**النوع:** {resource.get('type', 'غير محدد')}")
-                if resource.get('views'):
-                    st.markdown(f"**المشاهدات:** {resource['views']:,}")
-            
-            st.divider()
-            
-            st.markdown("### 📝 الوصف")
-            st.write(resource['description'])
+            if "طاقة" in resource['title'].lower() or "شمسية" in resource['title'].lower():
+                st.info("""
+                **معلومات عن الطاقة المتجددة في الإمارات:**
+                - تهدف الإمارات إلى توفير 50% من الكهرباء من مصادر نظيفة بحلول 2050
+                - محطة نور أبوظبي تنتج 1.17 جيجاوات من الطاقة الشمسية
+                - مشاريع الهيدروجين الأخضر قيد التنفيذ
+                """)
+            elif "مدينة" in resource['title'].lower():
+                st.info("""
+                **معلومات عن مدينة مصدر:**
+                - أول مدينة في العالم تعمل بالطاقة النظيفة بنسبة 100%
+                - تستخدم تقنيات البناء المستدام والطاقة المتجددة
+                - مركز للأبحاث والابتكار في مجال الطاقة النظيفة
+                """)
 
 # دالة الرئيسية
 def main():
@@ -711,15 +646,14 @@ def main():
         
         all_resources = get_all_resources()
         total_count = len(all_resources)
-        total_downloads = sum([r.get('downloads', 0) for r in all_resources])
         total_views = sum([r.get('views', 0) for r in all_resources])
         
         stats_cols = st.columns(2)
         with stats_cols[0]:
             st.metric("المواد", f"{total_count:,}")
-            st.metric("التحميلات", f"{total_downloads:,}")
-        with stats_cols[1]:
             st.metric("المشاهدات", f"{total_views:,}")
+        with stats_cols[1]:
+            st.metric("المعدل اليومي", "42")
             st.metric("معدل التفاعل", "85%")
         
         st.markdown('</div>', unsafe_allow_html=True)
@@ -743,10 +677,10 @@ def main():
     if st.session_state['search_query']:
         search_query = st.session_state['search_query'].lower()
         resources_data = [r for r in resources_data 
-                         if search_query in r['title'].lower() 
+                         if (search_query in r.get('title', '').lower() 
                          or search_query in r.get('author', '').lower()
                          or search_query in r.get('description', '').lower()
-                         or search_query in r.get('category', '').lower()]
+                         or search_query in r.get('category', '').lower())]
     
     if st.session_state['selected_category'] != "الكل":
         resources_data = [r for r in resources_data if r.get('category') == st.session_state['selected_category']]
@@ -771,28 +705,30 @@ def main():
                 resource = resources_data[i + j]
                 
                 with cols[j]:
-                    card_html = f"""
-                    <div class="resource-card">
-                        <div class="resource-type">{resource.get("type", "مادة")}</div>
-                        <div class="resource-icon">{resource.get("icon", "📄")}</div>
-                        <div class="resource-title">{resource["title"]}</div>
-                        <div class="resource-description">{resource["description"]}</div>
-                        <div class="resource-category">{resource.get("category", "غير مصنف")}</div>
-                    """
-                    
-                    if resource.get('downloads'):
-                        card_html += f'<div class="download-count">⬇️ {resource["downloads"]:,}</div>'
-                    elif resource.get('views'):
-                        card_html += f'<div class="download-count">👁️ {resource["views"]:,}</div>'
-                    
-                    card_html += "</div>"
-                    
-                    st.markdown(card_html, unsafe_allow_html=True)
-                    
-                    # زر العرض
-                    if st.button(f"عرض التفاصيل", key=f"view_{resource['id']}", use_container_width=True):
-                        st.session_state['viewing_resource'] = resource
-                        st.rerun()
+                    # التحقق من وجود المفاتيح الأساسية
+                    if 'title' in resource and 'description' in resource:
+                        card_html = f"""
+                        <div class="resource-card">
+                            <div class="resource-type">{resource.get("type", "مادة")}</div>
+                            <div class="resource-icon">{resource.get("icon", "📄")}</div>
+                            <div class="resource-title">{resource["title"]}</div>
+                            <div class="resource-description">{resource["description"]}</div>
+                            <div class="resource-category">{resource.get("category", "غير مصنف")}</div>
+                        """
+                        
+                        if resource.get('views'):
+                            card_html += f'<div class="download-count">👁️ {resource["views"]:,}</div>'
+                        
+                        card_html += "</div>"
+                        
+                        st.markdown(card_html, unsafe_allow_html=True)
+                        
+                        # زر العرض
+                        if st.button(f"عرض التفاصيل", key=f"view_{resource['id']}", use_container_width=True):
+                            st.session_state['viewing_resource'] = resource
+                            st.rerun()
+                    else:
+                        st.error("⚠️ بيانات المادة غير مكتملة")
 
 if __name__ == "__main__":
     main()
