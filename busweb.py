@@ -5,7 +5,6 @@ from PIL import Image
 import base64
 import json
 import webbrowser
-from io import BytesIO
 
 # إعدادات الصفحة
 st.set_page_config(
@@ -44,14 +43,14 @@ st.markdown("""
     }
     
     .school-logo {
-        max-width: 300px;
+        max-width: 100%;
         height: auto;
         margin: 0 auto;
         display: block;
     }
     
     .school-name {
-        font-size: 1.5rem;
+        font-size: 1.3rem;
         color: #1B5E20;
         font-weight: bold;
         margin-top: 10px;
@@ -321,28 +320,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# دالة لإنشاء صورة base64 من الصورة المرفقة
-def create_school_logo():
-    # بيانات الصورة المرفقة (base64)
-    # في بيئة حقيقية، ستكون الصورة مخزنة في ملف
-    # هنا نعرض تصميم بديل مع نص الشعار
-    return """
-    <div class="school-logo-container">
-        <div style="background: linear-gradient(135deg, #1B5E20, #2E7D32); 
-                    padding: 25px 40px; 
-                    border-radius: 12px;
-                    display: inline-block;
-                    text-align: center;
-                    color: white;
-                    box-shadow: 0 6px 15px rgba(27, 94, 32, 0.3);">
-            <div style="font-size: 2.5rem; font-weight: bold; margin-bottom: 15px;">A.M.P.S</div>
-            <div style="font-size: 2.2rem; font-weight: bold; margin-bottom: 10px;">ALMUNEERA</div>
-            <div style="font-size: 1.8rem; font-weight: bold; opacity: 0.9;">PRIVATE SCHOOL</div>
-        </div>
-        <div class="school-name">مدرسة المنيرة الخاصة</div>
-    </div>
-    """
-
 # جميع المواد الحقيقية المتاحة
 def get_all_resources():
     return [
@@ -363,7 +340,216 @@ def get_all_resources():
             "file_size": "4.2 MB",
             "downloads": 1560
         },
-        # ... بقية المواد (كما هي في الكود الأصلي)
+        {
+            "id": 101,
+            "title": "الأجندة الوطنية الخضراء- 2030",
+            "description": "الرؤية الشاملة لدولة الإمارات العربية المتحدة للتحول نحو الاقتصاد الأخضر والتنمية المستدامة بحلول عام 2030.",
+            "author": "حكومة دولة الإمارات العربية المتحدة",
+            "category": "رؤية وطنية",
+            "type": "موقع إلكتروني",
+            "year": 2030,
+            "source": "حكومة الإمارات",
+            "url": "https://u.ae/ar/about-the-uae/strategies-initiatives-and-awards/strategies-plans-and-visions/environment-and-energy/the-uaes-green-agenda-2030",
+            "icon": "🇦🇪",
+            "resource_type": "رابط",
+            "views": 3450
+        },
+        {
+            "id": 102,
+            "title": "مشروع مدينة مصدر - أبوظبي",
+            "description": "المدينة المستدامة الأولى في العالم من حيث الطاقة النظيفة في أبوظبي، كمثال رائد للمدن الذكية والصديقة للبيئة.",
+            "author": "شركة أبوظبي لطاقة المستقبل (مصدر)",
+            "category": "مشروع مستدام",
+            "type": "موقع إلكتروني",
+            "year": 2023,
+            "source": "مصدر",
+            "url": "https://masdarcity.ae/ar/about",
+            "icon": "🏙️",
+            "resource_type": "رابط",
+            "views": 2876
+        },
+        {
+            "id": 103,
+            "title": "الاستراتيجية الوطنية للطاقة 2050 - الإمارات",
+            "description": "الاستراتيجية الشاملة لدولة الإمارات لتحقيق التوازن بين الإنتاج والاستهلاك، مع التركيز على الطاقة النظيفة.",
+            "author": "وزارة الطاقة والبنية التحتية",
+            "category": "استراتيجية وطنية",
+            "type": "موقع إلكتروني",
+            "year": 2017,
+            "source": "وزارة الطاقة الإماراتية",
+            "url": "https://u.ae/ar/about-the-uae/strategies-initiatives-and-awards/strategies-plans-and-visions/environment-and-energy/uae-energy-strategy-2050#:~:text=%D8%AA%D9%87%D8%AF%D9%81%20%D8%A7%D8%B3%D8%AA%D8%B1%D8%A7%D8%AA%D9%8A%D8%AC%D9%8A%D8%A9%20%D8%A7%D9%84%D8%A5%D9%85%D8%A7%D8%B1%D8%A7%D8%AA%20%D9%84%D9%84%D8%B7%D8%A7%D9%82%D8%A9%20%2D%202050,%D8%A7%D9%84%D8%AF%D9%88%D9%84%D8%A9%20%D8%A8%D8%B3%D8%A8%D8%A8%20%D8%A7%D9%84%D9%86%D9%85%D9%88%20%D8%A7%D9%84%D8%A7%D9%82%D8%AA%D8%B5%D8%A7%D8%AF%D9%8A%20%D8%A7%D9%84%D9%85%D8%AA%D8%B3%D8%A7%D8%B1%D8%B9.",
+            "icon": "⚡",
+            "resource_type": "رابط",
+            "views": 1923
+        },
+        {
+            "id": 104,
+            "title": "محطة نور أبوظبي للطاقة الشمسية",
+            "description": "أكبر محطة مستقلة للطاقة الشمسية في العالم في موقع واحد بسعة 1.17 جيجاوات في منطقة سويحان بأبوظبي.",
+            "author": "شركة مياه وكهرباء الإمارات",
+            "category": "طاقة متجددة",
+            "type": "موقع إلكتروني",
+            "year": 2019,
+            "source": "EWEC",
+            "url": "https://noorabudhabi.ae/ar/our-plant/",
+            "icon": "🌞",
+            "resource_type": "رابط",
+            "views": 2105
+        },
+        {
+            "id": 105,
+            "title": "الاستراتيجية الوطنية للتغير المناخي 2050 - الإمارات",
+            "description": "الاستراتيجية الشاملة لمواجهة التغير المناخي وتحقيق الحياد المناخي بحلول عام 2050.",
+            "author": "وزارة التغير المناخي والبيئة",
+            "category": "استراتيجية وطنية",
+            "type": "موقع إلكتروني",
+            "year": 2023,
+            "source": "وزارة التغير المناخي",
+            "url": "https://u.ae/ar/about-the-uae/strategies-initiatives-and-awards/strategies-plans-and-visions/environment-and-energy/the-uae-net-zero-2050-strategy",
+            "icon": "🌍",
+            "resource_type": "رابط",
+            "views": 1876
+        },
+        {
+            "id": 106,
+            "title": "الهيدروجين الأخضر في الإمارات",
+            "description": "مشاريع الإمارات الرائدة في إنتاج وتصدير الهيدروجين الأخضر كمصدر للطاقة النظيفة.",
+            "author": "وزارة الطاقة والبنية التحتية",
+            "category": "طاقة نظيفة",
+            "type": "موقع إلكتروني",
+            "year": 2024,
+            "source": "وزارة الطاقة الإماراتية",
+            "url": "https://u.ae/ar/about-the-uae/strategies-initiatives-and-awards/strategies-plans-and-visions/environment-and-energy/national-hydrogen-strategy",
+            "icon": "⚗️",
+            "resource_type": "رابط",
+            "views": 1543
+        },
+        {
+            "id": 107,
+            "title": "السياحة المستدامة في الإمارات",
+            "description": "مبادرات السياحة البيئية والمستدامة في مختلف إمارات الدولة لتعزيز السياحة المسؤولة.",
+            "author": "وزارة الاقتصاد",
+            "category": "سياحة بيئية",
+            "type": "موقع إلكتروني",
+            "year": 2023,
+            "source": "وكالة وام",
+            "url": "https://www.wam.ae/ar/article/hszrhd0u-%D8%A7%D9%84%D8%B3%D9%8A%D8%A7%D8%AD%D8%A9-%D8%A7%D9%84%D9%85%D8%B3%D8%AA%D8%AF%D8%A7%D9%85%D8%A9-%D8%A7%D9%84%D8%A5%D9%85%D8%A7%D8%B1%D8%A7%D8%AA-%D8%AA%D9%86%D9%88%D9%8A%D8%B9-%D8%A7%D9%82%D8%AA%D8%B5%D8%A7%D8%AF%D9%8A-%D9%88%D8%AE%D9%81%D8%B6",
+            "icon": "🏨",
+            "resource_type": "رابط",
+            "views": 1095
+        },
+        {
+            "id": 108,
+            "title": "مبادرة الإمارات الخضراء",
+            "description": "المبادرة الوطنية الشاملة لتحقيق الاستدامة البيئية في جميع القطاعات والمجالات.",
+            "author": "وزارة التغير المناخي والبيئة",
+            "category": "مبادرة وطنية",
+            "type": "موقع إلكتروني",
+            "year": 2022,
+            "source": "وزارة التغير المناخي",
+            "url": "https://u.ae/ar/about-the-uae/economy/green-economy-for-sustainable-development",
+            "icon": "🌿",
+            "resource_type": "رابط",
+            "views": 2310
+        },
+        {
+            "id": 109,
+            "title": "إدارة النفايات في دبي",
+            "description": "الاستراتيجية الشاملة لإدارة النفايات في دبي وتحويلها إلى طاقة وموارد قابلة لإعادة التدوير.",
+            "author": "بلدية دبي",
+            "category": "إدارة النفايات",
+            "type": "موقع إلكتروني",
+            "year": 2023,
+            "source": "بلدية دبي",
+            "url": "https://u.ae/ar-ae/information-and-services/environment-and-energy/waste-management",
+            "icon": "♻️",
+            "resource_type": "رابط",
+            "views": 1678
+        },
+        {
+            "id": 110,
+            "title": "النقل المستدام في الإمارات",
+            "description": "مشاريع النقل الكهربائي والذكي في الإمارات بما في ذلك القطارات والمترو والمركبات الكهربائية.",
+            "author": "وزارة الطاقة والبنية التحتية",
+            "category": "نقل مستدام",
+            "type": "موقع إلكتروني",
+            "year": 2023,
+            "source": "وزارة الطاقة الإماراتية",
+            "url": "https://www.mediaoffice.abudhabi/ar/transport/integrated-transport-centre-abu-dhabi-mobility-advances-sustainable-mobility-with-strategic-investment-in-electric-vehicle-charging-infrastructure/",
+            "icon": "🚗",
+            "resource_type": "رابط",
+            "views": 1987
+        },
+        {
+            "id": 111,
+            "title": "الزراعة المستدامة في الإمارات",
+            "description": "تقنيات الزراعة الحديثة والمستدامة في المناطق الصحراوية لتحقيق الأمن الغذائي.",
+            "author": "وزارة التغير المناخي والبيئة",
+            "category": "زراعة مستدامة",
+            "type": "موقع إلكتروني",
+            "year": 2023,
+            "source": "وزارة التغير المناخي",
+            "url": "https://u.ae/ar/information-and-services/environment-and-energy/agriculture",
+            "icon": "🌱",
+            "resource_type": "رابط",
+            "views": 1456
+        },
+        {
+            "id": 112,
+            "title": "البناء الأخضر في أبوظبي",
+            "description": "معايير البناء الأخضر واستدامة المباني في إمارة أبوظبي وفق نظام استدامة المباني (ESTIDAMA).",
+            "author": "هيئة البيئة - أبوظبي",
+            "category": "بناء أخضر",
+            "type": "موقع إلكتروني",
+            "year": 2023,
+            "source": "هيئة البيئة أبوظبي",
+            "url": "https://www.dmt.gov.ae/adm/Media-Centre/News/08Jan2025",
+            "icon": "🏗️",
+            "resource_type": "رابط",
+            "views": 1567
+        },
+        {
+            "id": 113,
+            "title": "تقرير الاستدامة السنوي - الإمارات",
+            "description": "التقرير السنوي الشامل عن إنجازات الاستدامة والأداء البيئي في دولة الإمارات.",
+            "author": "وزارة التغير المناخي والبيئة",
+            "category": "تقرير سنوي",
+            "type": "موقع إلكتروني",
+            "year": 2023,
+            "source": "وزارة التغير المناخي",
+            "url": "https://www.dubaiinvestments.com/Media/0d5k3agm/di-sustainability-report-2023-ar.pdf",
+            "icon": "📈",
+            "resource_type": "رابط",
+            "views": 2109
+        },
+        {
+            "id": 114,
+            "title": "الاقتصاد الدائري في الإمارات",
+            "description": "مبادرات ومشاريع الاقتصاد الدائري في الإمارات لتعظيم استفادة الموارد وتقليل الهدر.",
+            "author": "وزارة الاقتصاد",
+            "category": "اقتصاد دائري",
+            "type": "موقع إلكتروني",
+            "year": 2023,
+            "source": "وزارة الاقتصاد",
+            "url": "https://u.ae/ar/about-the-uae/economy/circular-economy",
+            "icon": "🔄",
+            "resource_type": "رابط",
+            "views": 1789
+        },
+        {
+            "id": 115,
+            "title": "محميات طبيعية في الإمارات",
+            "description": "المحميات الطبيعية والمناطق المحمية في الإمارات للحفاظ على التنوع البيولوجي والبيئة.",
+            "author": "وزارة التغير المناخي والبيئة",
+            "category": "حماية بيئية",
+            "type": "موقع إلكتروني",
+            "year": 2023,
+            "source": "وزارة التغير المناخي",
+            "url": "https://ar.wikipedia.org/wiki/%D9%82%D8%A7%D8%A6%D9%85%D8%A9_%D8%A7%D9%84%D9%85%D9%86%D8%A7%D8%B7%D9%82_%D8%A7%D9%84%D9%85%D8%AD%D9%85%D9%8A%D8%A9_%D9%81%D9%8A_%D8%AF%D9%88%D9%84%D8%A9_%D8%A7%D9%84%D8%A5%D9%85%D8%A7%D8%B1%D8%A7%D8%AA_%D8%A7%D9%84%D8%B9%D8%B1%D8%A8%D9%8A%D8%A9_%D8%A7%D9%84%D9%85%D8%AA%D8%AD%D8%AF%D8%A9",
+            "icon": "🦜",
+            "resource_type": "رابط",
+            "views": 1234
+        }
     ]
 
 # دالة لعرض محتوى المادة
@@ -490,21 +676,49 @@ def main():
     if 'selected_type' not in st.session_state:
         st.session_state['selected_type'] = "الكل"
     
-    # العنوان الرئيسي مع شعار المدرسة
-    col1, col2 = st.columns([1, 3])
-    
-    with col1:
-        # عرض شعار المدرسة
-        st.markdown(create_school_logo(), unsafe_allow_html=True)
-    
-    with col2:
+    # محاولة تحميل الصورة من الملف المحلي
+    try:
+        # إذا كانت الصورة موجودة محلياً
+        if os.path.exists("images.jpeg"):
+            image = Image.open("images.jpeg")
+            
+            # إنشاء تخطيط مع الصورة
+            col1, col2, col3 = st.columns([1, 2, 1])
+            
+            with col2:
+                st.image(image, caption="مدرسة المنيرة الخاصة", use_container_width=True)
+            
+            # العنوان الرئيسي تحت الصورة
+            st.markdown("""
+            <div class="main-title">
+                <div style="font-size: 3.5rem; margin-bottom: 10px;">🌿📚</div>
+                المكتبة البيئية الرقمية
+                <div style="font-size: 1.2rem; font-weight: normal; margin-top: 10px; opacity: 0.8;">
+                    مركز المعرفة البيئية والاستدامة - مدرسة المنيرة الخاصة
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            # إذا لم توجد الصورة، نعرض العنوان بشكل عادي
+            st.markdown("""
+            <div class="main-title">
+                <div style="font-size: 3.5rem; margin-bottom: 10px;">🌿📚</div>
+                المكتبة البيئية الرقمية
+                <div style="font-size: 1.2rem; font-weight: normal; margin-top: 10px; opacity: 0.8;">
+                    مركز المعرفة البيئية والاستدامة<br>
+                    <span style="font-size: 1.2rem; color: #2E7D32; font-weight: bold;">مدرسة المنيرة الخاصة</span>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+    except Exception as e:
+        # في حالة وجود خطأ، نعرض العنوان بدون صورة
         st.markdown("""
         <div class="main-title">
             <div style="font-size: 3.5rem; margin-bottom: 10px;">🌿📚</div>
             المكتبة البيئية الرقمية
             <div style="font-size: 1.2rem; font-weight: normal; margin-top: 10px; opacity: 0.8;">
                 مركز المعرفة البيئية والاستدامة<br>
-                <span style="font-size: 1rem; color: #2E7D32;">برعاية مدرسة المنيرة الخاصة</span>
+                <span style="font-size: 1.2rem; color: #2E7D32; font-weight: bold;">مدرسة المنيرة الخاصة</span>
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -521,24 +735,38 @@ def main():
     
     # الشريط الجانبي
     with st.sidebar:
-        # شعار المدرسة في الشريط الجانبي
-        st.markdown("""
-        <div style="text-align: center; margin-bottom: 20px;">
-            <div style="background: linear-gradient(135deg, #1B5E20, #2E7D32); 
-                        padding: 20px 15px; 
-                        border-radius: 10px;
-                        text-align: center;
-                        color: white;
-                        box-shadow: 0 4px 12px rgba(27, 94, 32, 0.3);">
-                <div style="font-size: 1.8rem; font-weight: bold; margin-bottom: 10px;">A.M.P.S</div>
-                <div style="font-size: 1.5rem; font-weight: bold;">ALMUNEERA</div>
-                <div style="font-size: 1.2rem; opacity: 0.9; margin-top: 5px;">PRIVATE SCHOOL</div>
+        # محاولة تحميل الصورة في الشريط الجانبي
+        try:
+            if os.path.exists("images.jpeg"):
+                image = Image.open("images.jpeg")
+                # تحجيم الصورة للشريط الجانبي
+                st.image(image, caption="مدرسة المنيرة الخاصة", use_container_width=True)
+            else:
+                # إذا لم توجد الصورة، نعرض اسم المدرسة
+                st.markdown("""
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="background: linear-gradient(135deg, #1B5E20, #2E7D32); 
+                                padding: 20px 15px; 
+                                border-radius: 10px;
+                                text-align: center;
+                                color: white;
+                                box-shadow: 0 4px 12px rgba(27, 94, 32, 0.3);">
+                        <div style="font-size: 1.8rem; font-weight: bold; margin-bottom: 10px;">A.M.P.S</div>
+                        <div style="font-size: 1.5rem; font-weight: bold;">ALMUNEERA</div>
+                        <div style="font-size: 1.2rem; opacity: 0.9; margin-top: 5px;">PRIVATE SCHOOL</div>
+                    </div>
+                    <div style="color: #2E7D32; font-weight: bold; margin-top: 10px; font-size: 1.1rem;">
+                        مدرسة المنيرة الخاصة
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+        except:
+            st.markdown("""
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h3 style="color: #2E7D32;">مدرسة المنيرة الخاصة</h3>
+                <p style="color: #546E7A;">المكتبة البيئية الرقمية</p>
             </div>
-            <div style="color: #2E7D32; font-weight: bold; margin-top: 10px; font-size: 1.1rem;">
-                مدرسة المنيرة الخاصة
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
         
         # البحث
         st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
