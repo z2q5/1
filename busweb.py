@@ -4,7 +4,8 @@ import os
 import base64
 
 # إعدادات الصفحة
-st.set_page_config(# ===== الشعار واسم المدرسة في أعلى الصفحة =====
+st.set_page_config(
+    # ===== الشعار واسم المدرسة في أعلى الصفحة =====
 top_left, top_center, top_right = st.columns([1, 2, 1])
 
 with top_center:
