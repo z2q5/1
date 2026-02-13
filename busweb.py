@@ -552,7 +552,7 @@ def main():
             st.session_state.music_playing = not st.session_state.music_playing
         
         if st.session_state.music_playing:
-            st.video("https://youtu.be/KBtk5FUeJrw")
+            st.video("https://youtu.be/-e7wiyNO2us?si=JYVdDi6YmadDeAJx")
             st.balloons()
         
         # Gift
