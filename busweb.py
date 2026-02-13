@@ -480,8 +480,8 @@ def main():
         # Photos
         st.markdown("""
         <div class="photo-album">
-            <div class="photo-frame"><div class="photo-placeholder">👧🏾</div></div>
-            <div class="photo-frame"><div class="photo-placeholder">👦🏿</div></div>
+            <div class="photo-frame"><div class="photo-placeholder">🤷‍♀️</div></div>
+            <div class="photo-frame"><div class="photo-placeholder">🤷‍♂️</div></div>
             <div class="photo-frame"><div class="photo-placeholder">💭</div></div>
             <div class="photo-frame"><div class="photo-placeholder">🌹</div></div>
         </div>
