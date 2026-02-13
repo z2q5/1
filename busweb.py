@@ -1,902 +1,647 @@
 import streamlit as st
-import pandas as pd
-import os
+import datetime
+import random
+import time
 from PIL import Image
 import base64
-import json
-import webbrowser
 
-# إعدادات الصفحة
+# ===== إعداد الصفحة =====
 st.set_page_config(
-    page_title="المكتبة البيئية الرقمية",
-    page_icon="📚",
+    page_title="💝 إلى شيراز 💝",
+    page_icon="❤️",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
-# CSS مخصص لتحسين المظهر
+# ===== تهيئة حالة التطبيق =====
+if "page" not in st.session_state:
+    st.session_state.page = "main"
+if "show_message" not in st.session_state:
+    st.session_state.show_message = False
+if "show_surprise" not in st.session_state:
+    st.session_state.show_surprise = False
+if "music_playing" not in st.session_state:
+    st.session_state.music_playing = False
+if "heart_click" not in st.session_state:
+    st.session_state.heart_click = 0
+if "valentine_count" not in st.session_state:
+    st.session_state.valentine_count = 0
+if "memory_shown" not in st.session_state:
+    st.session_state.memory_shown = 0
+if "show_hide_memory" not in st.session_state:
+    st.session_state.show_hide_memory = False
+
+# ===== التصميم =====
 st.markdown("""
 <style>
-    /* تصميم أنيق ونظيف */
-    .main-title {
-        text-align: center;
-        color: #1B5E20;
-        padding: 25px;
-        font-size: 2.8rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, #E3F2FD, #C8E6C9);
-        border-radius: 20px;
-        margin-bottom: 30px;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.08);
-        border: 1px solid #BBDEFB;
-        font-family: 'Arial', sans-serif;
+    @import url('https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;700&display=swap');
+    
+    * {
+        font-family: 'Readex Pro', sans-serif;
     }
     
-    /* تصميم شعار المدرسة */
-    .school-logo-container {
-        text-align: center;
+    .stApp {
+        background: linear-gradient(135deg, #4a0000 0%, #8B0000 50%, #c71585 100%);
+        background-attachment: fixed;
+    }
+    
+    /* القلب الرئيسي */
+    .main-heart {
+        position: relative;
+        width: 200px;
+        height: 200px;
+        margin: 0 auto 30px;
+        animation: heartbeat 1.5s ease-in-out infinite;
+        cursor: pointer;
+        filter: drop-shadow(0 0 30px rgba(255, 20, 147, 0.5));
+    }
+    
+    @keyframes heartbeat {
+        0% { transform: scale(1); }
+        14% { transform: scale(1.2); }
+        28% { transform: scale(1); }
+        42% { transform: scale(1.2); }
+        70% { transform: scale(1); }
+    }
+    
+    /* البطاقة الرئيسية */
+    .card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 40px;
+        padding: 40px;
+        box-shadow: 0 30px 60px rgba(139, 0, 0, 0.3),
+                    0 0 0 5px rgba(255, 255, 255, 0.5);
+        border: 3px solid white;
         margin: 20px 0;
-        padding: 15px;
+        animation: cardAppear 1s ease-out;
+    }
+    
+    @keyframes cardAppear {
+        from {
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* العنوان */
+    .title {
+        font-size: 60px;
+        font-weight: 900;
+        background: linear-gradient(135deg, #8B0000, #c71585);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-align: center;
+        margin-bottom: 20px;
+        text-shadow: 3px 3px 0 rgba(255, 255, 255, 0.3);
+    }
+    
+    /* القلوب المتطايرة */
+    .floating-heart {
+        position: fixed;
+        font-size: 20px;
+        animation: float 4s infinite;
+        pointer-events: none;
+        z-index: 999;
+    }
+    
+    @keyframes float {
+        0% {
+            transform: translateY(100vh) rotate(0deg);
+            opacity: 0;
+        }
+        10% {
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(-100px) rotate(360deg);
+            opacity: 0;
+        }
+    }
+    
+    /* مربع الرسالة */
+    .message-box {
+        background: rgba(255, 240, 245, 0.9);
+        border-radius: 30px;
+        padding: 30px;
+        border: 3px dashed #8B0000;
+        position: relative;
+        margin: 30px 0;
+    }
+    
+    .message-box::before {
+        content: "💌";
+        position: absolute;
+        top: -20px;
+        right: -20px;
+        font-size: 40px;
+        background: white;
+        border-radius: 50%;
+        padding: 10px;
+        box-shadow: 0 5px 15px rgba(139, 0, 0, 0.3);
+        animation: bounce 2s infinite;
+    }
+    
+    @keyframes bounce {
+        0%, 100% { transform: rotate(-5deg); }
+        50% { transform: rotate(5deg) translateY(-5px); }
+    }
+    
+    /* النص المميز */
+    .highlight {
+        font-size: 28px;
+        font-weight: 900;
+        color: #8B0000;
+        display: inline-block;
+        animation: glow 2s infinite;
+    }
+    
+    @keyframes glow {
+        0%, 100% { text-shadow: 0 0 10px #c71585; }
+        50% { text-shadow: 0 0 30px #8B0000; }
+    }
+    
+    /* الأزرار */
+    .custom-btn {
+        background: linear-gradient(135deg, #8B0000, #c71585);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 15px 30px;
+        font-size: 18px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid white;
+        width: 100%;
+        margin: 5px 0;
+        box-shadow: 0 10px 20px rgba(139, 0, 0, 0.3);
+    }
+    
+    .custom-btn:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(199, 21, 133, 0.5);
+    }
+    
+    .custom-btn-white {
+        background: white;
+        color: #8B0000;
+        border: 2px solid #8B0000;
+    }
+    
+    /* صندوق الموسيقى */
+    .music-box {
+        background: linear-gradient(135deg, rgba(139, 0, 0, 0.1), rgba(199, 21, 133, 0.1));
+        border-radius: 20px;
+        padding: 20px;
+        margin: 20px 0;
+        border: 2px solid white;
+        backdrop-filter: blur(5px);
+        text-align: center;
+    }
+    
+    .vinyl-record {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #1a1a1a, #333);
+        animation: spin 4s linear infinite;
+        margin: 0 auto 15px;
+        border: 3px solid white;
+        box-shadow: 0 0 20px rgba(199, 21, 133, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 30px;
+    }
+    
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    /* مشغل الموسيقى */
+    .audio-player {
+        background: white;
+        border-radius: 50px;
+        padding: 10px 20px;
+        margin: 20px 0;
+        border: 2px solid #8B0000;
+    }
+    
+    /* العد التنازلي */
+    .countdown-box {
+        background: rgba(139, 0, 0, 0.2);
+        backdrop-filter: blur(10px);
+        border-radius: 100px;
+        padding: 20px;
+        text-align: center;
+        color: white;
+        margin: 20px 0;
+    }
+    
+    .timer {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+    
+    .time-unit {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 15px;
+        padding: 10px;
+        min-width: 70px;
+    }
+    
+    .time-number {
+        font-size: 36px;
+        font-weight: 900;
+    }
+    
+    /* ذكريات */
+    .memory-card {
         background: white;
         border-radius: 15px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        padding: 20px;
+        margin: 10px 0;
+        border-right: 5px solid #8B0000;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
     }
     
-    .school-logo {
-        max-width: 100%;
-        height: auto;
-        margin: 0 auto;
-        display: block;
+    .memory-card:hover {
+        transform: translateX(-10px);
+        box-shadow: 0 10px 25px rgba(139,0,0,0.2);
     }
     
-    .school-name {
-        font-size: 1.3rem;
-        color: #1B5E20;
-        font-weight: bold;
-        margin-top: 10px;
-    }
-    
-    /* بطاقات المواد المعدلة */
-    .resource-card {
-        background: linear-gradient(145deg, #ffffff, #f8f9fa);
+    /* قصة الاختباء */
+    .hide-story {
+        background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+        color: white;
+        padding: 30px;
         border-radius: 20px;
-        padding: 25px;
-        margin: 15px 0;
-        border: 1px solid #e0e0e0;
-        box-shadow: 0 8px 16px rgba(0,0,0,0.05);
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        height: auto;
-        min-height: 380px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
+        margin: 20px 0;
+        border: 3px solid #c71585;
         position: relative;
         overflow: hidden;
-        border-left: 6px solid #4CAF50;
     }
     
-    .resource-card:hover {
-        transform: translateY(-10px) scale(1.02);
-        box-shadow: 0 20px 30px rgba(0,0,0,0.1);
-        border-color: #4CAF50;
-        background: linear-gradient(145deg, #f1f8e9, #e8f5e9);
-        border-left: 6px solid #2E7D32;
-    }
-    
-    .resource-type {
+    .hide-story::before {
+        content: "👀";
         position: absolute;
-        top: 15px;
-        right: 15px;
-        background: linear-gradient(135deg, #4CAF50, #2E7D32);
+        top: 10px;
+        left: 10px;
+        font-size: 30px;
+        opacity: 0.2;
+        animation: peek 3s infinite;
+    }
+    
+    @keyframes peek {
+        0%, 100% { transform: translateX(0); }
+        50% { transform: translateX(10px); }
+    }
+    
+    /* التوقيع */
+    .signature {
+        text-align: center;
+        margin-top: 40px;
+        font-size: 24px;
+        font-weight: 900;
         color: white;
-        padding: 8px 16px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    /* البوم الصور */
+    .photo-album {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 15px;
+        margin: 30px 0;
+    }
+    
+    .photo-frame {
+        aspect-ratio: 1;
+        background: linear-gradient(45deg, #8B0000, #c71585);
+        padding: 5px;
         border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: bold;
-        box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-        z-index: 2;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
     }
     
-    .resource-title {
-        color: #1A237E;
-        font-size: 1.4rem;
-        font-weight: 700;
-        margin: 15px 0 20px 0;
-        text-align: right;
-        padding-right: 10px;
-        line-height: 1.4;
-        min-height: 70px;
-        font-family: 'Arial', sans-serif;
+    .photo-frame:hover {
+        transform: scale(1.05) rotate(3deg);
     }
     
-    .resource-description {
-        color: #546E7A;
-        font-size: 1rem;
-        text-align: right;
-        margin: 10px 0 15px 0;
-        line-height: 1.6;
-        min-height: 80px;
-        opacity: 0.9;
-    }
-    
-    .resource-category {
-        display: inline-block;
-        background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
-        color: #1565C0;
-        padding: 8px 18px;
-        border-radius: 25px;
-        font-size: 0.9rem;
-        margin: 10px 0;
-        font-weight: 600;
-        border: 1px solid #90CAF9;
-    }
-    
-    /* أزرار معدلة */
-    .action-button {
-        background: linear-gradient(135deg, #2196F3, #1976D2);
-        color: white;
-        border: none;
-        padding: 14px 24px;
-        border-radius: 30px;
-        font-weight: 600;
-        cursor: pointer;
+    .photo-placeholder {
         width: 100%;
-        transition: all 0.3s;
-        margin-top: 15px;
-        text-align: center;
-        text-decoration: none;
-        display: block;
-        font-size: 1rem;
-        box-shadow: 0 4px 8px rgba(33, 150, 243, 0.2);
-    }
-    
-    .action-button:hover {
-        background: linear-gradient(135deg, #1976D2, #0D47A1);
-        box-shadow: 0 6px 12px rgba(33, 150, 243, 0.3);
-        transform: translateY(-2px);
-    }
-    
-    .download-button {
-        background: linear-gradient(135deg, #4CAF50, #2E7D32);
-        color: white;
-        border: none;
-        padding: 14px 24px;
-        border-radius: 30px;
-        font-weight: 600;
-        cursor: pointer;
-        width: 100%;
-        transition: all 0.3s;
-        margin-top: 15px;
-        text-align: center;
-        text-decoration: none;
-        display: block;
-        font-size: 1rem;
-        box-shadow: 0 4px 8px rgba(76, 175, 80, 0.2);
-    }
-    
-    .download-button:hover {
-        background: linear-gradient(135deg, #2E7D32, #1B5E20);
-        box-shadow: 0 6px 12px rgba(76, 175, 80, 0.3);
-        transform: translateY(-2px);
-    }
-    
-    /* الشريط الجانبي المعدل */
-    .sidebar-section {
-        background: linear-gradient(135deg, #F1F8E9, #E8F5E9);
-        padding: 20px;
+        height: 100%;
+        background: rgba(255,255,255,0.9);
         border-radius: 15px;
-        margin-bottom: 25px;
-        border: 1px solid #C8E6C9;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 40px;
     }
     
-    .search-box {
-        width: 100%;
-        padding: 14px 20px;
-        border: 2px solid #4CAF50;
-        border-radius: 30px;
-        font-size: 1rem;
-        margin-bottom: 25px;
-        background: white;
-        box-shadow: 0 3px 6px rgba(0,0,0,0.05);
-        transition: all 0.3s;
+    /* تأثير الدموع */
+    .tear-effect {
+        position: relative;
     }
     
-    .search-box:focus {
-        outline: none;
-        border-color: #2196F3;
-        box-shadow: 0 4px 10px rgba(33, 150, 243, 0.2);
-    }
-    
-    .stats-card {
-        background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
-        padding: 20px;
-        border-radius: 15px;
-        color: #1B5E20;
-        text-align: center;
-        margin: 15px 0;
-        border: 1px solid #A5D6A7;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-    }
-    
-    .resource-stats-card {
-        background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
-        padding: 20px;
-        border-radius: 15px;
-        color: #0D47A1;
-        text-align: center;
-        margin: 15px 0;
-        border: 1px solid #90CAF9;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-    }
-    
-    .resource-icon {
-        font-size: 3rem;
-        margin-bottom: 15px;
-        color: #4CAF50;
-        text-align: center;
-        opacity: 0.9;
-    }
-    
-    .book-icon {
-        font-size: 3rem;
-        margin-bottom: 15px;
-        color: #2196F3;
-        text-align: center;
-        opacity: 0.9;
-    }
-    
-    .download-count {
+    .tear {
         position: absolute;
-        bottom: 20px;
-        left: 20px;
-        background: linear-gradient(135deg, #FF9800, #F57C00);
-        color: white;
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        width: 10px;
+        height: 10px;
+        background: rgba(173, 216, 230, 0.5);
+        border-radius: 50%;
+        animation: fall 3s infinite;
     }
     
-    /* تحسينات عامة */
-    .stSelectbox, .stTextInput {
-        font-family: 'Arial', sans-serif;
+    @keyframes fall {
+        0% { transform: translateY(-20px); opacity: 0; }
+        50% { opacity: 1; }
+        100% { transform: translateY(100px); opacity: 0; }
     }
     
-    h1, h2, h3, h4, h5, h6 {
-        font-family: 'Arial', sans-serif;
-        font-weight: 700;
-    }
-    
-    /* تأثيرات للبطاقات */
-    .resource-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        background: linear-gradient(90deg, #4CAF50, #2196F3);
-        opacity: 0;
-        transition: opacity 0.3s;
-    }
-    
-    .resource-card:hover::before {
-        opacity: 1;
-    }
-    
-    /* تحسين العرض على الأجهزة الصغيرة */
+    /* للشاشات الصغيرة */
     @media (max-width: 768px) {
-        .resource-card {
-            height: auto;
-            min-height: 350px;
+        .title {
+            font-size: 40px;
         }
-        
-        .resource-title {
-            font-size: 1.2rem;
+        .timer {
+            gap: 10px;
         }
-        
-        .main-title {
-            font-size: 2rem;
-            padding: 15px;
+        .time-unit {
+            min-width: 50px;
         }
-        
-        .school-logo {
-            max-width: 200px;
+        .time-number {
+            font-size: 24px;
         }
-    }
-    
-    /* تأثيرات التحميل */
-    .loading-effect {
-        animation: pulse 1.5s infinite;
-    }
-    
-    @keyframes pulse {
-        0% { opacity: 1; }
-        50% { opacity: 0.7; }
-        100% { opacity: 1; }
     }
 </style>
 """, unsafe_allow_html=True)
 
-# جميع المواد الحقيقية المتاحة
-def get_all_resources():
-    return [
-        {
-            "id": 1,
-            "title": "إصدار الاقتصاد الأخضر: فرص استثمارية واعدة",
-            "description": "تقرير شامل عن الاقتصاد الأخضر وأساليب التحول نحوه، مع تحليل لخطط الدول الكبرى والتجربة المصرية الناجحة. يحتوي على معلومات عن الطاقة المتجددة، البناء الأخضر، السياحة البيئية، والسندات الخضراء.",
-            "author": "المركز المصري للفكر والدراسات الاستراتيجية",
-            "category": "تقرير بحثي",
-            "type": "PDF",
-            "year": 2023,
-            "source": "المركز المصري للفكر والدراسات الاستراتيجية",
-            "file_url": "https://ecss.com.eg/wp-content/uploads/2021/11/%D8%A7%D8%B5%D8%AF%D8%A7%D8%B1-%D8%A7%D9%84%D8%A7%D9%82%D8%AA%D8%B5%D8%A7%D8%AF-%D8%A7%D9%84%D8%A7%D8%AE%D8%B6%D8%B1.pdf",
-            "download_url": "https://ecss.com.eg/wp-content/uploads/2021/11/%D8%A7%D8%B5%D8%AF%D8%A7%D8%B1-%D8%A7%D9%84%D8%A7%D9%82%D8%AA%D8%B5%D8%A7%D8%AF-%D8%A7%D9%84%D8%A7%D8%AE%D8%B6%D8%B1.pdf",
-            "icon": "📊",
-            "resource_type": "ملف",
-            "pages": 55,
-            "file_size": "4.2 MB",
-            "downloads": 1560
-        },
-        {
-            "id": 101,
-            "title": "الأجندة الوطنية الخضراء- 2030",
-            "description": "الرؤية الشاملة لدولة الإمارات العربية المتحدة للتحول نحو الاقتصاد الأخضر والتنمية المستدامة بحلول عام 2030.",
-            "author": "حكومة دولة الإمارات العربية المتحدة",
-            "category": "رؤية وطنية",
-            "type": "موقع إلكتروني",
-            "year": 2030,
-            "source": "حكومة الإمارات",
-            "url": "https://u.ae/ar/about-the-uae/strategies-initiatives-and-awards/strategies-plans-and-visions/environment-and-energy/the-uaes-green-agenda-2030",
-            "icon": "🇦🇪",
-            "resource_type": "رابط",
-            "views": 3450
-        },
-        {
-            "id": 102,
-            "title": "مشروع مدينة مصدر - أبوظبي",
-            "description": "المدينة المستدامة الأولى في العالم من حيث الطاقة النظيفة في أبوظبي، كمثال رائد للمدن الذكية والصديقة للبيئة.",
-            "author": "شركة أبوظبي لطاقة المستقبل (مصدر)",
-            "category": "مشروع مستدام",
-            "type": "موقع إلكتروني",
-            "year": 2023,
-            "source": "مصدر",
-            "url": "https://masdarcity.ae/ar/about",
-            "icon": "🏙️",
-            "resource_type": "رابط",
-            "views": 2876
-        },
-        {
-            "id": 103,
-            "title": "الاستراتيجية الوطنية للطاقة 2050 - الإمارات",
-            "description": "الاستراتيجية الشاملة لدولة الإمارات لتحقيق التوازن بين الإنتاج والاستهلاك، مع التركيز على الطاقة النظيفة.",
-            "author": "وزارة الطاقة والبنية التحتية",
-            "category": "استراتيجية وطنية",
-            "type": "موقع إلكتروني",
-            "year": 2017,
-            "source": "وزارة الطاقة الإماراتية",
-            "url": "https://u.ae/ar/about-the-uae/strategies-initiatives-and-awards/strategies-plans-and-visions/environment-and-energy/uae-energy-strategy-2050#:~:text=%D8%AA%D9%87%D8%AF%D9%81%20%D8%A7%D8%B3%D8%AA%D8%B1%D8%A7%D8%AA%D9%8A%D8%AC%D9%8A%D8%A9%20%D8%A7%D9%84%D8%A5%D9%85%D8%A7%D8%B1%D8%A7%D8%AA%20%D9%84%D9%84%D8%B7%D8%A7%D9%82%D8%A9%20%2D%202050,%D8%A7%D9%84%D8%AF%D9%88%D9%84%D8%A9%20%D8%A8%D8%B3%D8%A8%D8%A8%20%D8%A7%D9%84%D9%86%D9%85%D9%88%20%D8%A7%D9%84%D8%A7%D9%82%D8%AA%D8%B5%D8%A7%D8%AF%D9%8A%20%D8%A7%D9%84%D9%85%D8%AA%D8%B3%D8%A7%D8%B1%D8%B9.",
-            "icon": "⚡",
-            "resource_type": "رابط",
-            "views": 1923
-        },
-        {
-            "id": 104,
-            "title": "محطة نور أبوظبي للطاقة الشمسية",
-            "description": "أكبر محطة مستقلة للطاقة الشمسية في العالم في موقع واحد بسعة 1.17 جيجاوات في منطقة سويحان بأبوظبي.",
-            "author": "شركة مياه وكهرباء الإمارات",
-            "category": "طاقة متجددة",
-            "type": "موقع إلكتروني",
-            "year": 2019,
-            "source": "EWEC",
-            "url": "https://noorabudhabi.ae/ar/our-plant/",
-            "icon": "🌞",
-            "resource_type": "رابط",
-            "views": 2105
-        },
-        {
-            "id": 105,
-            "title": "الاستراتيجية الوطنية للتغير المناخي 2050 - الإمارات",
-            "description": "الاستراتيجية الشاملة لمواجهة التغير المناخي وتحقيق الحياد المناخي بحلول عام 2050.",
-            "author": "وزارة التغير المناخي والبيئة",
-            "category": "استراتيجية وطنية",
-            "type": "موقع إلكتروني",
-            "year": 2023,
-            "source": "وزارة التغير المناخي",
-            "url": "https://u.ae/ar/about-the-uae/strategies-initiatives-and-awards/strategies-plans-and-visions/environment-and-energy/the-uae-net-zero-2050-strategy",
-            "icon": "🌍",
-            "resource_type": "رابط",
-            "views": 1876
-        },
-        {
-            "id": 106,
-            "title": "الهيدروجين الأخضر في الإمارات",
-            "description": "مشاريع الإمارات الرائدة في إنتاج وتصدير الهيدروجين الأخضر كمصدر للطاقة النظيفة.",
-            "author": "وزارة الطاقة والبنية التحتية",
-            "category": "طاقة نظيفة",
-            "type": "موقع إلكتروني",
-            "year": 2024,
-            "source": "وزارة الطاقة الإماراتية",
-            "url": "https://u.ae/ar/about-the-uae/strategies-initiatives-and-awards/strategies-plans-and-visions/environment-and-energy/national-hydrogen-strategy",
-            "icon": "⚗️",
-            "resource_type": "رابط",
-            "views": 1543
-        },
-        {
-            "id": 107,
-            "title": "السياحة المستدامة في الإمارات",
-            "description": "مبادرات السياحة البيئية والمستدامة في مختلف إمارات الدولة لتعزيز السياحة المسؤولة.",
-            "author": "وزارة الاقتصاد",
-            "category": "سياحة بيئية",
-            "type": "موقع إلكتروني",
-            "year": 2023,
-            "source": "وكالة وام",
-            "url": "https://www.wam.ae/ar/article/hszrhd0u-%D8%A7%D9%84%D8%B3%D9%8A%D8%A7%D8%AD%D8%A9-%D8%A7%D9%84%D9%85%D8%B3%D8%AA%D8%AF%D8%A7%D9%85%D8%A9-%D8%A7%D9%84%D8%A5%D9%85%D8%A7%D8%B1%D8%A7%D8%AA-%D8%AA%D9%86%D9%88%D9%8A%D8%B9-%D8%A7%D9%82%D8%AA%D8%B5%D8%A7%D8%AF%D9%8A-%D9%88%D8%AE%D9%81%D8%B6",
-            "icon": "🏨",
-            "resource_type": "رابط",
-            "views": 1095
-        },
-        {
-            "id": 108,
-            "title": "مبادرة الإمارات الخضراء",
-            "description": "المبادرة الوطنية الشاملة لتحقيق الاستدامة البيئية في جميع القطاعات والمجالات.",
-            "author": "وزارة التغير المناخي والبيئة",
-            "category": "مبادرة وطنية",
-            "type": "موقع إلكتروني",
-            "year": 2022,
-            "source": "وزارة التغير المناخي",
-            "url": "https://u.ae/ar/about-the-uae/economy/green-economy-for-sustainable-development",
-            "icon": "🌿",
-            "resource_type": "رابط",
-            "views": 2310
-        },
-        {
-            "id": 109,
-            "title": "إدارة النفايات في دبي",
-            "description": "الاستراتيجية الشاملة لإدارة النفايات في دبي وتحويلها إلى طاقة وموارد قابلة لإعادة التدوير.",
-            "author": "بلدية دبي",
-            "category": "إدارة النفايات",
-            "type": "موقع إلكتروني",
-            "year": 2023,
-            "source": "بلدية دبي",
-            "url": "https://u.ae/ar-ae/information-and-services/environment-and-energy/waste-management",
-            "icon": "♻️",
-            "resource_type": "رابط",
-            "views": 1678
-        },
-        {
-            "id": 110,
-            "title": "النقل المستدام في الإمارات",
-            "description": "مشاريع النقل الكهربائي والذكي في الإمارات بما في ذلك القطارات والمترو والمركبات الكهربائية.",
-            "author": "وزارة الطاقة والبنية التحتية",
-            "category": "نقل مستدام",
-            "type": "موقع إلكتروني",
-            "year": 2023,
-            "source": "وزارة الطاقة الإماراتية",
-            "url": "https://www.mediaoffice.abudhabi/ar/transport/integrated-transport-centre-abu-dhabi-mobility-advances-sustainable-mobility-with-strategic-investment-in-electric-vehicle-charging-infrastructure/",
-            "icon": "🚗",
-            "resource_type": "رابط",
-            "views": 1987
-        },
-        {
-            "id": 111,
-            "title": "الزراعة المستدامة في الإمارات",
-            "description": "تقنيات الزراعة الحديثة والمستدامة في المناطق الصحراوية لتحقيق الأمن الغذائي.",
-            "author": "وزارة التغير المناخي والبيئة",
-            "category": "زراعة مستدامة",
-            "type": "موقع إلكتروني",
-            "year": 2023,
-            "source": "وزارة التغير المناخي",
-            "url": "https://u.ae/ar/information-and-services/environment-and-energy/agriculture",
-            "icon": "🌱",
-            "resource_type": "رابط",
-            "views": 1456
-        },
-        {
-            "id": 112,
-            "title": "البناء الأخضر في أبوظبي",
-            "description": "معايير البناء الأخضر واستدامة المباني في إمارة أبوظبي وفق نظام استدامة المباني (ESTIDAMA).",
-            "author": "هيئة البيئة - أبوظبي",
-            "category": "بناء أخضر",
-            "type": "موقع إلكتروني",
-            "year": 2023,
-            "source": "هيئة البيئة أبوظبي",
-            "url": "https://www.dmt.gov.ae/adm/Media-Centre/News/08Jan2025",
-            "icon": "🏗️",
-            "resource_type": "رابط",
-            "views": 1567
-        },
-        {
-            "id": 113,
-            "title": "تقرير الاستدامة السنوي - الإمارات",
-            "description": "التقرير السنوي الشامل عن إنجازات الاستدامة والأداء البيئي في دولة الإمارات.",
-            "author": "وزارة التغير المناخي والبيئة",
-            "category": "تقرير سنوي",
-            "type": "موقع إلكتروني",
-            "year": 2023,
-            "source": "وزارة التغير المناخي",
-            "url": "https://www.dubaiinvestments.com/Media/0d5k3agm/di-sustainability-report-2023-ar.pdf",
-            "icon": "📈",
-            "resource_type": "رابط",
-            "views": 2109
-        },
-        {
-            "id": 114,
-            "title": "الاقتصاد الدائري في الإمارات",
-            "description": "مبادرات ومشاريع الاقتصاد الدائري في الإمارات لتعظيم استفادة الموارد وتقليل الهدر.",
-            "author": "وزارة الاقتصاد",
-            "category": "اقتصاد دائري",
-            "type": "موقع إلكتروني",
-            "year": 2023,
-            "source": "وزارة الاقتصاد",
-            "url": "https://u.ae/ar/about-the-uae/economy/circular-economy",
-            "icon": "🔄",
-            "resource_type": "رابط",
-            "views": 1789
-        },
-        {
-            "id": 115,
-            "title": "محميات طبيعية في الإمارات",
-            "description": "المحميات الطبيعية والمناطق المحمية في الإمارات للحفاظ على التنوع البيولوجي والبيئة.",
-            "author": "وزارة التغير المناخي والبيئة",
-            "category": "حماية بيئية",
-            "type": "موقع إلكتروني",
-            "year": 2023,
-            "source": "وزارة التغير المناخي",
-            "url": "https://ar.wikipedia.org/wiki/%D9%82%D8%A7%D8%A6%D9%85%D8%A9_%D8%A7%D9%84%D9%85%D9%86%D8%A7%D8%B7%D9%82_%D8%A7%D9%84%D9%85%D8%AD%D9%85%D9%8A%D8%A9_%D9%81%D9%8A_%D8%AF%D9%88%D9%84%D8%A9_%D8%A7%D9%84%D8%A5%D9%85%D8%A7%D8%B1%D8%A7%D8%AA_%D8%A7%D9%84%D8%B9%D8%B1%D8%A8%D9%8A%D8%A9_%D8%A7%D9%84%D9%85%D8%AA%D8%AD%D8%AF%D8%A9",
-            "icon": "🦜",
-            "resource_type": "رابط",
-            "views": 1234
-        }
-    ]
+# ===== دوال مساعدة =====
+def create_floating_hearts():
+    """توليد قلوب متطايرة"""
+    hearts_html = ""
+    for i in range(30):
+        left = random.randint(0, 100)
+        delay = random.uniform(0, 4)
+        size = random.randint(15, 30)
+        hearts = ["❤️", "💖", "💝", "💗", "💓", "💕"]
+        heart = random.choice(hearts)
+        hearts_html += f"""
+        <div class="floating-heart" style="
+            left: {left}%;
+            animation-delay: {delay}s;
+            font-size: {size}px;
+            color: {random.choice(['#FF69B4', '#FFB6C1', '#FF1493', '#DB7093'])};
+        ">{heart}</div>
+        """
+    return hearts_html
 
-# دالة لعرض محتوى المادة
-def display_resource_content(resource):
-    st.markdown(f"## {resource.get('icon', '📄')} {resource['title']}")
+def countdown_to_valentine():
+    """عد تنازلي للفلانتين"""
+    now = datetime.datetime.now()
+    valentine = datetime.datetime(2026, 2, 14)
     
-    if resource['id'] == 1:
-        col1, col2 = st.columns([1, 2])
-        
-        with col1:
-            # تصميم غلاف الكتاب بدون صور
-            st.markdown("""
-            <div style="background: linear-gradient(135deg, #1B5E20, #2E7D32);
-                        border-radius: 15px;
-                        padding: 30px 20px;
-                        text-align: center;
-                        color: white;
-                        margin-bottom: 20px;
-                        box-shadow: 0 10px 20px rgba(27, 94, 32, 0.2);">
-                <div style="font-size: 3rem; margin-bottom: 15px;">📘</div>
-                <h3 style="margin: 0; font-size: 1.5rem;">الاقتصاد الأخضر</h3>
-                <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 1.1rem;">فرص استثمارية واعدة</p>
-            </div>
-            """, unsafe_allow_html=True)
-            
-            # زر تحميل الكتاب
-            st.markdown("### 📥 تحميل الكتاب")
-            if os.path.exists(resource['file_url']):
-                with open(resource['file_url'], "rb") as file:
-                    file_data = file.read()
-                    b64 = base64.b64encode(file_data).decode()
-                    href = f'<a href="data:application/pdf;base64,{b64}" download="{resource["file_url"]}" class="download-button">📥 تحميل الكتاب (PDF)</a>'
-                    st.markdown(href, unsafe_allow_html=True)
-            else:
-                st.warning("ملف الكتاب غير متاح للتحميل حالياً")
-            
-            # معلومات سريعة
-            st.markdown("""
-            <div style="background: #E8F5E9; 
-                        border-radius: 12px; 
-                        padding: 15px; 
-                        margin-top: 20px;">
-                <h4 style="color: #2E7D32; margin-top: 0;">📋 معلومات سريعة</h4>
-                <p><strong>الصفحات:</strong> 55 صفحة</p>
-                <p><strong>الحجم:</strong> 4.2 MB</p>
-                <p><strong>التحميلات:</strong> 1,560</p>
-                <p><strong>التصنيف:</strong> تقرير بحثي</p>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        with col2:
-            # معلومات الكتاب
-            st.markdown("### 📋 معلومات الكتاب")
-            
-            info_cols = st.columns(2)
-            with info_cols[0]:
-                st.markdown(f"**المؤلف:** {resource['author']}")
-                st.markdown(f"**السنة:** {resource['year']}")
-                st.markdown(f"**التصنيف:** {resource['category']}")
-            
-            with info_cols[1]:
-                st.markdown(f"**عدد الصفحات:** {resource['pages']}")
-                st.markdown(f"**حجم الملف:** {resource['file_size']}")
-                st.markdown(f"**التحميلات:** {resource['downloads']:,}")
-            
-            st.divider()
-            
-            # وصف الكتاب
-            st.markdown("### 📝 عن الكتاب")
-            st.write(resource['description'])
-            
-            # فصول الكتاب
-            st.markdown("### 📑 الفصول الرئيسية")
-            chapters = [
-                "ماهية الاقتصاد الأخضر",
-                "تطور مفهوم الاقتصاد الأخضر", 
-                "أساليب التحول نحو الاقتصاد الأخضر",
-                "خطط القوى الدولية نحو الاقتصاد الأخضر",
-                "بورصة الكربون العالمية",
-                "الصفقة الخضراء الأوروبية",
-                "استراتيجية الصفر البريطانية",
-                "التحول نحو الهيدروجين الأخضر"
-            ]
-            
-            for i, chapter in enumerate(chapters, 1):
-                st.markdown(f"**{i}.** {chapter}")
-    else:
-        col1, col2 = st.columns([1, 2])
-        
-        with col1:
-            st.markdown(f'<div style="font-size: 4rem; text-align: center; color: #2196F3; margin: 20px 0;">{resource.get("icon", "🌐")}</div>', unsafe_allow_html=True)
-            
-            if resource.get('url'):
-                st.markdown(f'<a href="{resource["url"]}" target="_blank" class="action-button">🔗 فتح الرابط</a>', unsafe_allow_html=True)
-        
-        with col2:
-            st.markdown("### 📋 معلومات المادة")
-            
-            info_cols = st.columns(2)
-            with info_cols[0]:
-                st.markdown(f"**المصدر:** {resource.get('author', resource.get('source', 'غير محدد'))}")
-                st.markdown(f"**السنة:** {resource.get('year', 'غير محدد')}")
-                st.markdown(f"**التصنيف:** {resource.get('category', 'غير مصنف')}")
-            
-            with info_cols[1]:
-                st.markdown(f"**النوع:** {resource.get('type', 'غير محدد')}")
-                if resource.get('views'):
-                    st.markdown(f"**المشاهدات:** {resource['views']:,}")
-            
-            st.divider()
-            
-            st.markdown("### 📝 الوصف")
-            st.write(resource['description'])
+    if now > valentine:
+        return None
+    
+    diff = valentine - now
+    days = diff.days
+    hours = diff.seconds // 3600
+    minutes = (diff.seconds % 3600) // 60
+    seconds = diff.seconds % 60
+    
+    return days, hours, minutes, seconds
 
-# دالة الرئيسية
-def main():
-    # حالة التطبيق
-    if 'viewing_resource' not in st.session_state:
-        st.session_state['viewing_resource'] = None
-    if 'search_query' not in st.session_state:
-        st.session_state['search_query'] = ""
-    if 'selected_category' not in st.session_state:
-        st.session_state['selected_category'] = "الكل"
-    if 'selected_type' not in st.session_state:
-        st.session_state['selected_type'] = "الكل"
+def play_song():
+    """تشغيل أغنية ilomilo"""
+    st.session_state.music_playing = not st.session_state.music_playing
+    if st.session_state.music_playing:
+        st.balloons()
+
+# ===== الصفحة الرئيسية =====
+def main_page():
+    # قلوب متطايرة
+    st.markdown(create_floating_hearts(), unsafe_allow_html=True)
     
-    # محاولة تحميل الصورة من الملف المحلي
-    try:
-        # إذا كانت الصورة موجودة محلياً
-        if os.path.exists("images.jpeg"):
-            image = Image.open("images.jpeg")
-            
-            # إنشاء تخطيط مع الصورة
-            col1, col2, col3 = st.columns([1, 2, 1])
-            
-            with col2:
-                st.image(image, caption="مدرسة المنيرة الخاصة", use_container_width=True)
-            
-            # العنوان الرئيسي تحت الصورة
-            st.markdown("""
-            <div class="main-title">
-                <div style="font-size: 3.5rem; margin-bottom: 10px;">🌿📚</div>
-                المكتبة البيئية الرقمية
-                <div style="font-size: 1.2rem; font-weight: normal; margin-top: 10px; opacity: 0.8;">
-                    مركز المعرفة البيئية والاستدامة - مدرسة المنيرة الخاصة
+    # الهيدر
+    col1, col2, col3 = st.columns([1, 2, 1])
+    
+    with col2:
+        # القلب الرئيسي
+        st.markdown("""
+        <div class="main-heart" onclick="
+            this.style.transform='scale(1.3)';
+            setTimeout(()=>this.style.transform='scale(1)', 200);
+        ">
+            <svg viewBox="0 0 32 29.6" style="width:100%; height:100%; fill: #8B0000;">
+                <path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2
+                c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/>
+            </svg>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        if st.button("❤️ إضغطي على القلب", key="heart_btn"):
+            st.session_state.heart_click += 1
+            if st.session_state.heart_click % 5 == 0:
+                st.balloons()
+    
+    st.markdown(f"<h1 class='title'>شيراز يا أجمل شيراز 💝</h1>", unsafe_allow_html=True)
+    
+    # البطاقة الرئيسية
+    with st.container():
+        st.markdown('<div class="card">', unsafe_allow_html=True)
+        
+        # ألبوم الصور (مكان للصور الافتراضية)
+        st.markdown("""
+        <div class="photo-album">
+            <div class="photo-frame"><div class="photo-placeholder">👧🏾</div></div>
+            <div class="photo-frame"><div class="photo-placeholder">👦🏿</div></div>
+            <div class="photo-frame"><div class="photo-placeholder">💭</div></div>
+            <div class="photo-frame"><div class="photo-placeholder">🌹</div></div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # العد التنازلي
+        countdown = countdown_to_valentine()
+        if countdown:
+            days, hours, minutes, seconds = countdown
+            st.markdown(f"""
+            <div class="countdown-box">
+                <h3>⏳ باقي على الفلانتين يا قمر</h3>
+                <div class="timer">
+                    <div class="time-unit"><div class="time-number">{days}</div><div>يوم</div></div>
+                    <div class="time-unit"><div class="time-number">{hours}</div><div>ساعة</div></div>
+                    <div class="time-unit"><div class="time-number">{minutes}</div><div>دقيقة</div></div>
+                    <div class="time-unit"><div class="time-number">{seconds}</div><div>ثانية</div></div>
                 </div>
             </div>
             """, unsafe_allow_html=True)
         else:
-            # إذا لم توجد الصورة، نعرض العنوان بشكل عادي
             st.markdown("""
-            <div class="main-title">
-                <div style="font-size: 3.5rem; margin-bottom: 10px;">🌿📚</div>
-                المكتبة البيئية الرقمية
-                <div style="font-size: 1.2rem; font-weight: normal; margin-top: 10px; opacity: 0.8;">
-                    مركز المعرفة البيئية والاستدامة<br>
-                    <span style="font-size: 1.2rem; color: #2E7D32; font-weight: bold;">مدرسة المنيرة الخاصة</span>
+            <div class="countdown-box">
+                <h2>✨ اليوم هو الفلانتين يا شيراز ✨</h2>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        # قصة الاختباء
+        if st.button("👀 قصة اليوم اللي خبتي مني", key="hide_btn"):
+            st.session_state.show_hide_memory = not st.session_state.show_hide_memory
+        
+        if st.session_state.show_hide_memory:
+            st.markdown("""
+            <div class="hide-story">
+                <h3 style="color: #c71585; text-align: center;">😢 اليوم اللي خبتي مني</h3>
+                <p style="text-align: center; font-size: 18px; line-height: 1.8;">
+                    <br>
+                    أنا لسه فاكر اليوم دا... 📅<br>
+                    <br>
+                    كنت هقابلك أول مرة في حياتي، كنت مرتاح وحاسس إنو أخيراً راح أشوفك<br>
+                    جهزت نفسي، كنت متحمس، وقلبي كان بيدق بسرعة... 💓<br>
+                    <br>
+                    وبعدين... لقيتك خبتي مني 😔<br>
+                    <br>
+                    معرفش ليه، بس أكيد كان ليكي أسبابك<br>
+                    يمكن كنتي خايفة، يمكن مش مستعدة، يمكن حاجة تانية<br>
+                    <br>
+                    بس المهم إني سامحتك، وإني فاهمك<br>
+                    والله ما زعلت، بس تأذيت شوية في قلبي 💔<br>
+                    <br>
+                    بس بعديها فكرت، يمكن عشان كدا حبنا أقوى<br>
+                    يمكن عشان كدا بقيتي أغلى عندي<br>
+                    <br>
+                    المهم إني بحبك، وإني مستنيكي لما تبقى جاهزة 🤍<br>
+                </p>
+                <div style="text-align: center; font-size: 30px; margin-top: 20px;">
+                    💔 انتظرتك ❤️
                 </div>
             </div>
             """, unsafe_allow_html=True)
-    except Exception as e:
-        # في حالة وجود خطأ، نعرض العنوان بدون صورة
+        
+        # الرسالة
+        st.markdown('<div class="message-box">', unsafe_allow_html=True)
         st.markdown("""
-        <div class="main-title">
-            <div style="font-size: 3.5rem; margin-bottom: 10px;">🌿📚</div>
-            المكتبة البيئية الرقمية
-            <div style="font-size: 1.2rem; font-weight: normal; margin-top: 10px; opacity: 0.8;">
-                مركز المعرفة البيئية والاستدامة<br>
-                <span style="font-size: 1.2rem; color: #2E7D32; font-weight: bold;">مدرسة المنيرة الخاصة</span>
-            </div>
+        <div style="text-align: center; font-size: 18px; line-height: 1.8;">
+            <p><span class="highlight">يا أجمل شيراز</span></p>
+            
+            <p>أنا عارف إحنا ما قابلنا بعض face to face، ولسه ما شفتك في المدرسة... 🥺</p>
+            
+            <p>بس والله العظيم إني بحس بيكي، بحس بوجودك، بحس إنك أقرب ناس لقلبي</p>
+            
+            <p>يمكن حبنا مختلف، يمكن طريقنا صعب، يمكن في ناس بتستغرب، بس أنا واثق فينا 💪</p>
+            
+            <p><span class="highlight">أنا بحبك يا شيراز</span></p>
+            
+            <p>بحبك حتى ولو ما شفتك، بحبك حتى ولو ما التقينا، بحبك لأنك أنتي</p>
+            
+            <p style="font-size: 28px; font-weight: 900; color: #8B0000; margin: 30px 0;">
+                بحبك 💝
+            </p>
+            
+            <p style="font-size: 20px; opacity: 0.8;">
+                وأكيد راح تيجي الأيام الحلوة<br>
+                ونتقابل ونحكي ونضحك<br>
+                وننسى كل اللحظات الصعبة دي 🤍
+            </p>
         </div>
         """, unsafe_allow_html=True)
-    
-    # إذا كان المستخدم يشاهد مادة
-    if st.session_state['viewing_resource']:
-        display_resource_content(st.session_state['viewing_resource'])
+        st.markdown('</div>', unsafe_allow_html=True)
         
-        # زر العودة
-        if st.button("← العودة إلى المكتبة", type="primary", use_container_width=True):
-            st.session_state['viewing_resource'] = None
-            st.rerun()
-        return
-    
-    # الشريط الجانبي
-    with st.sidebar:
-        # محاولة تحميل الصورة في الشريط الجانبي
-        try:
-            if os.path.exists("images.jpeg"):
-                image = Image.open("images.jpeg")
-                # تحجيم الصورة للشريط الجانبي
-                st.image(image, caption="مدرسة المنيرة الخاصة", use_container_width=True)
-            else:
-                # إذا لم توجد الصورة، نعرض اسم المدرسة
+        # صندوق الموسيقى - ilomilo (مشغل فعلي)
+        st.markdown('<div class="music-box">', unsafe_allow_html=True)
+        
+        col_m1, col_m2 = st.columns([1, 3])
+        
+        with col_m1:
+            st.markdown('<div class="vinyl-record">🎵</div>', unsafe_allow_html=True)
+        
+        with col_m2:
+            st.markdown("""
+            <div style="text-align: right;">
+                <div style="font-size: 24px; font-weight: 700; color: #8B0000;">Billie Eilish</div>
+                <div style="font-size: 18px; color: #c71585;">ilomilo</div>
+                <div style="font-size: 14px; margin-top: 10px;">أغنيتك المفضلة</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        # مشغل الموسيقى الفعلي (YouTube embed)
+        if st.button("🎧 شغلي الأغنية", key="play_music_btn"):
+            play_song()
+        
+        if st.session_state.music_playing:
+            st.markdown("""
+            <div style="margin: 20px 0;">
+                <iframe width="100%" height="100" src="https://www.youtube.com/embed/KBtk5FUeJrw" 
+                title="ilomilo" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            </div>
+            <div style="text-align: center; color: #8B0000; font-size: 14px;">
+                🎵 ilomilo - Billie Eilish
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # كلمات الأغنية
+            with st.expander("🎤 كلمات ilomilo"):
                 st.markdown("""
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <div style="background: linear-gradient(135deg, #1B5E20, #2E7D32); 
-                                padding: 20px 15px; 
-                                border-radius: 10px;
-                                text-align: center;
-                                color: white;
-                                box-shadow: 0 4px 12px rgba(27, 94, 32, 0.3);">
-                        <div style="font-size: 1.8rem; font-weight: bold; margin-bottom: 10px;">A.M.P.S</div>
-                        <div style="font-size: 1.5rem; font-weight: bold;">ALMUNEERA</div>
-                        <div style="font-size: 1.2rem; opacity: 0.9; margin-top: 5px;">PRIVATE SCHOOL</div>
-                    </div>
-                    <div style="color: #2E7D32; font-weight: bold; margin-top: 10px; font-size: 1.1rem;">
-                        مدرسة المنيرة الخاصة
+                ```
+                Told you not to worry
+                But maybe that's a lie
+                Honey, what'd you hurry?
+                I've been here your whole life
+                
+                I don't want to be alone
+                I love you, won't you come home?
+                
+                Ilomilo, ilomilo, ilomilo
+                If you're not here, where'd you go?
+                ```
+                """)
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+        # ذكرياتنا
+        st.markdown("## 📸 لحظاتنا", unsafe_allow_html=True)
+        
+        memories = [
+            ("💭", "أول مرة كلمتك", "لسه فاكر أول رسالة بعتهالك وقلبي كان بيدق"),
+            ("🎵", "لما عرفت إنك بتحبي ilomilo", "من يومها صارت أغنيتنا إحنا الاثنين"),
+            ("🌙", "السهرة اللي فاتت", "لما قعدنا نحكي لين الصبح وما حسينا بالوقت"),
+            ("💔", "اليوم اللي خبتي مني", "لسه فاكره ويمكن عشان كدا أنا كاتب الرسالة دي"),
+            ("💭", "كل يوم بفكر فيكي", "حتى لو ما كنا سوا، انتي دايمًا في بالي")
+        ]
+        
+        for i, (emoji, title, desc) in enumerate(memories):
+            if i >= st.session_state.memory_shown:
+                if st.button(f"{emoji} {title}", key=f"memory_{i}"):
+                    st.session_state.memory_shown += 1
+                    st.rerun()
+                break
+            else:
+                st.markdown(f"""
+                <div class="memory-card">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="font-size: 30px;">{emoji}</div>
+                        <div>
+                            <div style="font-weight: 700; color: #8B0000;">{title}</div>
+                            <div style="opacity: 0.8;">{desc}</div>
+                        </div>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
-        except:
-            st.markdown("""
-            <div style="text-align: center; margin-bottom: 20px;">
-                <h3 style="color: #2E7D32;">مدرسة المنيرة الخاصة</h3>
-                <p style="color: #546E7A;">المكتبة البيئية الرقمية</p>
-            </div>
-            """, unsafe_allow_html=True)
         
-        # البحث
-        st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
-        st.markdown("### 🔍 بحث متقدم")
-        search_query = st.text_input("اكتب كلمة البحث...", 
-                                    placeholder="عنوان، مؤلف، أو كلمة مفتاحية",
-                                    value=st.session_state.get('search_query', ''))
-        st.session_state['search_query'] = search_query
-        st.markdown('</div>', unsafe_allow_html=True)
+        # الأزرار التفاعلية
+        st.markdown("## 💝 اضغطي", unsafe_allow_html=True)
         
-        # التصفية
-        st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
-        st.markdown("### 🎯 تصفية النتائج")
+        col_b1, col_b2, col_b3 = st.columns(3)
         
-        all_resources = get_all_resources()
-        all_categories = ["الكل"] + sorted(list(set([r.get('category', 'غير مصنف') for r in all_resources])))
-        all_types = ["الكل"] + sorted(list(set([r.get('type', 'غير محدد') for r in all_resources])))
-        
-        selected_category = st.selectbox(
-            "التصنيف", 
-            all_categories,
-            index=all_categories.index(st.session_state['selected_category']) if st.session_state['selected_category'] in all_categories else 0
-        )
-        
-        selected_type = st.selectbox(
-            "نوع المادة", 
-            all_types,
-            index=all_types.index(st.session_state['selected_type']) if st.session_state['selected_type'] in all_types else 0
-        )
-        
-        st.session_state['selected_category'] = selected_category
-        st.session_state['selected_type'] = selected_type
-        
-        # زر إعادة التعيين
-        if st.button("🔄 إعادة التعيين", use_container_width=True):
-            st.session_state['search_query'] = ""
-            st.session_state['selected_category'] = "الكل"
-            st.session_state['selected_type'] = "الكل"
-            st.rerun()
-        
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-        # إحصائيات
-        st.markdown('<div class="resource-stats-card">', unsafe_allow_html=True)
-        st.markdown("### 📊 إحصائيات")
-        
-        all_resources = get_all_resources()
-        total_count = len(all_resources)
-        total_downloads = sum([r.get('downloads', 0) for r in all_resources])
-        total_views = sum([r.get('views', 0) for r in all_resources])
-        
-        stats_cols = st.columns(2)
-        with stats_cols[0]:
-            st.metric("المواد", f"{total_count:,}")
-            st.metric("التحميلات", f"{total_downloads:,}")
-        with stats_cols[1]:
-            st.metric("المشاهدات", f"{total_views:,}")
-            st.metric("معدل التفاعل", "85%")
-        
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-        # مساعدة
-        st.markdown("""
-        <div class="sidebar-section">
-            <h4>💡 مساعدة سريعة</h4>
-            <p>• اضغط على أي بطاقة لعرض التفاصيل</p>
-            <p>• استخدم البحث للعثور على مواضيع محددة</p>
-            <p>• اختر التصنيفات لتنظيم النتائج</p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    # المحتوى الرئيسي
-    st.markdown("### 📚 المجموعة المتاحة")
-    
-    # فلترة المواد
-    resources_data = get_all_resources()
-    
-    if st.session_state['search_query']:
-        search_query = st.session_state['search_query'].lower()
-        resources_data = [r for r in resources_data 
-                         if search_query in r['title'].lower() 
-                         or search_query in r.get('author', '').lower()
-                         or search_query in r.get('description', '').lower()
-                         or search_query in r.get('category', '').lower()]
-    
-    if st.session_state['selected_category'] != "الكل":
-        resources_data = [r for r in resources_data if r.get('category') == st.session_state['selected_category']]
-    
-    if st.session_state['selected_type'] != "الكل":
-        resources_data = [r for r in resources_data if r.get('type') == st.session_state['selected_type']]
-    
-    # عرض عدد النتائج
-    if resources_data:
-        st.markdown(f"**تم العثور على {len(resources_data)} نتيجة**")
-    else:
-        st.info("⚠️ لم يتم العثور على نتائج تطابق بحثك. جرب استخدام مصطلحات بحث مختلفة.")
-    
-    # عرض المواد
-    cols_per_row = 3
-    
-    for i in range(0, len(resources_data), cols_per_row):
-        cols = st.columns(cols_per_row)
-        
-        for j in range(cols_per_row):
-            if i + j < len(resources_data):
-                resource = resources_data[i + j]
-                
-                with cols[j]:
-                    card_html = f"""
-                    <div class="resource-card">
-                        <div class="resource-type">{resource.get("type", "مادة")}</div>
-                        <div class="resource-icon">{resource.get("icon", "📄")}</div>
-                        <div class="resource-title">{resource["title"]}</div>
-                        <div class="resource-description">{resource["description"]}</div>
-                        <div class="resource-category">{resource.get("category", "غير مصنف")}</div>
-                    """
-                    
-                    if resource.get('downloads'):
-                        card_html += f'<div class="download-count">⬇️ {resource["downloads"]:,}</div>'
-                    elif resource.get('views'):
-                        card_html += f'<div class="download-count">👁️ {resource["views"]:,}</div>'
-                    
-                    card_html += "</div>"
-                    
-                    st.markdown(card_html, unsafe_allow_html=True)
-                    
-                    # زر العرض
-                    if st.button(f"عرض التفاصيل", key=f"view_{resource['id']}", use_container_width=True):
-                        st.session_state['viewing_resource'] = resource
-                        st.rerun()
-
-if __name__ == "__main__":
-    main()
+        with col_b1:
+            if st.button("💌 رسالة حب", key="btn_love"):
+                st.session_state.show_me
