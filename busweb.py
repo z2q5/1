@@ -873,7 +873,7 @@ def main():
                     I promise to always care for you <br><br>
                     and love you with all my heart 💗💗
                 </p>
-                <div style="text-align: center; font-size: 30px;">💔 I Waited ❤️</div>
+                <div style="text-align: center; font-size: 30px;">i love you 💗</div>
             </div>
             """, unsafe_allow_html=True)
         
