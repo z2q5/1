@@ -2,6 +2,7 @@ import streamlit as st
 import datetime
 import random
 import time
+import base64
 
 # ===== Page Config =====
 st.set_page_config(
@@ -29,7 +30,34 @@ if "show_hide_memory" not in st.session_state:
 if "gift_opened" not in st.session_state:
     st.session_state.gift_opened = False
 
-# ===== Custom CSS =====
+# ===== NEW: Interactive Enhancements =====
+if "reaction_count" not in st.session_state:
+    st.session_state.reaction_count = 0
+if "last_reaction" not in st.session_state:
+    st.session_state.last_reaction = None
+if "message_replies" not in st.session_state:
+    st.session_state.message_replies = []
+if "heart_messages" not in st.session_state:
+    st.session_state.heart_messages = [
+        "💭 I'm thinking of you...",
+        "🎵 ilomilo is playing in my head",
+        "🌙 The moon shines for you",
+        "📱 Why didn't you text me today?",
+        "💝 Shiraz...",
+        "⭐ You're the prettiest star in the sky",
+        "🌹 Today's rose is for you",
+        "💌 You're always on my mind"
+    ]
+if "sound_played" not in st.session_state:
+    st.session_state.sound_played = False
+
+# ===== NEW: Real Time Timer =====
+if "first_chat_date" not in st.session_state:
+    st.session_state.first_chat_date = datetime.datetime(2026, 1, 15)  # Change this to your actual first chat date
+if "dream_meeting_date" not in st.session_state:
+    st.session_state.dream_meeting_date = datetime.datetime(2026, 6, 1)  # Change this to when you hope to meet
+
+# ===== Custom CSS (Original + New Design Enhancements) =====
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700;900&display=swap');
@@ -42,6 +70,7 @@ st.markdown("""
     .stApp {
         background: linear-gradient(135deg, #ffd1d1 0%, #ffe6f0 50%, #fff0f5 100%);
         background-attachment: fixed;
+        transition: background 1s ease;
     }
     
     h1, h2, h3, h4, h5, h6, p, div, span {
@@ -381,6 +410,120 @@ st.markdown("""
         color: #d43f8d !important;
     }
     
+    /* ===== NEW: Design Enhancements ===== */
+    
+    /* Glass Card Effect */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 8px 32px rgba(255, 105, 180, 0.1);
+    }
+    
+    /* Neon Text Effect */
+    .neon-text {
+        color: #fff;
+        text-shadow: 
+            0 0 7px #fff,
+            0 0 10px #fff,
+            0 0 21px #fff,
+            0 0 42px #ff69b4,
+            0 0 82px #ff69b4,
+            0 0 92px #ff69b4,
+            0 0 102px #ff69b4,
+            0 0 151px #ff69b4;
+        animation: flicker 1.5s infinite alternate;
+    }
+    
+    @keyframes flicker {
+        0%, 18%, 22%, 25%, 53%, 57%, 100% {
+            text-shadow: 
+                0 0 4px #fff,
+                0 0 11px #fff,
+                0 0 19px #fff,
+                0 0 40px #ff69b4,
+                0 0 80px #ff69b4,
+                0 0 90px #ff69b4,
+                0 0 100px #ff69b4,
+                0 0 150px #ff69b4;
+        }
+        20%, 24%, 55% {        
+            text-shadow: none;
+        }
+    }
+    
+    /* Hover Card Effect */
+    .hover-card {
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    
+    .hover-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 30px 60px rgba(255, 105, 180, 0.3);
+    }
+    
+    /* Wave Effect */
+    .wave-effect {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .wave-effect::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        transform: translate(-50%, -50%);
+        transition: width 0.3s, height 0.3s;
+    }
+    
+    .wave-effect:active::after {
+        width: 200px;
+        height: 200px;
+    }
+    
+    /* Typing Effect */
+    .typing-effect {
+        overflow: hidden;
+        border-right: .15em solid #ff69b4;
+        white-space: nowrap;
+        margin: 0 auto;
+        animation: 
+            typing 3.5s steps(40, end),
+            blink-caret .75s step-end infinite;
+    }
+    
+    @keyframes typing {
+        from { width: 0; }
+        to { width: 100%; }
+    }
+    
+    @keyframes blink-caret {
+        from, to { border-color: transparent; }
+        50% { border-color: #ff69b4; }
+    }
+    
+    /* Pulse Heart Effect */
+    .pulse-heart {
+        animation: heartbeat 2s infinite;
+    }
+    
+    /* Pop In Animation */
+    @keyframes popIn {
+        0% { transform: scale(0); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    
+    .pop-in {
+        animation: popIn 0.5s;
+    }
+    
     /* Mobile Responsive */
     @media (max-width: 768px) {
         .title {
@@ -413,7 +556,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ===== Helper Functions =====
+# ===== Helper Functions (Original + New) =====
 def create_floating_hearts():
     """Generate floating hearts"""
     hearts_html = ""
@@ -448,6 +591,56 @@ def countdown_to_valentine():
     
     return days, hours, minutes, seconds
 
+# ===== NEW: Interactive Functions =====
+def get_random_heart_message():
+    """Random message when clicking heart"""
+    return random.choice(st.session_state.heart_messages)
+
+def add_reaction(reaction_type):
+    """Track reactions"""
+    st.session_state.reaction_count += 1
+    st.session_state.last_reaction = {
+        "type": reaction_type,
+        "time": datetime.datetime.now().strftime("%H:%M"),
+        "count": st.session_state.reaction_count
+    }
+
+# ===== NEW: Real Time Timer Functions =====
+def time_since_first_chat():
+    """Time since first chat"""
+    now = datetime.datetime.now()
+    diff = now - st.session_state.first_chat_date
+    return diff.days
+
+def time_until_dream_meeting():
+    """Countdown to dream meeting"""
+    now = datetime.datetime.now()
+    diff = st.session_state.dream_meeting_date - now
+    return max(0, diff.days)
+
+def get_time_of_day_greeting():
+    """Greeting based on time of day"""
+    hour = datetime.datetime.now().hour
+    if hour < 12:
+        return "🌅 Good morning Shiraz"
+    elif hour < 17:
+        return "☀️ Good afternoon my love"
+    elif hour < 20:
+        return "🌆 Good evening beautiful"
+    else:
+        return "🌙 Good night Shiraz, dream of me"
+
+# ===== NEW: Audio Functions =====
+def get_audio_player(audio_url, autoplay=False):
+    """Create audio player"""
+    autoplay_attr = "autoplay" if autoplay else ""
+    return f"""
+    <audio {autoplay_attr} controls style="width: 100%; margin: 10px 0;">
+        <source src="{audio_url}" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
+    """
+
 # ===== Main Page =====
 def main():
     # Floating hearts
@@ -468,10 +661,75 @@ def main():
         
         if st.button("❤️ Click the heart"):
             st.session_state.heart_click += 1
+            add_reaction("heart_click")
             if st.session_state.heart_click % 5 == 0:
                 st.balloons()
     
     st.markdown("<h1 class='title'>For You Shiraz 💝</h1>", unsafe_allow_html=True)
+    
+    # ===== NEW: Time-based Greeting =====
+    st.markdown(f"""
+    <div style="
+        background: linear-gradient(135deg, #fff0f5, #ffe6f0);
+        padding: 15px;
+        border-radius: 50px;
+        text-align: center;
+        margin: 10px 0 20px 0;
+        border: 2px solid #ff69b4;
+    ">
+        <h3 style="color: #d43f8d; margin: 0;">{get_time_of_day_greeting()}</h3>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # ===== NEW: Interactive Heart Messages =====
+    if st.session_state.heart_click > 0:
+        if st.session_state.heart_click % 3 == 0:
+            st.markdown(f"""
+            <div class="pop-in" style="
+                background: rgba(255, 255, 255, 0.9);
+                padding: 15px;
+                border-radius: 50px;
+                text-align: center;
+                margin: 10px 0;
+                border: 2px solid #ff69b4;
+            ">
+                <p style="color: #d43f8d; font-size: 18px; margin: 0;">
+                    {get_random_heart_message()}
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        if st.session_state.heart_click == 10:
+            st.balloons()
+            st.markdown("""
+            <div style="
+                background: linear-gradient(135deg, #ffd700, #ff69b4);
+                padding: 20px;
+                border-radius: 15px;
+                text-align: center;
+                margin: 20px 0;
+                border: 3px solid white;
+            ">
+                <h3 style="color: white; margin: 0;">✨ 10 times you clicked my heart ✨</h3>
+                <p style="color: white;">Each time a flower blooms in my heart 💐</p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        if st.session_state.heart_click == 25:
+            st.snow()
+            st.markdown("""
+            <div style="
+                background: linear-gradient(135deg, #87CEEB, #FF69B4);
+                padding: 20px;
+                border-radius: 15px;
+                text-align: center;
+                margin: 20px 0;
+                border: 3px solid white;
+            ">
+                <h3 style="color: white; margin: 0;">❄️ 25 times... ❄️</h3>
+                <p style="color: white;">Each click makes the world more beautiful 💕</p>
+            </div>
+            """, unsafe_allow_html=True)
     
     # Main Card
     with st.container():
@@ -487,7 +745,98 @@ def main():
         </div>
         """, unsafe_allow_html=True)
         
-        # Countdown
+        # ===== NEW: Real Time Timers =====
+        st.markdown("---")
+        st.markdown("### ⏰ Time Trackers", unsafe_allow_html=True)
+        
+        col_t1, col_t2 = st.columns(2)
+        
+        with col_t1:
+            days_since = time_since_first_chat()
+            st.markdown(f"""
+            <div class="hover-card" style="
+                background: white;
+                padding: 20px;
+                border-radius: 15px;
+                text-align: center;
+                border: 2px solid #ff69b4;
+                box-shadow: 0 5px 15px rgba(255,105,180,0.2);
+            ">
+                <h4 style="color: #d43f8d;">⏰ Since First Chat</h4>
+                <div style="font-size: 48px; font-weight: 900; color: #ff1493;">{days_since}</div>
+                <div style="color: #666;">days</div>
+                <p style="color: #888; font-size: 14px; margin-top: 10px;">
+                    And I still feel like I've known you forever 💭
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col_t2:
+            days_until = time_until_dream_meeting()
+            if days_until > 0:
+                st.markdown(f"""
+                <div class="hover-card" style="
+                    background: white;
+                    padding: 20px;
+                    border-radius: 15px;
+                    text-align: center;
+                    border: 2px solid #ff69b4;
+                    box-shadow: 0 5px 15px rgba(255,105,180,0.2);
+                ">
+                    <h4 style="color: #d43f8d;">🤞 Until We Meet</h4>
+                    <div style="font-size: 48px; font-weight: 900; color: #ff1493;">{days_until}</div>
+                    <div style="color: #666;">days</div>
+                    <p style="color: #888; font-size: 14px; margin-top: 10px;">
+                        Can't wait for that moment 💕
+                    </p>
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.markdown(f"""
+                <div style="
+                    background: linear-gradient(135deg, #ff69b4, #ff1493);
+                    padding: 20px;
+                    border-radius: 15px;
+                    text-align: center;
+                    border: 2px solid white;
+                ">
+                    <h4 style="color: white;">✨ Meeting Time ✨</h4>
+                    <div style="font-size: 24px; color: white;">Finally I'll see you 🤍</div>
+                </div>
+                """, unsafe_allow_html=True)
+        
+        # Live time display
+        st.markdown(f"""
+        <div style="
+            background: rgba(255,255,255,0.5);
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 10px 0;
+            font-size: 14px;
+            color: #666;
+            border: 1px dashed #ff69b4;
+        ">
+            🕒 Now: {datetime.datetime.now().strftime("%A, %B %d, %Y - %I:%M %p")}
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Animated progress bar
+        st.markdown("### ⏳ Time passes and my love grows", unsafe_allow_html=True)
+        progress_bar = st.progress(0)
+        for i in range(100):
+            if i % 25 == 0:
+                progress_bar.progress(i/100)
+                time.sleep(0.01)
+        st.markdown("""
+        <p style="text-align: center; color: #d43f8d;">
+            Every second makes me love you more 💝
+        </p>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("---")
+        
+        # Original Valentine's Day countdown
         countdown = countdown_to_valentine()
         if countdown:
             days, hours, minutes, seconds = countdown
@@ -506,6 +855,7 @@ def main():
         # The hiding story
         if st.button("👀 The day you hid from me"):
             st.session_state.show_hide_memory = not st.session_state.show_hide_memory
+            add_reaction("hide_story")
         
         if st.session_state.show_hide_memory:
             st.markdown("""
@@ -550,10 +900,114 @@ def main():
         
         if st.button("🎧 Play ilomilo"):
             st.session_state.music_playing = not st.session_state.music_playing
+            add_reaction("music_play")
         
         if st.session_state.music_playing:
             st.video("https://youtu.be/-e7wiyNO2us?si=JYVdDi6YmadDeAJx")
             st.balloons()
+        
+        # ===== NEW: Audio Section =====
+        st.markdown("### 🎵 Sounds from the Heart", unsafe_allow_html=True)
+        
+        col_s1, col_s2 = st.columns(2)
+        
+        with col_s1:
+            st.markdown("""
+            <div style="
+                background: white;
+                padding: 15px;
+                border-radius: 15px;
+                border: 2px solid #ff69b4;
+            ">
+                <h4 style="color: #d43f8d; text-align: center;">ilomilo (sample)</h4>
+                <audio controls style="width: 100%;">
+                    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mp3">
+                </audio>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col_s2:
+            st.markdown("""
+            <div style="
+                background: white;
+                padding: 15px;
+                border-radius: 15px;
+                border: 2px solid #ff69b4;
+            ">
+                <h4 style="color: #d43f8d; text-align: center;">❤️ Heartbeat</h4>
+                <audio controls style="width: 100%;">
+                    <source src="https://www.soundjay.com/misc/heartbeat-1.mp3" type="audio/mp3">
+                </audio>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        # Sound buttons
+        st.markdown("### 🎚️ Talking Buttons", unsafe_allow_html=True)
+        
+        col_btn1, col_btn2, col_btn3 = st.columns(3)
+        
+        with col_btn1:
+            st.markdown("""
+            <button onclick="new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3').play();" 
+            style="
+                background: linear-gradient(135deg, #ff69b4, #d43f8d);
+                color: white;
+                border: none;
+                border-radius: 50px;
+                padding: 15px;
+                font-size: 18px;
+                font-weight: 700;
+                cursor: pointer;
+                border: 2px solid white;
+                width: 100%;
+                transition: all 0.3s ease;
+                margin: 5px 0;
+            ">
+                🔔 Thinking of you
+            </button>
+            """, unsafe_allow_html=True)
+        
+        with col_btn2:
+            st.markdown("""
+            <button onclick="new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-06.mp3').play();" 
+            style="
+                background: linear-gradient(135deg, #ff69b4, #d43f8d);
+                color: white;
+                border: none;
+                border-radius: 50px;
+                padding: 15px;
+                font-size: 18px;
+                font-weight: 700;
+                cursor: pointer;
+                border: 2px solid white;
+                width: 100%;
+                transition: all 0.3s ease;
+                margin: 5px 0;
+            ">
+                💝 I love you
+            </button>
+            """, unsafe_allow_html=True)
+        
+        with col_btn3:
+            st.markdown("""
+            <button onclick="new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-07.mp3').play();" 
+            style="
+                background: linear-gradient(135deg, #ff69b4, #d43f8d);
+                color: white;
+                border: none;
+                border-radius: 50px;
+                padding: 15px;
+                font-size: 18px;
+                font-weight: 700;
+                cursor: pointer;
+                border: 2px solid white;
+                width: 100%;
+                transition: all 0.3s ease;
+                margin: 5px 0;
+            ">
+                🎵 ilomilo
+            </button>
+            """, unsafe_allow_html=True)
         
         # Gift
         st.markdown("## 🎁 A Gift For You", unsafe_allow_html=True)
@@ -562,6 +1016,7 @@ def main():
             if st.button("🎀 Open Your Gift"):
                 st.session_state.gift_opened = True
                 st.balloons()
+                add_reaction("gift_opened")
         
         if st.session_state.gift_opened:
             st.markdown("""
@@ -582,22 +1037,151 @@ def main():
             """, unsafe_allow_html=True)
         
         # Buttons
-        col_b1, col_b2 = st.columns(2)
+        col_b1, col_b2, col_b3 = st.columns(3)
         
         with col_b1:
             if st.button("💌 Love Message"):
                 st.session_state.show_message = not st.session_state.show_message
+                add_reaction("love_message")
         
         with col_b2:
             if st.button("❤️ I Love You"):
                 st.session_state.love_count += 1
                 st.balloons()
+                add_reaction("love_click")
+        
+        with col_b3:
+            if st.button("💭 Thinking of You"):
+                st.info(f"💭 {get_random_heart_message()}")
+                add_reaction("thinking")
         
         if st.session_state.show_message:
             st.info("❤️ I love you Shiraz! You mean everything to me ❤️")
         
         if st.session_state.love_count > 0:
             st.markdown(f"<p style='text-align: center;'>❤️ {st.session_state.love_count} times today ❤️</p>", unsafe_allow_html=True)
+        
+        # ===== NEW: Last Reaction Display =====
+        if st.session_state.last_reaction:
+            st.markdown(f"""
+            <div style="
+                background: #fff0f5;
+                padding: 10px;
+                border-radius: 10px;
+                text-align: center;
+                margin: 10px 0;
+                border: 1px solid #ff69b4;
+            ">
+                <p style="color: #666; margin: 0; font-size: 14px;">
+                    Last reaction: {st.session_state.last_reaction['type']} 
+                    at {st.session_state.last_reaction['time']}
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        # ===== NEW: Design Touches =====
+        st.markdown("---")
+        st.markdown("### ✨ Love Touches ✨", unsafe_allow_html=True)
+        
+        col_d1, col_d2, col_d3, col_d4 = st.columns(4)
+        
+        with col_d1:
+            st.markdown("""
+            <div class="hover-card" style="
+                background: white;
+                padding: 20px;
+                border-radius: 15px;
+                text-align: center;
+                border: 2px solid #ff69b4;
+            ">
+                <div style="font-size: 40px;">💝</div>
+                <p style="color: #d43f8d;">Love</p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col_d2:
+            st.markdown("""
+            <div class="hover-card" style="
+                background: white;
+                padding: 20px;
+                border-radius: 15px;
+                text-align: center;
+                border: 2px solid #ff69b4;
+            ">
+                <div style="font-size: 40px;">⭐</div>
+                <p style="color: #d43f8d;">Hope</p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col_d3:
+            st.markdown("""
+            <div class="hover-card" style="
+                background: white;
+                padding: 20px;
+                border-radius: 15px;
+                text-align: center;
+                border: 2px solid #ff69b4;
+            ">
+                <div style="font-size: 40px;">🌹</div>
+                <p style="color: #d43f8d;">Longing</p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col_d4:
+            st.markdown("""
+            <div class="hover-card" style="
+                background: white;
+                padding: 20px;
+                border-radius: 15px;
+                text-align: center;
+                border: 2px solid #ff69b4;
+            ">
+                <div style="font-size: 40px;">💭</div>
+                <p style="color: #d43f8d;">Memory</p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        # Typing effect
+        st.markdown("""
+        <div style="
+            background: rgba(255,255,255,0.5);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+        ">
+            <h3 class="typing-effect" style="color: #d43f8d; width: fit-content; margin: 0 auto;">
+                Shiraz... you're the best thing in my life
+            </h3>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Neon effect
+        st.markdown("""
+        <div style="
+            background: #1a1a2e;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+        ">
+            <h2 class="neon-text">I ❤️ Shiraz</h2>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Pulsing hearts
+        st.markdown("""
+        <div style="
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        ">
+            <div class="pulse-heart" style="font-size: 40px;">❤️</div>
+            <div class="pulse-heart" style="font-size: 50px; animation-delay: 0.3s;">💖</div>
+            <div class="pulse-heart" style="font-size: 40px; animation-delay: 0.6s;">💝</div>
+        </div>
+        """, unsafe_allow_html=True)
         
         # Signature
         st.markdown("""
