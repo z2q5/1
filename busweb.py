@@ -43,7 +43,7 @@ if "heart_messages" not in st.session_state:
         "🎵 ilomilo is playing in my head",
         "🌙 The moon shines for you",
         "📱 Why didn't you text me today?",
-        "💝 Shiraz...",
+        "💗 Shiraz...",
         "⭐ You're the prettiest star in the sky",
         "💌 You're always on my mind"
     ]
@@ -317,7 +317,7 @@ st.markdown("""
     }
     
     .hide-story::before {
-        content: "👀";
+        content: "💗";
         position: absolute;
         top: 10px;
         left: 10px;
@@ -667,7 +667,7 @@ def main():
             if st.session_state.heart_click % 5 == 0:
                 st.balloons()
     
-    st.markdown("<h1 class='title'>For You Shiraz 💝</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 class='title'>For You Shiraz 💗</h1>", unsafe_allow_html=True)
     
     # Time-based Greeting
     st.markdown(f"""
@@ -743,7 +743,7 @@ def main():
             <div class="photo-frame"><div class="photo-placeholder">🤷‍♀️</div></div>
             <div class="photo-frame"><div class="photo-placeholder">🤷‍♂️</div></div>
             <div class="photo-frame"><div class="photo-placeholder">💭</div></div>
-            <div class="photo-frame"><div class="photo-placeholder">🌹</div></div>
+            <div class="photo-frame"><div class="photo-placeholder">💗</div></div>
         </div>
         """, unsafe_allow_html=True)
         
@@ -832,7 +832,7 @@ def main():
                 time.sleep(0.01)
         st.markdown("""
         <p style="text-align: center; color: #d43f8d;">
-            404 days and still counting... every second makes me love you more 💝
+            404 days and still counting... every second makes me love you more 💗
         </p>
         """, unsafe_allow_html=True)
         
