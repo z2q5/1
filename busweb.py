@@ -856,7 +856,7 @@ def main():
             """, unsafe_allow_html=True)
         
         # The hiding story
-        if st.button("👀 The day you hid from me"):
+        if st.button("I will love you forever 💗"):
             st.session_state.show_hide_memory = not st.session_state.show_hide_memory
             add_reaction("hide_story")
         
