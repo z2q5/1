@@ -549,7 +549,7 @@ st.markdown("""
     }
     
     .stText {
-        color: #333333 !important;
+        color: #f2f0f0 !important;
     }
     
     iframe {
@@ -863,15 +863,15 @@ def main():
         if st.session_state.show_hide_memory:
             st.markdown("""
             <div class="hide-story">
-                <h3 style="text-align: center;">💔 The Day You Hid From Me</h3>
+                <h3 style="text-align: center;">I will love you forever 💗</h3>
                 <p style="text-align: center; font-size: 18px; line-height: 1.8;">
-                    I still remember that day...<br><br>
-                    I was going to meet you for the first time.<br>
-                    My heart was beating so fast...<br><br>
-                    And then... you hid from me 😔<br><br>
-                    I don't know why, but I understand.<br>
-                    What matters is that I forgive you.<br><br>
-                    I'll wait for you until you're ready 🤍
+                   Happy Valentine’s Day ❤️<br><br>
+                    I just want you to know that I will always love you.<br>
+                    no matter what happens or where life takes us.<br><br>
+                    You mean so much to me, and you make my life brighter just by being in it.<br><br>
+                    Thank you for being you and for making my heart so happy.<br>
+                    I promise to always care for you <br><br>
+                    and love you with all my heart 💗💗
                 </p>
                 <div style="text-align: center; font-size: 30px;">💔 I Waited ❤️</div>
             </div>
