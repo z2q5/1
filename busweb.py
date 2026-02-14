@@ -6,7 +6,7 @@ import base64
 
 # ===== Page Config =====
 st.set_page_config(
-    page_title="💝 For Shiraz 💝",
+    page_title="💗 For Shiraz 💗",
     page_icon="❤️",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -45,7 +45,6 @@ if "heart_messages" not in st.session_state:
         "📱 Why didn't you text me today?",
         "💝 Shiraz...",
         "⭐ You're the prettiest star in the sky",
-        "🌹 Today's rose is for you",
         "💌 You're always on my mind"
     ]
 if "sound_played" not in st.session_state:
@@ -567,7 +566,7 @@ def create_floating_hearts():
         left = random.randint(0, 100)
         delay = random.uniform(0, 4)
         size = random.randint(15, 25)
-        hearts = ["❤️", "💖", "💝", "💗", "💓", "💕"]
+        hearts = ["❤️", "💖", "💗", "💓", "💕"]
         heart = random.choice(hearts)
         hearts_html += f"""
         <div class="floating-heart" style="
@@ -887,7 +886,7 @@ def main():
                 <span class="highlight">I love you Shiraz</span><br><br>
                 I love you even though I haven't seen you.<br>
                 I love you because you're you.<br><br>
-                <span style="font-size: 28px; color: #d43f8d;">I Love You 💝</span>
+                <span style="font-size: 28px; color: #d43f8d;">I Love You 💗</span>
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -987,7 +986,7 @@ def main():
                 transition: all 0.3s ease;
                 margin: 5px 0;
             ">
-                💝 I love you
+                💗 I love you
             </button>
             """, unsafe_allow_html=True)
         
@@ -1028,7 +1027,7 @@ def main():
                 <h3>For You Shiraz</h3>
             </div>
             <div class="gift-content">
-                <h3 style="color: #d43f8d; text-align: center;">💝 My Gift</h3>
+                <h3 style="color: #d43f8d; text-align: center;">💗 My Gift</h3>
                 <p style="text-align: center;">
                     This whole page is my gift to you<br>
                     Every heart is for you<br>
@@ -1097,7 +1096,7 @@ def main():
                 text-align: center;
                 border: 2px solid #ff69b4;
             ">
-                <div style="font-size: 40px;">💝</div>
+                <div style="font-size: 40px;">💗</div>
                 <p style="color: #d43f8d;">Love</p>
             </div>
             """, unsafe_allow_html=True)
@@ -1182,7 +1181,7 @@ def main():
         ">
             <div class="pulse-heart" style="font-size: 40px;">❤️</div>
             <div class="pulse-heart" style="font-size: 50px; animation-delay: 0.3s;">💖</div>
-            <div class="pulse-heart" style="font-size: 40px; animation-delay: 0.6s;">💝</div>
+            <div class="pulse-heart" style="font-size: 40px; animation-delay: 0.6s;">💗</div>
         </div>
         """, unsafe_allow_html=True)
         
