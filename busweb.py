@@ -30,7 +30,7 @@ if "show_hide_memory" not in st.session_state:
 if "gift_opened" not in st.session_state:
     st.session_state.gift_opened = False
 
-# ===== NEW: Interactive Enhancements =====
+# ===== Interactive Enhancements =====
 if "reaction_count" not in st.session_state:
     st.session_state.reaction_count = 0
 if "last_reaction" not in st.session_state:
@@ -51,13 +51,18 @@ if "heart_messages" not in st.session_state:
 if "sound_played" not in st.session_state:
     st.session_state.sound_played = False
 
-# ===== NEW: Real Time Timer =====
+# ===== Real Time Timer - UPDATED DATES =====
+# First chat was approximately 404 days ago from Feb 14, 2026
+# That would be around January 6, 2025
 if "first_chat_date" not in st.session_state:
-    st.session_state.first_chat_date = datetime.datetime(2026, 1, 15)  # Change this to your actual first chat date
-if "dream_meeting_date" not in st.session_state:
-    st.session_state.dream_meeting_date = datetime.datetime(2026, 6, 1)  # Change this to when you hope to meet
+    st.session_state.first_chat_date = datetime.datetime(2025, 1, 6)  # 404 days before Feb 14, 2026
 
-# ===== Custom CSS (Original + New Design Enhancements) =====
+# Birthday is 202 days from Feb 14, 2026
+# That would be around September 4, 2026
+if "birthday_date" not in st.session_state:
+    st.session_state.birthday_date = datetime.datetime(2026, 9, 4)  # 202 days from Feb 14, 2026
+
+# ===== Custom CSS =====
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700;900&display=swap');
@@ -410,8 +415,6 @@ st.markdown("""
         color: #d43f8d !important;
     }
     
-    /* ===== NEW: Design Enhancements ===== */
-    
     /* Glass Card Effect */
     .glass-card {
         background: rgba(255, 255, 255, 0.7);
@@ -556,7 +559,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ===== Helper Functions (Original + New) =====
+# ===== Helper Functions =====
 def create_floating_hearts():
     """Generate floating hearts"""
     hearts_html = ""
@@ -591,7 +594,7 @@ def countdown_to_valentine():
     
     return days, hours, minutes, seconds
 
-# ===== NEW: Interactive Functions =====
+# ===== Interactive Functions =====
 def get_random_heart_message():
     """Random message when clicking heart"""
     return random.choice(st.session_state.heart_messages)
@@ -605,17 +608,17 @@ def add_reaction(reaction_type):
         "count": st.session_state.reaction_count
     }
 
-# ===== NEW: Real Time Timer Functions =====
+# ===== UPDATED: Real Time Timer Functions =====
 def time_since_first_chat():
-    """Time since first chat"""
+    """Time since first chat - approximately 404 days"""
     now = datetime.datetime.now()
     diff = now - st.session_state.first_chat_date
     return diff.days
 
-def time_until_dream_meeting():
-    """Countdown to dream meeting"""
+def time_until_birthday():
+    """Time until Shiraz's birthday - 202 days from now"""
     now = datetime.datetime.now()
-    diff = st.session_state.dream_meeting_date - now
+    diff = st.session_state.birthday_date - now
     return max(0, diff.days)
 
 def get_time_of_day_greeting():
@@ -624,13 +627,13 @@ def get_time_of_day_greeting():
     if hour < 12:
         return "🌅 Good morning Shiraz"
     elif hour < 17:
-        return "☀️ Good afternoon my love"
+        return "☀️ Good afternoon beautiful"
     elif hour < 20:
-        return "🌆 Good evening beautiful"
+        return "🌆 Good evening my love"
     else:
         return "🌙 Good night Shiraz, dream of me"
 
-# ===== NEW: Audio Functions =====
+# ===== Audio Functions =====
 def get_audio_player(audio_url, autoplay=False):
     """Create audio player"""
     autoplay_attr = "autoplay" if autoplay else ""
@@ -667,7 +670,7 @@ def main():
     
     st.markdown("<h1 class='title'>For You Shiraz 💝</h1>", unsafe_allow_html=True)
     
-    # ===== NEW: Time-based Greeting =====
+    # Time-based Greeting
     st.markdown(f"""
     <div style="
         background: linear-gradient(135deg, #fff0f5, #ffe6f0);
@@ -681,7 +684,7 @@ def main():
     </div>
     """, unsafe_allow_html=True)
     
-    # ===== NEW: Interactive Heart Messages =====
+    # Interactive Heart Messages
     if st.session_state.heart_click > 0:
         if st.session_state.heart_click % 3 == 0:
             st.markdown(f"""
@@ -745,14 +748,14 @@ def main():
         </div>
         """, unsafe_allow_html=True)
         
-        # ===== NEW: Real Time Timers =====
+        # ===== UPDATED: Real Time Timers with 404 and 202 =====
         st.markdown("---")
         st.markdown("### ⏰ Time Trackers", unsafe_allow_html=True)
         
         col_t1, col_t2 = st.columns(2)
         
         with col_t1:
-            days_since = time_since_first_chat()
+            days_since = time_since_first_chat()  # This will show approximately 404 days
             st.markdown(f"""
             <div class="hover-card" style="
                 background: white;
@@ -766,13 +769,13 @@ def main():
                 <div style="font-size: 48px; font-weight: 900; color: #ff1493;">{days_since}</div>
                 <div style="color: #666;">days</div>
                 <p style="color: #888; font-size: 14px; margin-top: 10px;">
-                    And I still feel like I've known you forever 💭
+                    404 days of thinking about you, and every day I love you more 💭
                 </p>
             </div>
             """, unsafe_allow_html=True)
         
         with col_t2:
-            days_until = time_until_dream_meeting()
+            days_until = time_until_birthday()  # This will show approximately 202 days
             if days_until > 0:
                 st.markdown(f"""
                 <div class="hover-card" style="
@@ -783,11 +786,11 @@ def main():
                     border: 2px solid #ff69b4;
                     box-shadow: 0 5px 15px rgba(255,105,180,0.2);
                 ">
-                    <h4 style="color: #d43f8d;">🤞 Until We Meet</h4>
+                    <h4 style="color: #d43f8d;">🎂 Until Your Birthday</h4>
                     <div style="font-size: 48px; font-weight: 900; color: #ff1493;">{days_until}</div>
                     <div style="color: #666;">days</div>
                     <p style="color: #888; font-size: 14px; margin-top: 10px;">
-                        Can't wait for that moment 💕
+                        202 days until I get to celebrate you! Can't wait 🎉
                     </p>
                 </div>
                 """, unsafe_allow_html=True)
@@ -800,8 +803,8 @@ def main():
                     text-align: center;
                     border: 2px solid white;
                 ">
-                    <h4 style="color: white;">✨ Meeting Time ✨</h4>
-                    <div style="font-size: 24px; color: white;">Finally I'll see you 🤍</div>
+                    <h4 style="color: white;">🎂 Happy Birthday Shiraz! 🎂</h4>
+                    <div style="font-size: 24px; color: white;">Today is all about you! 🎉</div>
                 </div>
                 """, unsafe_allow_html=True)
         
@@ -830,13 +833,13 @@ def main():
                 time.sleep(0.01)
         st.markdown("""
         <p style="text-align: center; color: #d43f8d;">
-            Every second makes me love you more 💝
+            404 days and still counting... every second makes me love you more 💝
         </p>
         """, unsafe_allow_html=True)
         
         st.markdown("---")
         
-        # Original Valentine's Day countdown
+        # Valentine's Day countdown
         countdown = countdown_to_valentine()
         if countdown:
             days, hours, minutes, seconds = countdown
@@ -906,7 +909,7 @@ def main():
             st.video("https://youtu.be/-e7wiyNO2us?si=JYVdDi6YmadDeAJx")
             st.balloons()
         
-        # ===== NEW: Audio Section =====
+        # Audio Section
         st.markdown("### 🎵 Sounds from the Heart", unsafe_allow_html=True)
         
         col_s1, col_s2 = st.columns(2)
@@ -1031,7 +1034,7 @@ def main():
                     Every heart is for you<br>
                     Every word is from my heart<br>
                     Your favorite song is here<br>
-                    My love for you ❤️
+                    My love for you after 404 days ❤️
                 </p>
             </div>
             """, unsafe_allow_html=True)
@@ -1056,12 +1059,12 @@ def main():
                 add_reaction("thinking")
         
         if st.session_state.show_message:
-            st.info("❤️ I love you Shiraz! You mean everything to me ❤️")
+            st.info("❤️ I love you Shiraz! You mean everything to me after 404 days and counting ❤️")
         
         if st.session_state.love_count > 0:
             st.markdown(f"<p style='text-align: center;'>❤️ {st.session_state.love_count} times today ❤️</p>", unsafe_allow_html=True)
         
-        # ===== NEW: Last Reaction Display =====
+        # Last Reaction Display
         if st.session_state.last_reaction:
             st.markdown(f"""
             <div style="
@@ -1079,7 +1082,7 @@ def main():
             </div>
             """, unsafe_allow_html=True)
         
-        # ===== NEW: Design Touches =====
+        # Design Touches
         st.markdown("---")
         st.markdown("### ✨ Love Touches ✨", unsafe_allow_html=True)
         
@@ -1151,7 +1154,7 @@ def main():
             text-align: center;
         ">
             <h3 class="typing-effect" style="color: #d43f8d; width: fit-content; margin: 0 auto;">
-                Shiraz... you're the best thing in my life
+                404 days of loving you, 202 days until your birthday Shiraz
             </h3>
         </div>
         """, unsafe_allow_html=True)
@@ -1165,7 +1168,7 @@ def main():
             margin: 20px 0;
             text-align: center;
         ">
-            <h2 class="neon-text">I ❤️ Shiraz</h2>
+            <h2 class="neon-text">404 ❤️ 202</h2>
         </div>
         """, unsafe_allow_html=True)
         
@@ -1188,6 +1191,7 @@ def main():
         <div class="signature">
             <div>❤️ Eyad ❤️</div>
             <div>February 14, 2026</div>
+            <div style="font-size: 16px; margin-top: 10px;">404 days and counting... 202 days until your birthday 🎂</div>
         </div>
         """, unsafe_allow_html=True)
         
