@@ -49,20 +49,31 @@ modern_dark_css = """
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
     }
     
-    /* صندوق التابز الفاخر */
-    .tab-container {
+    /* حاوية التابز العمودية الفاخرة */
+    .vertical-tab-container {
         background-color: #090d16;
-        color: #58a6ff; /* أزرق مريح للعين وعالي الوضوح */
-        font-family: 'Courier New', Courier, monospace;
-        font-weight: bold;
-        padding: 18px;
+        padding: 15px;
         border-radius: 8px;
         border: 1px solid #21262d;
-        white-space: pre;
-        overflow-x: auto;
-        line-height: 1.6;
-        font-size: 1.1rem;
+        max-height: 400px;
+        overflow-y: auto;
     }
+
+    /* أسطر النوتات العمودية */
+    .tab-step {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 1.1rem;
+        padding: 6px 12px;
+        margin-bottom: 4px;
+        border-radius: 4px;
+        background: #161b22;
+        border-left: 3px solid #58a6ff;
+        display: flex;
+        justify-content: space-between;
+    }
+    .tab-step .step-num { color: #8b949e; font-size: 0.85rem; }
+    .tab-step .string-name { color: #ff7b72; font-weight: bold; }
+    .tab-step .fret-num { color: #58a6ff; font-weight: bold; }
 
     /* صندوق الكوردات المصاحبة */
     .chord-box {
@@ -71,6 +82,7 @@ modern_dark_css = """
         padding: 12px;
         border-radius: 6px;
         margin: 5px 0;
+        font-weight: bold;
     }
     
     /* الأزرار العصرية */
@@ -88,9 +100,6 @@ modern_dark_css = """
         background: #388bfd !important;
         transform: translateY(-1px);
     }
-    .stButton>button:active {
-        transform: translateY(1px);
-    }
     
     /* النصوص الجانبية الهادئة */
     .sub-text {
@@ -102,60 +111,50 @@ modern_dark_css = """
 st.markdown(modern_dark_css, unsafe_allow_html=True)
 
 # ==========================================
-# 🧠 محرك التوليد الذكي للتابز والكوردات
+# 🧠 محرك التوليد الذكي للتابز (العمودي)
 # ==========================================
-def generate_guitar_tab(genre, difficulty):
-    """يولد تابز قيتار وكوردات متناسقة بناءً على الخيارات"""
+def generate_vertical_tab(genre, difficulty):
+    """يولد خطوات عزف تتابعية عمودية واضحة جداً لكل وتر"""
     
     if difficulty == "Easy":
-        length = 8
-        frets = [0, 2, 3, 5, 0, 3, 2, 0]
+        steps_count = 8
+        frets_pool = [0, 2, 3, 5]
     elif difficulty == "Intermediate":
-        length = 12
-        frets = [0, 2, 3, 5, 7, 8, 7, 5, 3, 2, 0, 0]
+        steps_count = 12
+        frets_pool = [0, 2, 3, 5, 7, 8]
     else: # Hard
-        length = 16
-        frets = [0, 2, 3, 5, 7, 8, 10, 12, 11, 7, 5, 4, 2, 3, 2, 0]
+        steps_count = 16
+        frets_pool = [0, 2, 3, 5, 7, 8, 10, 12, 11]
 
-    # كوردات احترافية حسب النمط الموسيقي المختار
     chords_pool = {
-        "Rock / Post-Punk": ["Am", "G", "F", "C", "Em"],
-        "Metal / Progress": ["Em", "C5", "D5", "A5", "F#5"],
-        "Math Rock / Emo-Jazz": ["Cmaj7", "Bm7", "Em9", "G6", "Am9"],
-        "Acoustic / Indie Pop": ["G", "D", "Em", "C", "Am"]
+        "Acoustic / Indie Pop": ["G", "D", "Em", "C"],
+        "Rock / Post-Punk": ["Am", "F", "C", "G"],
+        "Metal / Progress": ["Em", "C5", "D5", "A5"],
+        "Math Rock / Emo-Jazz": ["Cmaj7", "Bm7", "Em9", "G6"]
     }
     
     selected_chords = chords_pool.get(genre, ["G", "C"])
+    guitar_strings = ['e (High)', 'B', 'G', 'D', 'A', 'E (Low)']
     
-    # بناء أسطر التابز للأوتار الستة
-    strings = { 'E': ["-"], 'A': ["-"], 'D': ["-"], 'G': ["-"], 'B': ["-"], 'e': ["-"] }
-    
-    for _ in range(length):
-        fret = str(random.choice(frets))
-        active_string = random.choice(['E', 'A', 'D', 'G', 'B', 'e'])
+    # توليد خطوات العزف خطوة بخطوة بالترتيب الزمني
+    steps = []
+    for i in range(steps_count):
+        chosen_string = random.choice(guitar_strings)
+        chosen_fret = random.choice(frets_pool)
+        steps.append({
+            "step": i + 1,
+            "string": chosen_string,
+            "fret": chosen_fret
+        })
         
-        for s in strings:
-            if s == active_string:
-                strings[s].append(fret + "-")
-            else:
-                strings[s].append("-" * (len(fret) + 1))
-                
-        for s in strings:
-            strings[s].append("-")
-
-    # توليد التاب كأوتار منفصلة للعرض المرن
-    tab_lines = {}
-    for s in ['e', 'B', 'G', 'D', 'A', 'E']:
-        tab_lines[s] = f"{s}|{''.join(strings[s])}"
-        
-    title = f"Composition No. {random.randint(100, 999)}"
+    title = f"Riff Session #{random.randint(100, 999)}"
     
     return {
         "title": title,
         "genre": genre,
         "difficulty": difficulty,
         "chords": selected_chords,
-        "tab_lines": tab_lines
+        "steps": steps
     }
 
 # ==========================================
@@ -166,11 +165,10 @@ st.markdown("<h1>What I'm doing in my life</h1>", unsafe_allow_html=True)
 st.markdown("<p class='sub-text'>An interactive smart assistant to invent, explore, and save unique guitar tabs.</p>", unsafe_allow_html=True)
 st.markdown("<br>", unsafe_allow_html=True)
 
-# تقسيم الشاشة الرئيسي: مساحة العمل على اليسار، الأرشيف على اليمين
+# تقسيم الشاشة الرئيسي
 main_col1, main_col2 = st.columns([2.2, 1])
 
 with main_col1:
-    # لوحة التحكم والإعدادات
     st.markdown("### ⚙️ Generation Settings")
     
     config_col1, config_col2 = st.columns(2)
@@ -185,11 +183,10 @@ with main_col1:
             options=["Easy", "Intermediate", "Hard"]
         )
         
-    # أزرار التشغيل والحفظ
     btn_col1, btn_col2 = st.columns(2)
     with btn_col1:
         if st.button("🎸 Invent New Tab"):
-            st.session_state.current_tab_data = generate_guitar_tab(song_genre, difficulty_level)
+            st.session_state.current_tab_data = generate_vertical_tab(song_genre, difficulty_level)
             st.session_state.generated_count += 1
             
     with btn_col2:
@@ -202,25 +199,34 @@ with main_col1:
 
     st.markdown("---")
 
-    # عرض النتائج: فصل الكوردات في جهة والتابز في جهة داخل كرت العرض
+    # عرض النتائج مع التابز الرأسية المقروءة
     if st.session_state.current_tab_data:
         data = st.session_state.current_tab_data
         
         st.markdown(f"### 🎵 Now Playing: {data['title']}")
         
-        # إنشاء عمودين داخل كرت العرض: عمود للكوردات وعمود للتابز
-        display_col1, display_col2 = st.columns([1, 3])
+        display_col1, display_col2 = st.columns([1, 2.5])
         
         with display_col1:
-            st.markdown("##### 🎼 Chords")
+            st.markdown("##### 🎼 Background Chords")
             for chord in data['chords']:
-                st.markdown(f"<div class='chord-box'><b>{chord}</b></div>", unsafe_allow_html=True)
+                st.markdown(f"<div class='chord-box'>{chord}</div>", unsafe_allow_html=True)
                 
         with display_col2:
-            st.markdown("##### 📋 Guitar Tabs")
-            # تجميع أسطر التابز
-            full_tab_text = "\n".join([data['tab_lines'][s] for s in ['e', 'B', 'G', 'D', 'A', 'E']])
-            st.markdown(f"<pre class='tab-container'>{full_tab_text}</pre>", unsafe_allow_html=True)
+            st.markdown("##### 📋 Play Order (Top to Bottom)")
+            
+            # بناء قائمة الخطوات الرأسية
+            tab_html = "<div class='vertical-tab-container'>"
+            for step in data['steps']:
+                tab_html += f"""
+                <div class='tab-step'>
+                    <span class='step-num'>Step {step['step']}</span>
+                    <span>Pluck String: <span class='string-name'>{step['string']}</span></span>
+                    <span>Fret: <span class='fret-num'>{step['fret']}</span></span>
+                </div>
+                """
+            tab_html += "</div>"
+            st.markdown(tab_html, unsafe_allow_html=True)
             
     else:
         st.markdown("<div class='custom-card' style='text-align:center;'><p class='sub-text'>Your fretboard is currently clear. Choose your preferences above and click 'Invent New Tab'.</p></div>", unsafe_allow_html=True)
@@ -233,11 +239,20 @@ with main_col2:
         for i, saved_data in enumerate(st.session_state.saved_tabs):
             with st.expander(f"🎸 {saved_data['title']} ({saved_data['difficulty']})"):
                 st.markdown(f"**Style:** {saved_data['genre']}")
-                st.markdown("**Suggested Progression:** " + " → ".join(saved_data['chords']))
+                st.markdown("**Progression:** " + " → ".join(saved_data['chords']))
                 
-                # تجميع التاب المصغر داخل الأرشيف
-                saved_tab_text = "\n".join([saved_data['tab_lines'][s] for s in ['e', 'B', 'G', 'D', 'A', 'E']])
-                st.markdown(f"<pre class='tab-container' style='font-size:0.85rem; padding:10px;'>{saved_tab_text}</pre>", unsafe_allow_html=True)
+                # عرض التاب العمودي داخل الأرشيف
+                saved_tab_html = "<div class='vertical-tab-container' style='max-height: 250px;'>"
+                for step in saved_data['steps']:
+                    saved_tab_html += f"""
+                    <div class='tab-step' style='font-size:0.9rem; padding:4px 8px;'>
+                        <span class='step-num'>#{step['step']}</span>
+                        <span>String: <span class='string-name'>{step['string']}</span></span>
+                        <span>Fret: <span class='fret-num'>{step['fret']}</span></span>
+                    </div>
+                    """
+                saved_tab_html += "</div>"
+                st.markdown(saved_tab_html, unsafe_allow_html=True)
                 
                 if st.button(f"Remove Track", key=f"del_{i}"):
                     st.session_state.saved_tabs.pop(i)
@@ -246,7 +261,7 @@ with main_col2:
         st.markdown("<p class='sub-text' style='font-style: italic;'>No saved tabs in your library yet.</p>", unsafe_allow_html=True)
 
 # ==========================================
-# ⏱️ شريط الإحصائيات السفلي الأنيق
+# ⏱️ شريط الإحصائيات السفلي
 # ==========================================
 st.markdown("<br><br>", unsafe_allow_html=True)
 foot_col1, foot_col2 = st.columns(2)
